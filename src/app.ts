@@ -1,10 +1,14 @@
 import { Application } from "pixi.js"
+import { Scene } from "./scene"
 import * as COLORS from "./colors"
 import { TextSprite } from "./text_sprite"
+import { GameScene } from "./game"
 
 export class GameApp extends Application {
     faviconCanvas: HTMLCanvasElement
     faviconCtx: CanvasRenderingContext2D
+
+    mainScene: Scene | null
 
     constructor() {
         super()
@@ -14,6 +18,8 @@ export class GameApp extends Application {
         this.faviconCanvas.height = 16
 
         this.faviconCtx = this.faviconCanvas.getContext("2d")!
+
+        this.mainScene = null
     }
 
     async initPixi() {
@@ -36,29 +42,27 @@ export class GameApp extends Application {
         document.getElementById("favicon")!.setAttribute("href", this.faviconCanvas.toDataURL())
     }
 
-    async run() {
+    setScene(scene: Scene) {
+        if (scene.app !== this) throw new Error("Scene has incorrect app!") // Should never happen
+
+        // Remove the old scene
+        if (this.mainScene !== null) this.stage.removeChild(this.mainScene)
+
+        this.mainScene = scene
+        this.stage.addChild(this.mainScene)
+    }
+
+    async startApp() {
         await this.initPixi()
 
         this.drawFavicon()        
 
-        // Create a userSprite Sprite
-        const userSprite = new TextSprite("@")
-
-        // Center the sprite's anchor point
-        userSprite.anchor.set(0.5);
-
-        // Move the sprite to the center of the screen
-        userSprite.position.set(this.screen.width / 2, this.screen.height / 2);
-
-        // Add the userSprite to the stage
-        this.stage.addChild(userSprite);
+        const game = new GameScene(this)
+        this.setScene(game)
 
         // Listen for animate update
         this.ticker.add((ticker) => {
-            // Just for fun, let's rotate mr rabbit a little.
-            // * Delta is 1 if running at 100% performance *
-            // * Creates frame-independent transformation *
-            userSprite.rotation += 0.1 * ticker.deltaTime;
+            this.mainScene!.update(ticker.deltaMS)
         });
     }
 }
