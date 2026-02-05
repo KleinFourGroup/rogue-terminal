@@ -18,7 +18,7 @@ export class GameScene extends Container implements IScene {
         this.player.anchor.set(0.5)
 
         // Move the sprite to the center of the screen
-        this.player.position.set(this.app.screen.width / 2, this.app.screen.height / 2)
+        this.player.position.set(this.app.width / 2, this.app.height / 2)
 
         // Add the userSprite to the stage
         this.addChild(this.player)
@@ -27,5 +27,9 @@ export class GameScene extends Container implements IScene {
     update(deltaMS: number): void {
         this.player.rotation += deltaMS * 2 * Math.PI / 1000
     }
-
+    
+    updateResolution(): void {
+        // Move the sprite to the center of the screen
+        this.player.position.set(this.app.width / 2, this.app.height / 2)
+    }
 }

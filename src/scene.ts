@@ -5,6 +5,7 @@ export interface IScene {
     app: GameApp
 
     update(deltaMS: number): void
+    updateResolution(): void
 }
 
 export type Scene = Container & IScene

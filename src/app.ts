@@ -67,15 +67,16 @@ export class GameApp extends Application {
         this.sceneStage.addChild(this.mainScene)
     }
 
+    updateResolution() {
+        this.width = this.screen.width
+        this.height = this.screen.height
+        this.debugOverlay.updateResolution()
+        this.mainScene?.updateResolution()
+    }
+
     update(deltaMS: number) {
         let updateResolution = (this.width !== this.renderer.width || this.height !== this.renderer.height)
-
-        // Probably will move this around
-        if (updateResolution) {
-            this.width = this.renderer.width
-            this.height = this.renderer.height
-            this.debugOverlay.updateDisplay(this.width, this.height)
-        }
+        if (updateResolution) this.updateResolution()
 
         this.mainScene!.update(deltaMS)
     }
@@ -87,6 +88,8 @@ export class GameApp extends Application {
 
         const game = new GameScene(this)
         this.setScene(game)
+
+        this.updateResolution()
 
         // Listen for animate update
         this.ticker.add((ticker) => {

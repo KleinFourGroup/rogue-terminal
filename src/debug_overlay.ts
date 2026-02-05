@@ -23,8 +23,8 @@ export class DebugOverlay extends Container {
         this.addChild(this.text)
     }
 
-    updateDisplay(width: number, height: number) {
-        this.text.text = `${width}x${height}`
-        this.text.position.set(width - 5, 5)
+    updateResolution() {
+        this.text.text = `${this.app.width}x${this.app.height}`
+        this.text.position.set(this.app.width - 5, 5)
     }
 }
