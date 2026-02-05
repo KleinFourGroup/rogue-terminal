@@ -1,6 +1,6 @@
 import { Container, Text } from "pixi.js"
 import { GameApp } from "./app";
-import { TERMINAL_GREEN } from "./colors";
+import { COLORS } from "./colors";
 
 export class DebugOverlay extends Container {
     app: GameApp
@@ -13,7 +13,7 @@ export class DebugOverlay extends Container {
         this.text = new Text({
             text: "",
             style: {
-                fill: TERMINAL_GREEN,
+                fill: COLORS.TERMINAL_GREEN,
                 fontSize: 24
             }
         })

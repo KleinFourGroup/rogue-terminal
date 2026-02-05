@@ -1,6 +1,6 @@
 import { Application, Container } from "pixi.js"
 import { Scene } from "./scene"
-import * as COLORS from "./colors"
+import { COLORS } from "./colors"
 import { GameScene } from "./game"
 import { DebugOverlay } from "./debug_overlay"
 

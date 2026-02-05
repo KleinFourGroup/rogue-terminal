@@ -1,5 +1,5 @@
 import { Sprite, Texture } from "pixi.js"
-import * as COLORS from "./colors"
+import { COLORS } from "./colors"
 
 export const TILE_SIZE = 64
 

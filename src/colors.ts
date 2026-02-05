@@ -1,2 +1,4 @@
-export const TERMINAL_BLACK = "#282828"
-export const TERMINAL_GREEN = "#33FF00"
+export enum COLORS {
+    TERMINAL_BLACK = "#282828",
+    TERMINAL_GREEN = "#33FF00"
+}
