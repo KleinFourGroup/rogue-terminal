@@ -1,23 +1,38 @@
-import { Application } from "pixi.js"
+import { Application, Container } from "pixi.js"
 import { Scene } from "./scene"
 import * as COLORS from "./colors"
-import { TextSprite } from "./text_sprite"
 import { GameScene } from "./game"
+import { DebugOverlay } from "./debug_overlay"
 
 export class GameApp extends Application {
+    width: number
+    height: number
+
     faviconCanvas: HTMLCanvasElement
     faviconCtx: CanvasRenderingContext2D
+
+    debugOverlay: DebugOverlay
+    sceneStage: Container
 
     mainScene: Scene | null
 
     constructor() {
         super()
-        
+
+        this.width = -1
+        this.height = -1
+
         this.faviconCanvas = document.createElement("canvas")
         this.faviconCanvas.width = 16
         this.faviconCanvas.height = 16
 
         this.faviconCtx = this.faviconCanvas.getContext("2d")!
+
+        this.debugOverlay = new DebugOverlay(this)
+        this.sceneStage = new Container()
+
+        this.stage.addChild(this.sceneStage)
+        this.stage.addChild(this.debugOverlay)
 
         this.mainScene = null
     }
@@ -46,10 +61,23 @@ export class GameApp extends Application {
         if (scene.app !== this) throw new Error("Scene has incorrect app!") // Should never happen
 
         // Remove the old scene
-        if (this.mainScene !== null) this.stage.removeChild(this.mainScene)
+        if (this.mainScene !== null) this.sceneStage.removeChild(this.mainScene)
 
         this.mainScene = scene
-        this.stage.addChild(this.mainScene)
+        this.sceneStage.addChild(this.mainScene)
+    }
+
+    update(deltaMS: number) {
+        let updateResolution = (this.width !== this.renderer.width || this.height !== this.renderer.height)
+
+        // Probably will move this around
+        if (updateResolution) {
+            this.width = this.renderer.width
+            this.height = this.renderer.height
+            this.debugOverlay.updateDisplay(this.width, this.height)
+        }
+
+        this.mainScene!.update(deltaMS)
     }
 
     async startApp() {
@@ -62,7 +90,7 @@ export class GameApp extends Application {
 
         // Listen for animate update
         this.ticker.add((ticker) => {
-            this.mainScene!.update(ticker.deltaMS)
+            this.update(ticker.deltaMS)
         });
     }
 }
