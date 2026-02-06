@@ -78,7 +78,11 @@ export class GameApp extends Application {
         let updateResolution = (this.width !== this.renderer.width || this.height !== this.renderer.height)
         if (updateResolution) this.updateResolution()
 
+        this.debugOverlay.update(deltaMS)
+        const start = performance.now()
         this.mainScene!.update(deltaMS)
+        const end = performance.now()
+        this.debugOverlay.pushWork(end - start) // At the end so it shows up next frame
     }
 
     async startApp() {
