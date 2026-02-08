@@ -1,8 +1,7 @@
-import { Container } from "pixi.js";
-import { IScene } from "./scene";
-import { GameApp } from "./app";
-import { TextSprite } from "./text_sprite";
-
+import { Container } from "pixi.js"
+import { IScene } from "./scene"
+import { GameApp } from "./app"
+import { TextSprite } from "./text_sprite"
 
 export class GameScene extends Container implements IScene {
     app: GameApp

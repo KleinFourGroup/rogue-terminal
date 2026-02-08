@@ -50,6 +50,6 @@ export class AssetLoader {
             amount += this.loadingStatus[path] ? 1 : this.loadingProgress[path]
         }
 
-        return amount / size
+        return (size == 0) ? 1 : amount / size
     }
 }

@@ -3,6 +3,8 @@ import { Scene } from "./scene"
 import { COLORS } from "./colors"
 import { GameScene } from "./game"
 import { DebugOverlay } from "./debug_overlay"
+import { LoadingScreen } from "./loading_screen"
+import { AssetLoader } from "./assets"
 
 export class GameApp extends Application {
     width: number
@@ -64,6 +66,7 @@ export class GameApp extends Application {
         if (this.mainScene !== null) this.sceneStage.removeChild(this.mainScene)
 
         this.mainScene = scene
+        this.mainScene.updateResolution()
         this.sceneStage.addChild(this.mainScene)
     }
 
@@ -90,8 +93,11 @@ export class GameApp extends Application {
 
         this.drawFavicon()        
 
+        const loader = new AssetLoader()
         const game = new GameScene(this)
-        this.setScene(game)
+
+        const loadScreen = new LoadingScreen(this, loader, game)
+        this.setScene(loadScreen)
 
         this.updateResolution()
 
