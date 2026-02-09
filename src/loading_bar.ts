@@ -58,13 +58,13 @@ export class LoadingBar extends Container {
         this.outerRectRight.height = height
 
         // Top / bottom edges
-        this.outerRectTop.position.set(OUTLINE_WIDTH, 0)
+        this.outerRectTop.position.set(OUTLINE_WIDTH, 0) // Redundant; delete if performance is an issue
         this.outerRectBottom.position.set(OUTLINE_WIDTH, height - OUTLINE_WIDTH)
         this.outerRectTop.width = width - 2 * OUTLINE_WIDTH
         this.outerRectBottom.width = width - 2 * OUTLINE_WIDTH
 
         // Inner rect
-        this.innerRect.position.set(OUTLINE_WIDTH + INNER_MARGIN)
+        this.innerRect.position.set(OUTLINE_WIDTH + INNER_MARGIN) // Redundant; delete if performance is an issue
         this.innerRect.width = (width - 2 * (OUTLINE_WIDTH + INNER_MARGIN)) * this.progress
         this.innerRect.height = height - 2 * (OUTLINE_WIDTH + INNER_MARGIN)
     }
