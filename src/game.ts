@@ -1,13 +1,18 @@
 import { Container } from "pixi.js"
 import { IScene } from "./scene"
 import { GameApp } from "./app"
-import { TextSprite } from "./text_sprite"
+import { TextSprite, TILE_SIZE } from "./text_sprite"
 import { Camera } from "./camera"
+
+const ROWS = 10
+const COLS = 10
 
 export class GameScene extends Container implements IScene {
     app: GameApp
     camera: Camera
     player: TextSprite
+    ground: Container
+    elapsed: number
 
     constructor(app: GameApp) {
         super()
@@ -15,16 +20,29 @@ export class GameScene extends Container implements IScene {
         this.camera = new Camera(this.app, this)
 
         this.player = new TextSprite("@")
-        
-        // Center the sprite's anchor point
-        this.player.anchor.set(0.5)
+        this.ground = new Container()
 
-        // Add the userSprite to the stage
+        const grid: TextSprite[][] = []
+
+        for (let row = 0; row < ROWS; row++) {
+            grid.push([])
+            for (let col = 0; col < COLS; col++) {
+                const tile = new TextSprite(".")
+                tile.position.set(row * TILE_SIZE, col * TILE_SIZE)
+                grid[row].push(tile)
+                this.ground.addChild(tile)
+            }
+        }
+
+        this.elapsed = 0
+
+        this.addChild(this.ground)
         this.addChild(this.player)
     }
 
     update(deltaMS: number): void {
-        this.player.rotation += deltaMS * 2 * Math.PI / 1000
+        this.elapsed += deltaMS * 2 * Math.PI / 1000
+        this.camera.setRotation(this.elapsed)
     }
     
     updateResolution(): void {
