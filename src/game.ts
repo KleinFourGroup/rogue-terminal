@@ -4,14 +4,16 @@ import { GameApp } from "./app"
 import { TextSprite, TILE_SIZE } from "./text_sprite"
 import { Camera } from "./camera"
 import { Entity } from "./entity"
+import { EntityList } from "./entity_list"
 
-const ROWS = 10
-const COLS = 10
+const ROWS = 11
+const COLS = 11
 
 export class GameScene extends Container implements IScene {
     app: GameApp
     camera: Camera
     player: Entity
+    entities: EntityList
     ground: Container
     elapsed: number
 
@@ -20,7 +22,9 @@ export class GameScene extends Container implements IScene {
         this.app = app
         this.camera = new Camera(this.app, this)
 
-        this.player = new Entity("@")
+        this.player = new Entity("@", Math.floor(ROWS / 2), Math.floor(COLS / 2))
+        this.entities = new EntityList(COLS, ROWS)
+
         this.ground = new Container()
 
         const grid: TextSprite[][] = []
@@ -32,16 +36,24 @@ export class GameScene extends Container implements IScene {
                 tile.position.set(row * TILE_SIZE, col * TILE_SIZE)
                 grid[row].push(tile)
                 this.ground.addChild(tile)
+
+                if (row === 0 || row === ROWS - 1 || col === 0 || col === COLS - 1) {
+                    const wall = new Entity("#", row, col)
+                    this.entities.addEntity(wall)
+                }
             }
         }
+
+        this.entities.addEntity(this.player)
 
         this.elapsed = 0
 
         this.addChild(this.ground)
-        this.addChild(this.player.sprite)
+        this.addChild(this.entities.stage)
     }
 
     tick() {
+        console.log("Tick!")
         let dx = 0, dy = 0
         do {
             const rand = Math.floor(Math.random() * 8)
@@ -82,13 +94,10 @@ export class GameScene extends Container implements IScene {
                     dx = 0
                     dy = 0
             }
-        } while (this.player.col + dx < 0 || this.player.col + dx >= COLS || this.player.row + dy < 0 || this.player.row + dy >= ROWS)
 
-        this.player.col += dx
-        this.player.row += dy
+        } while (!this.entities.isFree(this.player.row + dy, this.player.col + dx) || this.player.col + dx < 0 || this.player.col + dx >= COLS || this.player.row + dy < 0 || this.player.row + dy >= ROWS)
 
-        this.player.sprite.x = this.player.col * TILE_SIZE
-        this.player.sprite.y = this.player.row * TILE_SIZE
+        this.player.setPosition(this.player.row + dy, this.player.col + dx)
         // console.log(this.player.row, this.player.col)
     }
 
@@ -99,7 +108,7 @@ export class GameScene extends Container implements IScene {
             this.elapsed -= 1000
         }
 
-        this.camera.setPosition(this.player.col * TILE_SIZE + this.player.width * TILE_SIZE / 2, this.player.row * TILE_SIZE + this.player.height * TILE_SIZE / 2)
+        this.camera.setPosition(this.player.sprite.x, this.player.sprite.y)
     }
     
     updateResolution(): void {

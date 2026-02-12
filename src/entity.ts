@@ -1,4 +1,4 @@
-import { TextSprite } from "./text_sprite";
+import { TextSprite, TILE_SIZE } from "./text_sprite";
 
 export class Entity {
     sprite: TextSprite
@@ -15,5 +15,20 @@ export class Entity {
         this.col = col
         this.width = width
         this.height = height
+        
+        this.sprite.anchor.set(0.5)
+        this.sprite.position.set(this.col * TILE_SIZE + this.width * TILE_SIZE / 2, this.row * TILE_SIZE + this.height * TILE_SIZE / 2)
+    }
+
+    setPosition(row: number, col: number) {
+        this.row = row
+        this.col = col
+
+        this.sprite.position.set(this.col * TILE_SIZE + this.width * TILE_SIZE / 2, this.row * TILE_SIZE + this.height * TILE_SIZE / 2)
+        // console.log(this.row, this.col)
+    }
+
+    tileCollision(row: number, col: number) {
+        return (row >= this.row && row < this.row + this.height && col >= this.col && col < this.col + this.width)
     }
 }
