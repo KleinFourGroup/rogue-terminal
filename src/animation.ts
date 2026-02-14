@@ -6,11 +6,23 @@ type AnimationFrame = (target: Entity, scene: Scene) => void
 
 type KeyframedAnimationData = {
     keyframes: number[]
-    frameAnimations: AnimationFrame[]
-    betweenAnimations: AnimationInterval[]
+    frameAnimations: (AnimationFrame | null)[]
+    betweenAnimations: (AnimationInterval | null)[]
 }
 
-export class KeyframedAnimation {
+export interface IAnimation {
+    elapsed: number
+    duration: number
+    loop: boolean
+
+    init(deltaMS: number): void
+    finish(deltaMS: number): void
+    animate(deltaMS: number): void
+
+    isFinished(): boolean
+}
+
+export class KeyframedAnimation implements IAnimation {
     animation: KeyframedAnimationData
     target: Entity
     scene: Scene
@@ -39,6 +51,10 @@ export class KeyframedAnimation {
         return this.animation.keyframes[this.animation.keyframes.length - 1]
     }
 
+    isFinished() {
+        return this.elapsed > this.duration && !this.loop
+    }
+
     init(deltaMS: number = 0) {
         this.animate(deltaMS)
     }
@@ -53,7 +69,7 @@ export class KeyframedAnimation {
         while (this.lastKeyframe < this.animation.keyframes.length) {
             // console.log(`Processing frame ${frameInd}`)
             if (this.animation.frameAnimations[this.lastKeyframe] !== null) {
-                this.animation.frameAnimations[this.lastKeyframe](this.target, this.scene)
+                this.animation.frameAnimations[this.lastKeyframe]!(this.target, this.scene)
             }
             this.elapsed = this.duration
             this.lastKeyframe++
@@ -71,7 +87,7 @@ export class KeyframedAnimation {
             while (frameInd < this.animation.keyframes.length && this.animation.keyframes[frameInd] <= this.elapsed) {
                 // console.log(`Processing frame ${frameInd}`)
                 if (this.animation.frameAnimations[frameInd] !== null) {
-                    this.animation.frameAnimations[frameInd](this.target, this.scene)
+                    this.animation.frameAnimations[frameInd]!(this.target, this.scene)
                 }
                 processedTime = this.animation.keyframes[frameInd]
                 this.lastKeyframe = frameInd
@@ -85,7 +101,7 @@ export class KeyframedAnimation {
                 let overflow = this.elapsed - this.animation.keyframes[this.lastKeyframe]
                 processedTime = this.elapsed
                 if (this.animation.betweenAnimations[this.lastKeyframe] !== null) {
-                    this.animation.betweenAnimations[this.lastKeyframe](overflow, this.target, this.scene)
+                    this.animation.betweenAnimations[this.lastKeyframe]!(overflow, this.target, this.scene)
                 }
             }
 
