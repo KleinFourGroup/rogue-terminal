@@ -5,14 +5,40 @@ import { TextSprite, TILE_SIZE } from "./text_sprite"
 import { Camera } from "./camera"
 import { Entity } from "./entity"
 import { EntityList } from "./entity_list"
+import { getSmoothMove } from "./move_action"
 
 const ROWS = 11
 const COLS = 11
+
+function randomDirection() {
+    const rand = Math.floor(Math.random() * 8)
+        switch (rand) {
+            case 0:
+                return [1, 1]
+            case 1:
+                return [1, 0]
+            case 2:
+                return [1, -1]
+            case 3:
+                return [0, 1]
+            case 4:
+                return [0, -1]
+            case 5:
+                return [-1, 1]
+            case 6:
+                return [-1, 0]
+            case 7:
+                return [-1, -1]
+            default:
+                return [0, 0]
+        }
+}
 
 export class GameScene extends Container implements IScene {
     app: GameApp
     camera: Camera
     player: Entity
+    currentTurn: Entity | null
     entities: EntityList
     ground: Container
     elapsed: number
@@ -23,6 +49,9 @@ export class GameScene extends Container implements IScene {
         this.camera = new Camera(this.app, this)
 
         this.player = new Entity("@", Math.floor(ROWS / 2), Math.floor(COLS / 2))
+        this.player.hasAI = true
+
+        this.currentTurn = null
         this.entities = new EntityList(COLS, ROWS)
 
         this.ground = new Container()
@@ -56,56 +85,32 @@ export class GameScene extends Container implements IScene {
         console.log("Tick!")
         let dx = 0, dy = 0
         do {
-            const rand = Math.floor(Math.random() * 8)
-            switch (rand) {
-                case 0:
-                    dx = 1
-                    dy = 1
-                    break
-                case 1:
-                    dx = 1
-                    dy = 0
-                    break
-                case 2:
-                    dx = 1
-                    dy = -1
-                    break
-                case 3:
-                    dx = 0
-                    dy = 1
-                    break
-                case 4:
-                    dx = 0
-                    dy = -1
-                    break
-                case 5:
-                    dx = -1
-                    dy = 1
-                    break
-                case 6:
-                    dx = -1
-                    dy = 0
-                    break
-                case 7:
-                    dx = -1
-                    dy = -1
-                    break
-                default:
-                    dx = 0
-                    dy = 0
-            }
+            [dx, dy] = randomDirection()
+        } while (!this.entities.isFree(this.currentTurn!.row + dy, this.currentTurn!.col + dx) || this.currentTurn!.col + dx < 0 || this.currentTurn!.col + dx >= COLS || this.currentTurn!.row + dy < 0 || this.currentTurn!.row + dy >= ROWS)
 
-        } while (!this.entities.isFree(this.player.row + dy, this.player.col + dx) || this.player.col + dx < 0 || this.player.col + dx >= COLS || this.player.row + dy < 0 || this.player.row + dy >= ROWS)
-
-        this.player.setPosition(this.player.row + dy, this.player.col + dx)
+        const action = getSmoothMove(this.currentTurn!, this.currentTurn!.row + dy, this.currentTurn!.col + dx)
+        this.currentTurn?.actor.doAction(action)
         // console.log(this.player.row, this.player.col)
     }
 
     update(deltaMS: number): void {
-        this.elapsed += deltaMS 
-        while (this.elapsed >= 1000) {
+        if (this.currentTurn === null) {
+            console.log("No current turn!  Fetching next one...")
+            const nextTurn = this.entities.nextAI()
+            const toSkip = nextTurn!.actor.actionCoolDown
+            this.entities.advance(toSkip)
+            this.currentTurn = nextTurn
+        }
+
+        if (this.currentTurn?.animationManager.activeAnimation === null) {
             this.tick()
-            this.elapsed -= 1000
+        }
+
+        this.currentTurn?.animationManager.activeAnimation?.animate(deltaMS)
+
+        if (this.currentTurn?.animationManager.activeAnimation?.isFinished()) {
+            this.currentTurn.animationManager.activeAnimation = null
+            this.currentTurn = null
         }
 
         this.camera.setPosition(this.player.sprite.x, this.player.sprite.y)

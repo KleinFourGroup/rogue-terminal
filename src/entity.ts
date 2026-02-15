@@ -1,6 +1,10 @@
-import { Actor } from "./actor";
-import { AnimationManager } from "./animation_manager";
-import { TextSprite, TILE_SIZE } from "./text_sprite";
+import { Actor } from "./actor"
+import { AnimationManager } from "./animation_manager"
+import { TextSprite, TILE_SIZE } from "./text_sprite"
+
+export function tileToPixel(row: number, col: number, width: number, height: number) {
+    return [col * TILE_SIZE + width * TILE_SIZE / 2, row * TILE_SIZE + height * TILE_SIZE / 2]
+}
 
 export class Entity {
     sprite: TextSprite
@@ -10,6 +14,8 @@ export class Entity {
 
     width: number
     height: number
+
+    hasAI: boolean // TODO: Replace with components!
 
     actor: Actor
     animationManager: AnimationManager
@@ -21,18 +27,20 @@ export class Entity {
         this.width = width
         this.height = height
 
+        this.hasAI = false
+
         this.actor = new Actor(this)
         this.animationManager = new AnimationManager(this)
         
         this.sprite.anchor.set(0.5)
-        this.sprite.position.set(this.col * TILE_SIZE + this.width * TILE_SIZE / 2, this.row * TILE_SIZE + this.height * TILE_SIZE / 2)
+        this.sprite.position.set(...tileToPixel(this.row, this.col, this.width, this.height))
     }
 
     setPosition(row: number, col: number) {
         this.row = row
         this.col = col
 
-        this.sprite.position.set(this.col * TILE_SIZE + this.width * TILE_SIZE / 2, this.row * TILE_SIZE + this.height * TILE_SIZE / 2)
+        this.sprite.position.set(...tileToPixel(this.row, this.col, this.width, this.height))
         // console.log(this.row, this.col)
     }
 

@@ -22,7 +22,7 @@ export class Actor {
         }
     }
 
-    tick(ticks: number = 1) {
+    advance(ticks: number = 1) {
         this.actionCoolDown = Math.max(this.actionCoolDown - ticks, 0)
     }
 }

@@ -1,10 +1,10 @@
 import { Entity } from "./entity"
 import { Scene } from "./scene"
 
-type AnimationInterval = (time: number, target: Entity, scene: Scene) => void
-type AnimationFrame = (target: Entity, scene: Scene) => void
+export type AnimationInterval = (time: number, target: Entity, scene: Scene) => void
+export type AnimationFrame = (target: Entity, scene: Scene) => void
 
-type KeyframedAnimationData = {
+export type KeyframedAnimationData = {
     keyframes: number[]
     frameAnimations: (AnimationFrame | null)[]
     betweenAnimations: (AnimationInterval | null)[]

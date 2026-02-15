@@ -41,4 +41,21 @@ export class EntityList {
 
         return true
     }
+
+    nextAI() {
+        const hasAI = this.entities.filter((entity: Entity) => entity.hasAI)
+
+        if (hasAI.length > 0) {
+            return hasAI.reduce((currMin: Entity, entity: Entity) => entity.actor.actionCoolDown < currMin.actor.actionCoolDown ? entity : currMin, hasAI[0])
+        }
+
+        return null
+    }
+
+    advance(ticks: number) {
+        console.log(`Skipping ahead ${ticks} ticks`)
+        for (const entity of this.entities) {
+            entity.actor.advance(ticks)
+        }
+    }
 }
