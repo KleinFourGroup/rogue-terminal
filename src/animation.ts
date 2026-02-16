@@ -16,7 +16,7 @@ export interface IAnimation {
     loop: boolean
 
     init(deltaMS: number): void
-    finish(deltaMS: number): void
+    finish(): void
     animate(deltaMS: number): void
 
     isFinished(): boolean
@@ -59,7 +59,7 @@ export class KeyframedAnimation implements IAnimation {
         this.animate(deltaMS)
     }
 
-    finish(deltaMS: number) {
+    finish() {
         if (this.loop) {
             return
         }

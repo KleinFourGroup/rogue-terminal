@@ -102,14 +102,13 @@ export class GameScene extends Container implements IScene {
             this.currentTurn = nextTurn
         }
 
-        if (this.currentTurn?.animationManager.activeAnimation === null) {
+        if (this.currentTurn?.animationManager.isIdle()) {
             this.tick()
         }
 
-        this.currentTurn?.animationManager.activeAnimation?.animate(deltaMS)
+        this.currentTurn?.animationManager.animate(deltaMS)
 
-        if (this.currentTurn?.animationManager.activeAnimation?.isFinished()) {
-            this.currentTurn.animationManager.activeAnimation = null
+        if (this.currentTurn?.animationManager.isIdle()) {
             this.currentTurn = null
         }
 
