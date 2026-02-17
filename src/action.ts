@@ -2,46 +2,72 @@ import { IAnimation } from "./animation"
 import { Entity } from "./entity"
 import { Scene } from "./scene"
 
-export type ActionCallback = (entity: Entity, scene: Scene) => boolean
-
-export interface IAction {
-    elapsed: number
-    tickLength: number
-
-    init(): void
-    finish(): void
-    advance(deltaMS: number): void
-
-    isFinished(): boolean
+export enum ActionStatus {
+    ACTION_NOT_STARTED,
+    ACTION_PROGRESS,
+    ACTION_FAILED,
+    ACTION_FINISHED
 }
 
-export class Action implements IAction {
+export type ActionCallback = (entity: Entity, scene: Scene | null) => boolean
+
+export interface IAction {
+    entity: Entity
+    scene: Scene | null
+
+    elapsed: number
+    animation: IAnimation
+    tickLength: number
+
+    init(): ActionStatus
+    finish(): ActionStatus
+    advance(deltaMS: number): ActionStatus
+
+    currentStatus(): ActionStatus
+}
+
+export class InstantAction implements IAction {
     elapsed: number
     callback: ActionCallback
     animation: IAnimation
     tickLength: number
 
+    status: ActionStatus
+
+    entity: Entity
     scene: Scene | null
 
-    constructor(callback: ActionCallback, animation: IAnimation, tickLength: number, scene: Scene | null = null) {
+    constructor(entity: Entity, callback: ActionCallback, animation: IAnimation, tickLength: number, scene: Scene | null = null) {
+        this.entity = entity
         this.callback = callback
         this.animation = animation
         this.tickLength = tickLength
 
         this.scene = scene
         this.elapsed = 0
+
+        this.status = ActionStatus.ACTION_NOT_STARTED
+    }
+    
+    init(): ActionStatus {
+        return this.advance(0)
+    }
+    
+    finish(): ActionStatus {
+        if (this.status !== ActionStatus.ACTION_NOT_STARTED) {
+            return this.status
+        }
+
+        return this.advance(0)
+    }
+    
+    advance(_deltaMS: number): ActionStatus {
+        const success = this.callback(this.entity, this.scene)
+        this.status = success ? ActionStatus.ACTION_FINISHED : ActionStatus.ACTION_FAILED
+        return this.status
     }
 
-    init(): void {
-        throw new Error("Method not implemented.")
-    }
-    finish(): void {
-        throw new Error("Method not implemented.")
-    }
-    advance(deltaMS: number): void {
-        throw new Error("Method not implemented.")
-    }
-    isFinished(): boolean {
-        throw new Error("Method not implemented.")
+    currentStatus(): ActionStatus {
+        return this.status
     }
 }

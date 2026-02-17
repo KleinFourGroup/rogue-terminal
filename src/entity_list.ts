@@ -52,10 +52,10 @@ export class EntityList {
         return null
     }
 
-    advance(ticks: number) {
+    advanceTicks(ticks: number) {
         console.log(`Skipping ahead ${ticks} ticks`)
         for (const entity of this.entities) {
-            entity.actor.advance(ticks)
+            entity.actor.advanceTicks(ticks)
         }
     }
 }

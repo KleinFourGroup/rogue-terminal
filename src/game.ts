@@ -79,9 +79,11 @@ export class GameScene extends Container implements IScene {
 
         this.addChild(this.ground)
         this.addChild(this.entities.stage)
+
+        this.camera.setPosition(this.player.sprite.x, this.player.sprite.y)
     }
 
-    tick() {
+    tickAI() {
         console.log("Tick!")
         let dx = 0, dy = 0
         do {
@@ -98,14 +100,15 @@ export class GameScene extends Container implements IScene {
             console.log("No current turn!  Fetching next one...")
             const nextTurn = this.entities.nextAI()
             const toSkip = nextTurn!.actor.actionCoolDown
-            this.entities.advance(toSkip)
+            this.entities.advanceTicks(toSkip)
             this.currentTurn = nextTurn
         }
 
         if (this.currentTurn?.animationManager.isIdle()) {
-            this.tick()
+            this.tickAI()
         }
 
+        this.currentTurn?.actor.advanceAction(deltaMS)
         this.currentTurn?.animationManager.animate(deltaMS)
 
         if (this.currentTurn?.animationManager.isIdle()) {

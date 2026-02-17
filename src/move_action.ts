@@ -1,4 +1,4 @@
-import { Action } from "./action"
+import { InstantAction } from "./action"
 import { AnimationFrame, AnimationInterval, KeyframedAnimation, KeyframedAnimationData } from "./animation"
 import { Entity, tileToPixel } from "./entity"
 import { Scene } from "./scene"
@@ -40,10 +40,10 @@ export function getSmoothMove(entity: Entity, row: number, col: number) {
 
     const animation = new KeyframedAnimation(animationData, entity, null!, false) // Look into these !s
 
-    function moveCallback(entity: Entity, _scene: Scene) {
+    function moveCallback(entity: Entity, _scene: Scene | null) {
         entity.setPosition(row, col)
         return true
     }
 
-    return new Action(moveCallback, animation, 1200, null)
+    return new InstantAction(entity, moveCallback, animation, 1200, null)
 }

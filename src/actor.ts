@@ -1,12 +1,14 @@
-import { Action } from "./action"
+import { ActionStatus, IAction } from "./action"
 import { Entity } from "./entity"
 
 export class Actor {
     entity: Entity
+    currAction: IAction | null
     actionCoolDown: number
 
     constructor(entity: Entity) {
         this.entity = entity
+        this.currAction = null
         this.actionCoolDown = 0
     }
 
@@ -14,15 +16,33 @@ export class Actor {
         return this.actionCoolDown == 0
     }
 
-    doAction(action: Action) {
+    doAction(action: IAction) {
         if (this.isReady()) {
-            action.callback(this.entity, action.scene!)
-            this.entity.animationManager.setActiveAnimation(action.animation)
-            this.actionCoolDown = action.tickLength
+            this.currAction = action
+            this.advanceAction(0)
         }
     }
 
-    advance(ticks: number = 1) {
+    setAction(action: IAction) {
+        if (this.isReady()) {
+            this.currAction = action
+        }
+    }
+
+    advanceAction(deltaMS: number) {
+        if (this.currAction?.currentStatus() === ActionStatus.ACTION_NOT_STARTED) {
+            this.entity.animationManager.setActiveAnimation(this.currAction.animation)
+        }
+
+        const result = this.currAction?.advance(deltaMS)
+
+        if (result === ActionStatus.ACTION_FINISHED) {
+            this.actionCoolDown = this.currAction!.tickLength
+            this.currAction = null
+        }
+    }
+
+    advanceTicks(ticks: number = 1) {
         this.actionCoolDown = Math.max(this.actionCoolDown - ticks, 0)
     }
 }
