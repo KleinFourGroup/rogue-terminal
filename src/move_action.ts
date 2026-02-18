@@ -5,7 +5,7 @@ import { Scene } from "./scene"
 
 const MOVE_LENGTH = 1000
 
-export function getSmoothMove(entity: Entity, row: number, col: number) {
+export function getSmoothMove(entity: Entity, row: number, col: number, blocking: boolean = false) {
     const oldX = entity.sprite.x
     const oldY = entity.sprite.y
 
@@ -45,5 +45,5 @@ export function getSmoothMove(entity: Entity, row: number, col: number) {
         return true
     }
 
-    return new InstantAction(entity, moveCallback, animation, 1200, null)
+    return new InstantAction(entity, moveCallback, animation, 1200, blocking, null)
 }

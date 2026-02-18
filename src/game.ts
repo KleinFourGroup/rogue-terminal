@@ -77,6 +77,14 @@ export class GameScene extends Container implements IScene {
 
         this.entities.addEntity(this.player)
 
+        for (let drow = -1; drow <= 1; drow += 2) {
+            for (let dcol = -1; dcol <= 1; dcol += 2) {
+                const newEntity = new Entity("O", this.player.row + drow, this.player.col + dcol)
+                newEntity.hasAI = true
+                this.entities.addEntity(newEntity)
+            }
+        }
+
         this.elapsed = 0
 
         this.addChild(this.ground)
@@ -92,7 +100,7 @@ export class GameScene extends Container implements IScene {
             [dx, dy] = randomDirection()
         } while (!this.entities.isFree(this.currentTurn!.row + dy, this.currentTurn!.col + dx) || this.currentTurn!.col + dx < 0 || this.currentTurn!.col + dx >= COLS || this.currentTurn!.row + dy < 0 || this.currentTurn!.row + dy >= ROWS)
 
-        const action = getSmoothMove(this.currentTurn!, this.currentTurn!.row + dy, this.currentTurn!.col + dx)
+        const action = getSmoothMove(this.currentTurn!, this.currentTurn!.row + dy, this.currentTurn!.col + dx, this.currentTurn === this.player)
         this.currentTurn?.actor.setAction(action)
         // console.log(this.player.row, this.player.col)
     }

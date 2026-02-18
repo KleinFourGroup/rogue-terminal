@@ -41,12 +41,12 @@ export class InstantAction implements IAction {
     entity: Entity
     scene: Scene | null
 
-    constructor(entity: Entity, callback: ActionCallback, animation: IAnimation, tickLength: number, scene: Scene | null = null) {
+    constructor(entity: Entity, callback: ActionCallback, animation: IAnimation, tickLength: number, blocking: boolean = false, scene: Scene | null = null) {
         this.entity = entity
         this.callback = callback
         this.animation = animation
         this.tickLength = tickLength
-        this.blocking = false
+        this.blocking = blocking
 
         this.scene = scene
         this.elapsed = 0
