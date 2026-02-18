@@ -81,9 +81,11 @@ export class GameScene extends Container implements IScene {
 
         for (let drow = -1; drow <= 1; drow += 2) {
             for (let dcol = -1; dcol <= 1; dcol += 2) {
-                const newEntity = new Entity("O", this.player.row + drow, this.player.col + dcol)
-                newEntity.hasAI = true
-                this.entities.addEntity(newEntity)
+                for (let count = 1; count <= 3; count++) {
+                    const newEntity = new Entity("O", this.player.row + count * drow, this.player.col + count * dcol)
+                    newEntity.hasAI = true
+                    this.entities.addEntity(newEntity)
+                }
             }
         }
 
@@ -125,7 +127,7 @@ export class GameScene extends Container implements IScene {
 
         const lastActiveWait = this.currentTurn?.animationManager.isActive() && this.currentTurn.actor.isIdle()
 
-        if (this.currentTurn?.actor.isIdle() && !this.currentTurn.animationManager.isActive()) {
+        if (this.currentTurn?.actor.isIdle() && !this.currentTurn.animationManager.isActive() && this.blockingEntity === null) {
             this.tickAI()
         }
 
@@ -141,6 +143,7 @@ export class GameScene extends Container implements IScene {
         const blockingFinish = this.blockingEntity === this.currentTurn && this.currentTurn?.animationManager.isActive()
 
         if (this.currentTurn?.actor.isIdle() && !lastActiveWait && !blockingWait && !blockingFinish) {
+            this.blockingEntity = null
             this.currentTurn = null
         }
 
