@@ -41,6 +41,7 @@ export class GameScene extends Container implements IScene {
     camera: Camera
     player: Entity
     currentTurn: Entity | null
+    blockingEntity: Entity | null
     entities: ECS
     ground: Container
     elapsed: number
@@ -54,6 +55,7 @@ export class GameScene extends Container implements IScene {
         this.player.hasAI = true
 
         this.currentTurn = null
+        this.blockingEntity = null
         this.entities = new ECS(COLS, ROWS)
 
         this.ground = new Container()
@@ -130,12 +132,15 @@ export class GameScene extends Container implements IScene {
         const blockingWait = this.entities.getActive().length > 0 && this.currentTurn?.actor.currAction?.blocking
 
         if (!lastActiveWait && !blockingWait) {
+            if (this.currentTurn?.actor.currAction?.blocking) this.blockingEntity = this.currentTurn
             this.currentTurn?.actor.advanceAction(deltaMS)
         }
 
         this.animateActive(deltaMS)
 
-        if (this.currentTurn?.actor.isIdle() && !lastActiveWait && !blockingWait) {
+        const blockingFinish = this.blockingEntity === this.currentTurn && this.currentTurn?.animationManager.isActive()
+
+        if (this.currentTurn?.actor.isIdle() && !lastActiveWait && !blockingWait && !blockingFinish) {
             this.currentTurn = null
         }
 
