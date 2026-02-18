@@ -4,7 +4,7 @@ import { Entity } from "./entity"
 // TODO: optimize--if every wall is an entity, then we want a better test than
 // just iterating through a flat array.  Probably a quad tree?
 
-export class EntityList {
+export class ECS {
     entities: Entity[]
     width: number
     height: number
@@ -40,6 +40,10 @@ export class EntityList {
         }
 
         return true
+    }
+
+    getActive() {
+        return this.entities.filter((entity: Entity) => entity.animationManager.isActive())
     }
 
     nextAI() {

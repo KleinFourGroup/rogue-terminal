@@ -4,11 +4,13 @@ import { GameApp } from "./app"
 import { TextSprite, TILE_SIZE } from "./text_sprite"
 import { Camera } from "./camera"
 import { Entity } from "./entity"
-import { EntityList } from "./entity_list"
+import { ECS } from "./ecs"
 import { getSmoothMove } from "./move_action"
 
 const ROWS = 11
 const COLS = 11
+
+const TICK_TIME = 1000 / 1200
 
 function randomDirection() {
     const rand = Math.floor(Math.random() * 8)
@@ -39,7 +41,7 @@ export class GameScene extends Container implements IScene {
     camera: Camera
     player: Entity
     currentTurn: Entity | null
-    entities: EntityList
+    entities: ECS
     ground: Container
     elapsed: number
 
@@ -52,7 +54,7 @@ export class GameScene extends Container implements IScene {
         this.player.hasAI = true
 
         this.currentTurn = null
-        this.entities = new EntityList(COLS, ROWS)
+        this.entities = new ECS(COLS, ROWS)
 
         this.ground = new Container()
 
@@ -91,8 +93,15 @@ export class GameScene extends Container implements IScene {
         } while (!this.entities.isFree(this.currentTurn!.row + dy, this.currentTurn!.col + dx) || this.currentTurn!.col + dx < 0 || this.currentTurn!.col + dx >= COLS || this.currentTurn!.row + dy < 0 || this.currentTurn!.row + dy >= ROWS)
 
         const action = getSmoothMove(this.currentTurn!, this.currentTurn!.row + dy, this.currentTurn!.col + dx)
-        this.currentTurn?.actor.doAction(action)
+        this.currentTurn?.actor.setAction(action)
         // console.log(this.player.row, this.player.col)
+    }
+
+    animateActive(deltaMS: number) {
+        const activeEntities = this.entities.getActive()
+        for (const entity of activeEntities) {
+            entity.animationManager.animate(deltaMS)
+        }
     }
 
     update(deltaMS: number): void {
@@ -104,14 +113,21 @@ export class GameScene extends Container implements IScene {
             this.currentTurn = nextTurn
         }
 
-        if (this.currentTurn?.animationManager.isIdle()) {
+        const lastActiveWait = this.currentTurn?.animationManager.isActive() && this.currentTurn.actor.isIdle()
+
+        if (this.currentTurn?.actor.isIdle() && !this.currentTurn.animationManager.isActive()) {
             this.tickAI()
         }
 
-        this.currentTurn?.actor.advanceAction(deltaMS)
-        this.currentTurn?.animationManager.animate(deltaMS)
+        const blockingWait = this.entities.getActive().length > 0 && this.currentTurn?.actor.currAction?.blocking
 
-        if (this.currentTurn?.animationManager.isIdle()) {
+        if (!lastActiveWait && !blockingWait) {
+            this.currentTurn?.actor.advanceAction(deltaMS)
+        }
+
+        this.animateActive(deltaMS)
+
+        if (this.currentTurn?.actor.isIdle() && !lastActiveWait && !blockingWait) {
             this.currentTurn = null
         }
 

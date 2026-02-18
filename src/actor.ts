@@ -16,6 +16,10 @@ export class Actor {
         return this.actionCoolDown == 0
     }
 
+    isIdle() {
+        return this.currAction === null
+    }
+
     doAction(action: IAction) {
         if (this.isReady()) {
             this.currAction = action

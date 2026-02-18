@@ -19,6 +19,8 @@ export interface IAction {
     animation: IAnimation
     tickLength: number
 
+    blocking: boolean
+
     init(): ActionStatus
     finish(): ActionStatus
     advance(deltaMS: number): ActionStatus
@@ -32,6 +34,8 @@ export class InstantAction implements IAction {
     animation: IAnimation
     tickLength: number
 
+    blocking: boolean
+
     status: ActionStatus
 
     entity: Entity
@@ -42,6 +46,7 @@ export class InstantAction implements IAction {
         this.callback = callback
         this.animation = animation
         this.tickLength = tickLength
+        this.blocking = false
 
         this.scene = scene
         this.elapsed = 0

@@ -11,8 +11,8 @@ export class AnimationManager {
         this.activeAnimation = null
     }
 
-    isIdle() {
-        return this.activeAnimation === null
+    isActive() {
+        return this.activeAnimation !== null
     }
 
     setActiveAnimation(animation: IAnimation) {
@@ -22,7 +22,7 @@ export class AnimationManager {
 
     animate(deltaMS: number) {
         this.activeAnimation?.animate(deltaMS)
-        
+
         if (this.activeAnimation?.isFinished()) {
             this.activeAnimation = null
         }
