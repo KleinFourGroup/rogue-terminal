@@ -6,6 +6,7 @@ import { Camera } from "./camera"
 import { Entity } from "./entity"
 import { ECS } from "./ecs"
 import { getSmoothMove } from "./move_action"
+import { TurnManager, TurnStatus } from "./turn_manager"
 
 const ROWS = 11
 const COLS = 11
@@ -40,11 +41,11 @@ export class GameScene extends Container implements IScene {
     app: GameApp
     camera: Camera
     player: Entity
-    currentTurn: Entity | null
-    blockingEntity: Entity | null
     entities: ECS
     ground: Container
     elapsed: number
+
+    turnManager: TurnManager
 
     constructor(app: GameApp) {
         super()
@@ -54,8 +55,8 @@ export class GameScene extends Container implements IScene {
         this.player = new Entity("@", Math.floor(ROWS / 2), Math.floor(COLS / 2))
         this.player.hasAI = true
 
-        this.currentTurn = null
-        this.blockingEntity = null
+        this.turnManager = new TurnManager()
+
         this.entities = new ECS(COLS, ROWS)
 
         this.ground = new Container()
@@ -102,10 +103,10 @@ export class GameScene extends Container implements IScene {
         let dx = 0, dy = 0
         do {
             [dx, dy] = randomDirection()
-        } while (!this.entities.isFree(this.currentTurn!.row + dy, this.currentTurn!.col + dx) || this.currentTurn!.col + dx < 0 || this.currentTurn!.col + dx >= COLS || this.currentTurn!.row + dy < 0 || this.currentTurn!.row + dy >= ROWS)
+        } while (!this.entities.isFree(this.turnManager.currentTurn!.row + dy, this.turnManager.currentTurn!.col + dx) || !this.entities.isValid(this.turnManager.currentTurn!.row + dy, this.turnManager.currentTurn!.col + dx))
 
-        const action = getSmoothMove(this.currentTurn!, this.currentTurn!.row + dy, this.currentTurn!.col + dx, this.currentTurn === this.player)
-        this.currentTurn?.actor.setAction(action)
+        const action = getSmoothMove(this.turnManager.currentTurn!, this.turnManager.currentTurn!.row + dy, this.turnManager.currentTurn!.col + dx, this.turnManager.currentTurn === this.player)
+        this.turnManager.currentTurn?.actor.setAction(action)
         // console.log(this.player.row, this.player.col)
     }
 
@@ -117,34 +118,46 @@ export class GameScene extends Container implements IScene {
     }
 
     update(deltaMS: number): void {
-        if (this.currentTurn === null) {
+        if (this.turnManager.status === TurnStatus.NO_TURN) {
             console.log("No current turn!  Fetching next one...")
             const nextTurn = this.entities.nextAI()
             const toSkip = nextTurn!.actor.actionCoolDown
             this.entities.advanceTicks(toSkip)
-            this.currentTurn = nextTurn
+            this.turnManager.startTurn(nextTurn!)
         }
 
-        const lastActiveWait = this.currentTurn?.animationManager.isActive() && this.currentTurn.actor.isIdle()
+        if (this.turnManager.status === TurnStatus.START_TURN) {
+            this.turnManager.checkLastAnimation()
+        }
 
-        if (this.currentTurn?.actor.isIdle() && !this.currentTurn.animationManager.isActive() && this.blockingEntity === null) {
+        if (this.turnManager.status === TurnStatus.WAIT_FOR_LAST_ANIMATION) {
+            this.turnManager.checkLastAnimation()
+        }
+
+        if (this.turnManager.status === TurnStatus.RUN_AI) {
             this.tickAI()
+            this.turnManager.finishedAI()
         }
 
-        const blockingWait = this.entities.getActive().length > 0 && this.currentTurn?.actor.currAction?.blocking
+        if (this.turnManager.status === TurnStatus.START_BLOCK) {
+            const outstanding = this.entities.getActive().length
+            this.turnManager.setOutstandingAnimations(outstanding)
+            this.turnManager.checkOutstandingAnimations()
+        }
 
-        if (!lastActiveWait && !blockingWait) {
-            if (this.currentTurn?.actor.currAction?.blocking) this.blockingEntity = this.currentTurn
-            this.currentTurn?.actor.advanceAction(deltaMS)
+        if (this.turnManager.status === TurnStatus.ACTION_PROGRESS) {
+            const actionStatus = this.turnManager.currentTurn!.actor.advanceAction(deltaMS)
+            this.turnManager.updateActionProgress(actionStatus)
         }
 
         this.animateActive(deltaMS)
 
-        const blockingFinish = this.blockingEntity === this.currentTurn && this.currentTurn?.animationManager.isActive()
+        if (this.turnManager.status === TurnStatus.FINISH_BLOCK) {
+            this.turnManager.checkBlockingAnimation()
+        }
 
-        if (this.currentTurn?.actor.isIdle() && !lastActiveWait && !blockingWait && !blockingFinish) {
-            this.blockingEntity = null
-            this.currentTurn = null
+        if (this.turnManager.status === TurnStatus.FINISH_TURN) {
+            this.turnManager.finishTurn()
         }
 
         this.camera.setPosition(this.player.sprite.x, this.player.sprite.y)

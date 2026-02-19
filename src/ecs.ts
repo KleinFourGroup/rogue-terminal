@@ -6,13 +6,13 @@ import { Entity } from "./entity"
 
 export class ECS {
     entities: Entity[]
-    width: number
-    height: number
+    rows: number
+    cols: number
     stage: Container
 
-    constructor(width: number, height: number) {
-        this.width = width
-        this.height = height
+    constructor(rows: number, cols: number) {
+        this.rows = rows
+        this.cols = cols
 
         this.entities = []
         this.stage = new Container()
@@ -40,6 +40,10 @@ export class ECS {
         }
 
         return true
+    }
+
+    isValid(row: number, col: number) {
+        return 0 <= row && row < this.rows && 0 <= col && col < this.cols
     }
 
     getActive() {

@@ -20,6 +20,10 @@ export class Actor {
         return this.currAction === null
     }
 
+    isBlocking() {
+        return this.currAction?.blocking
+    }
+
     doAction(action: IAction) {
         if (this.isReady()) {
             this.currAction = action
@@ -34,16 +38,20 @@ export class Actor {
     }
 
     advanceAction(deltaMS: number) {
+        console.assert(this.currAction !== null)
+        
         if (this.currAction?.currentStatus() === ActionStatus.ACTION_NOT_STARTED) {
             this.entity.animationManager.setActiveAnimation(this.currAction.animation)
         }
 
-        const result = this.currAction?.advance(deltaMS)
+        const result = this.currAction!.advance(deltaMS)
 
         if (result === ActionStatus.ACTION_FINISHED) {
             this.actionCoolDown = this.currAction!.tickLength
             this.currAction = null
         }
+
+        return result
     }
 
     advanceTicks(ticks: number = 1) {
