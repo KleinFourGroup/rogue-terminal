@@ -112,9 +112,15 @@ export class GameScene extends Container implements IScene {
 
     animateActive(deltaMS: number) {
         const activeEntities = this.entities.getActive()
+        let unfinished = 0
         for (const entity of activeEntities) {
             entity.animationManager.animate(deltaMS)
+            if (entity.animationManager.isActive()) {
+                unfinished++
+            }
         }
+
+        return unfinished
     }
 
     update(deltaMS: number): void {
@@ -140,8 +146,10 @@ export class GameScene extends Container implements IScene {
         }
 
         if (this.turnManager.status === TurnStatus.START_BLOCK) {
-            const outstanding = this.entities.getActive().length
-            this.turnManager.setOutstandingAnimations(outstanding)
+            // We can cache this from last frame, avoiding a second call to filter,
+            // in exchange counting unfinished active animations as we execute them
+            // const outstanding = this.entities.getActive().length
+            // this.turnManager.setOutstandingAnimations(outstanding)
             this.turnManager.checkOutstandingAnimations()
         }
 
@@ -150,7 +158,8 @@ export class GameScene extends Container implements IScene {
             this.turnManager.updateActionProgress(actionStatus)
         }
 
-        this.animateActive(deltaMS)
+        const outstanding = this.animateActive(deltaMS)
+        this.turnManager.setOutstandingAnimations(outstanding)
 
         if (this.turnManager.status === TurnStatus.FINISH_BLOCK) {
             this.turnManager.checkBlockingAnimation()
