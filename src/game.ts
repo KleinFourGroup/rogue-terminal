@@ -7,6 +7,7 @@ import { Entity } from "./entity"
 import { ECS } from "./ecs"
 import { getSmoothMove } from "./move_action"
 import { TurnManager, TurnStatus } from "./turn_manager"
+import { BackgroundGrid } from "./background_grid"
 
 const ROWS = 11
 const COLS = 11
@@ -42,7 +43,7 @@ export class GameScene extends Container implements IScene {
     camera: Camera
     player: Entity
     entities: ECS
-    ground: Container
+    ground: BackgroundGrid
     elapsed: number
 
     turnManager: TurnManager
@@ -59,17 +60,13 @@ export class GameScene extends Container implements IScene {
 
         this.entities = new ECS(COLS, ROWS)
 
-        this.ground = new Container()
-
-        const grid: TextSprite[][] = []
+        this.ground = new BackgroundGrid(ROWS, COLS)
 
         for (let row = 0; row < ROWS; row++) {
-            grid.push([])
             for (let col = 0; col < COLS; col++) {
                 const tile = new TextSprite(".")
-                tile.position.set(row * TILE_SIZE, col * TILE_SIZE)
-                grid[row].push(tile)
-                this.ground.addChild(tile)
+                this.ground.setText(row, col, tile)
+                this.ground.setValid(row, col, true)
 
                 if (row === 0 || row === ROWS - 1 || col === 0 || col === COLS - 1) {
                     const wall = new Entity("#", row, col)
