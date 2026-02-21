@@ -92,6 +92,7 @@ export class GameScene extends Container implements IScene {
         this.addChild(this.ground)
         this.addChild(this.entities.stage)
 
+        this.updateTileAlphas()
         this.camera.setPosition(this.player.sprite.x, this.player.sprite.y)
     }
 
@@ -118,6 +119,18 @@ export class GameScene extends Container implements IScene {
         }
 
         return unfinished
+    }
+
+    updateTileAlphas() {
+        this.ground.clearAlphas()
+
+        for (const entity of this.entities.entities) {
+            const tiles = entity.intersectingTiles()
+            for (const tilePosition of tiles) {
+                const overlap = entity.tileOverlap(tilePosition.row, tilePosition.col)
+                this.ground.setAlpha(tilePosition.row, tilePosition.col, overlap)
+            }
+        }
     }
 
     update(deltaMS: number): void {
@@ -166,6 +179,7 @@ export class GameScene extends Container implements IScene {
             this.turnManager.finishTurn()
         }
 
+        this.updateTileAlphas()
         this.camera.setPosition(this.player.sprite.x, this.player.sprite.y)
     }
     

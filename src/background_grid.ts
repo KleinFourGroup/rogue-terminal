@@ -106,4 +106,26 @@ export class BackgroundGrid extends Container {
             }
         }
     }
+
+    setAlpha(row: number, col: number, alpha: number) {
+        if (this.isInBounds(row, col)) {
+            const index = row * this.cols + col
+
+            const textSprite = this.textArray[index]
+            if (textSprite !== null) {
+                textSprite.alpha = Math.min(alpha, textSprite.alpha)
+                this.adjustedAlphas.push(index)
+            }
+        }
+    }
+
+    clearAlphas() {
+        for (const index of this.adjustedAlphas) {
+            this.textArray[index]!.alpha = 1
+        }
+
+        if (this.adjustedAlphas.length > 0) {
+            this.adjustedAlphas.splice(0, this.adjustedAlphas.length)
+        }
+    }
 }

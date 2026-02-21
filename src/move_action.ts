@@ -1,6 +1,7 @@
 import { InstantAction } from "./action"
 import { AnimationFrame, AnimationInterval, KeyframedAnimation, KeyframedAnimationData } from "./animation"
-import { Entity, tileToPixel } from "./entity"
+import { Entity } from "./entity"
+import { tileToPixel } from "./position"
 import { Scene } from "./scene"
 
 const MOVE_LENGTH = 1000
