@@ -1,13 +1,12 @@
 import { Container } from "pixi.js"
 import { IScene } from "./scene"
 import { GameApp } from "./app"
-import { TextSprite, TILE_SIZE } from "./text_sprite"
+import { TextSprite } from "./text_sprite"
 import { Camera } from "./camera"
 import { Entity } from "./entity"
-import { ECS } from "./ecs"
 import { getSmoothMove } from "./move_action"
 import { TurnManager, TurnStatus } from "./turn_manager"
-import { BackgroundGrid } from "./background_grid"
+import { World } from "./world"
 
 const ROWS = 11
 const COLS = 11
@@ -42,8 +41,7 @@ export class GameScene extends Container implements IScene {
     app: GameApp
     camera: Camera
     player: Entity
-    entities: ECS
-    ground: BackgroundGrid
+    level: World
     elapsed: number
 
     turnManager: TurnManager
@@ -58,41 +56,38 @@ export class GameScene extends Container implements IScene {
 
         this.turnManager = new TurnManager()
 
-        this.entities = new ECS(COLS, ROWS)
-
-        this.ground = new BackgroundGrid(ROWS, COLS)
+        this.level = new World(ROWS, COLS)
 
         for (let row = 0; row < ROWS; row++) {
             for (let col = 0; col < COLS; col++) {
                 const tile = new TextSprite(".")
-                this.ground.setText(row, col, tile)
-                this.ground.setValid(row, col, true)
+                this.level.setGroundText(row, col, tile)
+                this.level.setValid(row, col, true)
 
                 if (row === 0 || row === ROWS - 1 || col === 0 || col === COLS - 1) {
                     const wall = new Entity("#", row, col)
-                    this.entities.addEntity(wall)
+                    this.level.addEntity(wall)
                 }
             }
         }
 
-        this.entities.addEntity(this.player)
+        this.level.addEntity(this.player)
 
         for (let drow = -1; drow <= 1; drow += 2) {
             for (let dcol = -1; dcol <= 1; dcol += 2) {
                 for (let count = 1; count <= 3; count++) {
                     const newEntity = new Entity("O", this.player.row + count * drow, this.player.col + count * dcol)
                     newEntity.hasAI = true
-                    this.entities.addEntity(newEntity)
+                    this.level.addEntity(newEntity)
                 }
             }
         }
 
         this.elapsed = 0
 
-        this.addChild(this.ground)
-        this.addChild(this.entities.stage)
+        this.addChild(this.level)
 
-        this.updateTileAlphas()
+        this.level.updateTileAlphas()
         this.camera.setPosition(this.player.sprite.x, this.player.sprite.y)
     }
 
@@ -101,7 +96,7 @@ export class GameScene extends Container implements IScene {
         let dx = 0, dy = 0
         do {
             [dx, dy] = randomDirection()
-        } while (!this.entities.isFree(this.turnManager.currentTurn!.row + dy, this.turnManager.currentTurn!.col + dx) || !this.entities.isValid(this.turnManager.currentTurn!.row + dy, this.turnManager.currentTurn!.col + dx))
+        } while (!this.level.isNavigable(this.turnManager.currentTurn!.row + dy, this.turnManager.currentTurn!.col + dx))
 
         const action = getSmoothMove(this.turnManager.currentTurn!, this.turnManager.currentTurn!.row + dy, this.turnManager.currentTurn!.col + dx, this.turnManager.currentTurn === this.player)
         this.turnManager.currentTurn?.actor.setAction(action)
@@ -109,7 +104,7 @@ export class GameScene extends Container implements IScene {
     }
 
     animateActive(deltaMS: number) {
-        const activeEntities = this.entities.getActive()
+        const activeEntities = this.level.entities.getActive()
         let unfinished = 0
         for (const entity of activeEntities) {
             entity.animationManager.animate(deltaMS)
@@ -121,24 +116,12 @@ export class GameScene extends Container implements IScene {
         return unfinished
     }
 
-    updateTileAlphas() {
-        this.ground.clearAlphas()
-
-        for (const entity of this.entities.entities) {
-            const tiles = entity.intersectingTiles()
-            for (const tilePosition of tiles) {
-                const overlap = entity.tileOverlap(tilePosition.row, tilePosition.col)
-                this.ground.setAlpha(tilePosition.row, tilePosition.col, overlap)
-            }
-        }
-    }
-
     update(deltaMS: number): void {
         if (this.turnManager.status === TurnStatus.NO_TURN) {
             console.log("No current turn!  Fetching next one...")
-            const nextTurn = this.entities.nextAI()
+            const nextTurn = this.level.nextAI()
             const toSkip = nextTurn!.actor.actionCoolDown
-            this.entities.advanceTicks(toSkip)
+            this.level.advanceTicks(toSkip)
             this.turnManager.startTurn(nextTurn!)
         }
 
@@ -179,7 +162,7 @@ export class GameScene extends Container implements IScene {
             this.turnManager.finishTurn()
         }
 
-        this.updateTileAlphas()
+        this.level.updateTileAlphas()
         this.camera.setPosition(this.player.sprite.x, this.player.sprite.y)
     }
     
