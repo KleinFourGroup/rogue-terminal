@@ -40,6 +40,14 @@ export class World extends Container{
         this.ground.setText(row, col, sprite)
     }
 
+    nextAI() {
+        return this.entities.nextAI()
+    }
+
+    advanceTicks(ticks: number) {
+        this.entities.advanceTicks(ticks)
+    }
+
     updateTileAlphas() {
         this.ground.clearAlphas()
 
@@ -51,12 +59,17 @@ export class World extends Container{
             }
         }
     }
+    
+    animateActive(deltaMS: number) {
+        const activeEntities = this.entities.getActive()
+        let unfinished = 0
+        for (const entity of activeEntities) {
+            entity.animationManager.animate(deltaMS)
+            if (entity.animationManager.isActive()) {
+                unfinished++
+            }
+        }
 
-    nextAI() {
-        return this.entities.nextAI()
-    }
-
-    advanceTicks(ticks: number) {
-        this.entities.advanceTicks(ticks)
+        return unfinished
     }
 }

@@ -103,19 +103,6 @@ export class GameScene extends Container implements IScene {
         // console.log(this.player.row, this.player.col)
     }
 
-    animateActive(deltaMS: number) {
-        const activeEntities = this.level.entities.getActive()
-        let unfinished = 0
-        for (const entity of activeEntities) {
-            entity.animationManager.animate(deltaMS)
-            if (entity.animationManager.isActive()) {
-                unfinished++
-            }
-        }
-
-        return unfinished
-    }
-
     update(deltaMS: number): void {
         if (this.turnManager.status === TurnStatus.NO_TURN) {
             console.log("No current turn!  Fetching next one...")
@@ -151,7 +138,7 @@ export class GameScene extends Container implements IScene {
             this.turnManager.updateActionProgress(actionStatus)
         }
 
-        const outstanding = this.animateActive(deltaMS)
+        const outstanding = this.level.animateActive(deltaMS)
         this.turnManager.setOutstandingAnimations(outstanding)
 
         if (this.turnManager.status === TurnStatus.FINISH_BLOCK) {
