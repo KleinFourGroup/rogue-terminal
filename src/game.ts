@@ -7,35 +7,12 @@ import { Entity } from "./entity"
 import { getSmoothMove } from "./move_action"
 import { TurnManager, TurnStatus } from "./turn_manager"
 import { World } from "./world"
+import { randomDirection, TILE_OFFSETS } from "./position"
 
 const ROWS = 11
 const COLS = 11
 
 const TICK_TIME = 1000 / 1200
-
-function randomDirection() {
-    const rand = Math.floor(Math.random() * 8)
-        switch (rand) {
-            case 0:
-                return [1, 1]
-            case 1:
-                return [1, 0]
-            case 2:
-                return [1, -1]
-            case 3:
-                return [0, 1]
-            case 4:
-                return [0, -1]
-            case 5:
-                return [-1, 1]
-            case 6:
-                return [-1, 0]
-            case 7:
-                return [-1, -1]
-            default:
-                return [0, 0]
-        }
-}
 
 export class GameScene extends Container implements IScene {
     app: GameApp
@@ -95,7 +72,9 @@ export class GameScene extends Container implements IScene {
         console.log("Tick!")
         let dx = 0, dy = 0
         do {
-            [dx, dy] = randomDirection()
+            const DIR = TILE_OFFSETS[randomDirection()]
+            dx = DIR.col
+            dy = DIR.row
         } while (!this.level.isNavigable(this.turnManager.currentTurn!.row + dy, this.turnManager.currentTurn!.col + dx))
 
         const action = getSmoothMove(this.turnManager.currentTurn!, this.turnManager.currentTurn!.row + dy, this.turnManager.currentTurn!.col + dx, this.turnManager.currentTurn === this.player)

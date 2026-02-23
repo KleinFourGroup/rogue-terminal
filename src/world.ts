@@ -72,4 +72,8 @@ export class World extends Container{
 
         return unfinished
     }
+
+    getNavigationGraph(row: number, col: number) {
+        // TODO
+    }
 }
