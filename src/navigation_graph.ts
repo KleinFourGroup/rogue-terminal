@@ -46,6 +46,11 @@ export class NavigationGrid {
         return row >= 0 && row < this.rows && col >= 0 && col < this.cols
     }
 
+    hasNode(row: number, col: number) {
+        console.assert(this.isInBounds(row, col))
+        return this.tiles[row * this.cols + col] !== null
+    }
+
     setNode(row: number, col: number, node: NavigationNode) {
         console.assert(node.row === row && node.col === col)
         console.assert(this.tiles[row * this.cols + col] === null)

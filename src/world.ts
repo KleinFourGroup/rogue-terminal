@@ -3,6 +3,8 @@ import { ECS } from "./ecs"
 import { BackgroundGrid } from "./background_grid"
 import { Entity } from "./entity"
 import { TextSprite } from "./text_sprite"
+import { NavigationGrid, NavigationNode } from "./navigation_graph"
+import { GridDirection, TILE_OFFSETS } from "./position"
 
 export class World extends Container{
     rows: number
@@ -74,6 +76,35 @@ export class World extends Container{
     }
 
     getNavigationGraph(row: number, col: number) {
-        // TODO
+        const dirs = Object.values(GridDirection).filter((val) => typeof val === "number")
+        const navGraph = new NavigationGrid(this.rows, this.cols)
+
+        const startNode = new NavigationNode(row, col)
+        startNode.distance = 0
+
+        function setEdges(node: NavigationNode, world: World) {
+            for (const dir of dirs) {
+                node.edges[dir] = world.isNavigable(node.row + TILE_OFFSETS[dir].row, node.col + TILE_OFFSETS[dir].col)
+            }
+        }
+
+        setEdges(startNode, this)
+
+        navGraph.setNode(row, col, startNode)
+
+        let finalized = navGraph.finalizeLowest()
+
+        while (finalized !== null) {
+            for (const dir of dirs) {
+                if (finalized.edges[dir] && !navGraph.hasNode(finalized.row + TILE_OFFSETS[dir].row, finalized.col + TILE_OFFSETS[dir].col)) {
+                    const newNode = new NavigationNode(finalized.row + TILE_OFFSETS[dir].row, finalized.col + TILE_OFFSETS[dir].col)
+                    setEdges(newNode, this)
+                    navGraph.setNode(finalized.row + TILE_OFFSETS[dir].row, finalized.col + TILE_OFFSETS[dir].col, newNode)
+                }
+            }
+            
+            navGraph.propagate(finalized.row, finalized.col)
+            finalized = navGraph.finalizeLowest()
+        }
     }
 }
