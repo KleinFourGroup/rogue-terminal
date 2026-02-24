@@ -1,6 +1,6 @@
 import { TILE_SIZE } from "./text_sprite"
 
-export enum GridDirections {
+export enum GridDirection {
     NW = 0,
     NN,
     NE,
@@ -16,19 +16,19 @@ export type TilePosition = {
     col: number
 }
 
-export const TILE_OFFSETS: Record<GridDirections, TilePosition> = {
-    [GridDirections.NW]: {row: -1, col: -1},
-    [GridDirections.NN]: {row: -1, col: 0},
-    [GridDirections.NE]: {row: -1, col: 1},
-    [GridDirections.WW]: {row: 0, col: -1},
-    [GridDirections.EE]: {row: 0, col: 1},
-    [GridDirections.SW]: {row: 1, col: -1},
-    [GridDirections.SS]: {row: 1, col: 0},
-    [GridDirections.SE]: {row: 1, col: 1}
+export const TILE_OFFSETS: Record<GridDirection, TilePosition> = {
+    [GridDirection.NW]: {row: -1, col: -1},
+    [GridDirection.NN]: {row: -1, col: 0},
+    [GridDirection.NE]: {row: -1, col: 1},
+    [GridDirection.WW]: {row: 0, col: -1},
+    [GridDirection.EE]: {row: 0, col: 1},
+    [GridDirection.SW]: {row: 1, col: -1},
+    [GridDirection.SS]: {row: 1, col: 0},
+    [GridDirection.SE]: {row: 1, col: 1}
 }
 
 export function randomDirection() {
-    const dirs = Object.values(GridDirections).filter((val) => typeof val === "number")
+    const dirs = Object.values(GridDirection).filter((val) => typeof val === "number")
     return dirs[Math.floor(Math.random() * dirs.length)]
 }
 
