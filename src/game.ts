@@ -8,6 +8,7 @@ import { getSmoothMove } from "./move_action"
 import { TurnManager, TurnStatus } from "./turn_manager"
 import { World } from "./world"
 import { randomDirection, TILE_OFFSETS } from "./position"
+import { AILogic, RandomWalkAI } from "./behavior"
 
 const ROWS = 11
 const COLS = 11
@@ -29,7 +30,7 @@ export class GameScene extends Container implements IScene {
         this.camera = new Camera(this.app, this)
 
         this.player = new Entity("@", Math.floor(ROWS / 2), Math.floor(COLS / 2))
-        this.player.hasAI = true
+        new RandomWalkAI(this.player, true) // Oooh this looks terrible; should have some logic done outside of the constructor
 
         this.turnManager = new TurnManager()
 
@@ -54,7 +55,7 @@ export class GameScene extends Container implements IScene {
             for (let dcol = -1; dcol <= 1; dcol += 2) {
                 for (let count = 1; count <= 3; count++) {
                     const newEntity = new Entity("O", this.player.row + count * drow, this.player.col + count * dcol)
-                    newEntity.hasAI = true
+                    new RandomWalkAI(newEntity, false) // Yuck
                     this.level.addEntity(newEntity)
                 }
             }
@@ -70,15 +71,10 @@ export class GameScene extends Container implements IScene {
 
     tickAI() {
         console.log("Tick!")
-        let dx = 0, dy = 0
-        do {
-            const DIR = TILE_OFFSETS[randomDirection()]
-            dx = DIR.col
-            dy = DIR.row
-        } while (!this.level.isNavigable(this.turnManager.currentTurn!.row + dy, this.turnManager.currentTurn!.col + dx))
 
-        const action = getSmoothMove(this.turnManager.currentTurn!, this.turnManager.currentTurn!.row + dy, this.turnManager.currentTurn!.col + dx, this.turnManager.currentTurn === this.player)
-        this.turnManager.currentTurn?.actor.setAction(action)
+        const action = this.turnManager.currentTurn!.getComponent(AILogic)!.getAction()
+        console.assert(action !== null)
+        this.turnManager.currentTurn?.actor.setAction(action!)
         // console.log(this.player.row, this.player.col)
     }
 

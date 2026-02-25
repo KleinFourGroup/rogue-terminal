@@ -16,8 +16,6 @@ export class Entity {
 
     system: ECS | null
 
-    hasAI: boolean // TODO: Replace with components!
-
     actor: Actor
     animationManager: AnimationManager
 
@@ -31,8 +29,6 @@ export class Entity {
         this.height = height
 
         this.system = null
-
-        this.hasAI = false
 
         this.actor = new Actor(this)
         this.animationManager = new AnimationManager(this)

@@ -1,6 +1,7 @@
 import { Container } from "pixi.js"
 import { Entity } from "./entity"
 import { World } from "./world"
+import { AILogic } from "./behavior"
 
 // TODO: optimize--if every wall is an entity, then we want a better test than
 // just iterating through a flat array.  Probably a quad tree?
@@ -65,7 +66,7 @@ export class ECS {
     }
 
     nextAI() {
-        const hasAI = this.entities.filter((entity: Entity) => entity.hasAI)
+        const hasAI = this.entities.filter((entity: Entity) => entity.getComponent(AILogic) !== null)
 
         if (hasAI.length > 0) {
             return hasAI.reduce((currMin: Entity, entity: Entity) => entity.actor.actionCoolDown < currMin.actor.actionCoolDown ? entity : currMin, hasAI[0])
