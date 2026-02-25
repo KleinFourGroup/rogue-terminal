@@ -1,5 +1,6 @@
 import { Actor } from "./actor"
 import { AnimationManager } from "./animation_manager"
+import { ClassConstructor, Component } from "./component"
 import { TilePosition, tileToPixel } from "./position"
 import { TextSprite, TILE_SIZE } from "./text_sprite"
 
@@ -17,6 +18,8 @@ export class Entity {
     actor: Actor
     animationManager: AnimationManager
 
+    components: {[name: string]: Component}
+
     constructor(text: string, row: number = 0, col: number = 0, width: number = 1, height: number = 1) {
         this.sprite = new TextSprite(text)
         this.row = row
@@ -28,6 +31,8 @@ export class Entity {
 
         this.actor = new Actor(this)
         this.animationManager = new AnimationManager(this)
+
+        this.components = {}
         
         this.sprite.anchor.set(0.5)
         this.sprite.position.set(...tileToPixel(this.row, this.col, this.width, this.height))
@@ -39,6 +44,30 @@ export class Entity {
 
         this.sprite.position.set(...tileToPixel(this.row, this.col, this.width, this.height))
         // console.log(this.row, this.col)
+    }
+
+    getComponent<Comp extends Component>(comp: ClassConstructor<Comp>): Comp | null {
+        let name = (comp as typeof Component).name
+        if (this.components.hasOwnProperty(name)) {
+            return this.components[name] as Comp
+        }
+        return null
+    }
+
+    addComponents(...components: Component[]) {
+        for (let component of components) {
+            this.components[(component.constructor as typeof Component).name] = component
+            component.setEntity(this)
+        }
+    }
+
+    hasComponents(...components: Component[]) {
+        for (let component of components) {
+            if (!this.components.hasOwnProperty((component.constructor as typeof Component).name)) {
+                return false
+            }
+        }
+        return true
     }
 
     tileCollision(row: number, col: number) {
