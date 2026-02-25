@@ -1,6 +1,7 @@
 import { Actor } from "./actor"
 import { AnimationManager } from "./animation_manager"
 import { ClassConstructor, Component } from "./component"
+import { ECS } from "./ecs"
 import { TilePosition, tileToPixel } from "./position"
 import { TextSprite, TILE_SIZE } from "./text_sprite"
 
@@ -12,6 +13,8 @@ export class Entity {
 
     width: number
     height: number
+
+    system: ECS | null
 
     hasAI: boolean // TODO: Replace with components!
 
@@ -26,6 +29,8 @@ export class Entity {
         this.col = col
         this.width = width
         this.height = height
+
+        this.system = null
 
         this.hasAI = false
 
@@ -46,8 +51,12 @@ export class Entity {
         // console.log(this.row, this.col)
     }
 
+    setECS(system: ECS | null) {
+        this.system = system
+    }
+
     getComponent<Comp extends Component>(comp: ClassConstructor<Comp>): Comp | null {
-        let name = (comp as typeof Component).name
+        const name = (comp as typeof Component).name
         if (this.components.hasOwnProperty(name)) {
             return this.components[name] as Comp
         }
@@ -55,14 +64,14 @@ export class Entity {
     }
 
     addComponents(...components: Component[]) {
-        for (let component of components) {
+        for (const component of components) {
             this.components[(component.constructor as typeof Component).name] = component
             component.setEntity(this)
         }
     }
 
     hasComponents(...components: Component[]) {
-        for (let component of components) {
+        for (const component of components) {
             if (!this.components.hasOwnProperty((component.constructor as typeof Component).name)) {
                 return false
             }

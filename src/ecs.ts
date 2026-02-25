@@ -1,5 +1,6 @@
 import { Container } from "pixi.js"
 import { Entity } from "./entity"
+import { World } from "./world"
 
 // TODO: optimize--if every wall is an entity, then we want a better test than
 // just iterating through a flat array.  Probably a quad tree?
@@ -8,6 +9,7 @@ export class ECS {
     entities: Entity[]
     rows: number
     cols: number
+    world: World | null
     stage: Container
 
     constructor(rows: number, cols: number) {
@@ -15,12 +17,23 @@ export class ECS {
         this.cols = cols
 
         this.entities = []
+        this.world = null
+
         this.stage = new Container()
+    }
+
+    setWorld(world: World | null) {
+        if (world !== null) {
+            console.assert(world.rows === this.rows && world.cols === this.cols)
+        }
+        
+        this.world = world
     }
     
     addEntity(entity: Entity) {
         if (this.entities.indexOf(entity) < 0) {
             this.entities.push(entity)
+            entity.setECS(this)
             this.stage.addChild(entity.sprite)
         }
     }
@@ -29,6 +42,7 @@ export class ECS {
         const index = this.entities.indexOf(entity)
         if (index >= 0) {
             this.entities.splice(index, 1)
+            entity.setECS(null)
             this.stage.removeChild(entity.sprite)
         }
     }

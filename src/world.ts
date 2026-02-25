@@ -22,6 +22,8 @@ export class World extends Container{
         this.entities = new ECS(this.rows, this.cols)
         this.ground = new BackgroundGrid(this.rows, this.cols)
 
+        this.entities.setWorld(this)
+
         this.addChild(this.ground)
         this.addChild(this.entities.stage)
     }
