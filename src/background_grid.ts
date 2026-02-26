@@ -7,9 +7,11 @@ export class BackgroundGrid extends Container {
 
     textArray: (TextSprite | null)[]
     colorArray: (Graphics | null)[]
+    highlightArray: (Graphics | null)[]
     validArray: boolean[]
 
     textLayer: Container
+    highlightLayer: Container
     colorLayer: Container
 
     adjustedAlphas: number[]
@@ -21,14 +23,17 @@ export class BackgroundGrid extends Container {
 
         this.textArray = new Array<TextSprite | null>(this.rows * this.cols).fill(null)
         this.colorArray = new Array<Graphics | null>(this.rows * this.cols).fill(null)
+        this.highlightArray = new Array<Graphics | null>(this.rows * this.cols).fill(null)
         this.validArray = new Array<boolean>(this.rows * this.cols).fill(false)
 
         this.textLayer = new Container()
+        this.highlightLayer = new Container()
         this.colorLayer = new Container()
 
         this.adjustedAlphas = []
 
         this.addChild(this.colorLayer)
+        this.addChild(this.highlightLayer)
         this.addChild(this.textLayer)
     }
 
@@ -93,6 +98,7 @@ export class BackgroundGrid extends Container {
                 graphics.rect(0, 0, TILE_SIZE, TILE_SIZE).fill(color)
             } else {
                 const graphics =  new Graphics().rect(0, 0, TILE_SIZE, TILE_SIZE).fill(color)
+                this.colorArray[index] = graphics
                 this.colorLayer.addChild(graphics)
                 
                 graphics.position.set(col * TILE_SIZE, row * TILE_SIZE)
@@ -102,6 +108,33 @@ export class BackgroundGrid extends Container {
                 for (const child of laterChildren) {
                     this.colorLayer.removeChild(child)
                     this.colorLayer.addChild(child)
+                }
+            }
+        }
+    }
+
+    setHighlight(row: number, col: number, color: string | null) {
+        if (this.isInBounds(row, col)) {
+            const index = row * this.cols + col
+
+            if (this.highlightArray[index] !== null) {
+                const graphics = this.highlightArray[index]
+                graphics.clear()
+                if (color !== null) {
+                    graphics.roundRect(0, 0, TILE_SIZE, TILE_SIZE, TILE_SIZE / 4).stroke({width: 5, color: color})
+                }
+            } else if (color !== null) {
+                const graphics =  new Graphics().roundRect(0, 0, TILE_SIZE, TILE_SIZE, TILE_SIZE / 4).stroke({width: 5, color: color})
+                this.highlightArray[index] = graphics
+                this.highlightLayer.addChild(graphics)
+                
+                graphics.position.set(col * TILE_SIZE, row * TILE_SIZE)
+
+                // Hideous insert sort, but in theory this should only be done once anyways, so...
+                const laterChildren = this.highlightArray.filter((val, ind) => ind > index && val !== null) as Graphics[]
+                for (const child of laterChildren) {
+                    this.highlightLayer.removeChild(child)
+                    this.highlightLayer.addChild(child)
                 }
             }
         }

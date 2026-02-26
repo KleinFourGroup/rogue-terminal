@@ -1,4 +1,4 @@
-import { GridDirection, TILE_OFFSETS, toFlatArrayOffsets } from "./position"
+import { GridDirection, TILE_OFFSETS, TilePosition, toFlatArrayOffsets } from "./position"
 
 export class NavigationNode {
     row: number
@@ -90,12 +90,45 @@ export class NavigationGrid {
                 console.assert(this.isInBounds(row + TILE_OFFSETS[dir].row, col + TILE_OFFSETS[dir].col))
                 const neighbor = this.tiles[row * this.cols + col + toFlatArrayOffsets(TILE_OFFSETS[dir], this.cols)]
                 console.assert(neighbor !== null)
-                neighbor!.distance = Math.min(node!.distance + 1, neighbor!.distance)
+                if (!neighbor!.finalized) {
+                    neighbor!.distance = Math.min(node!.distance + 1, neighbor!.distance)
 
-                if (this.queue.indexOf(neighbor!) === -1) {
-                    this.queue.push(neighbor!)
+                    if (this.queue.indexOf(neighbor!) === -1) {
+                        this.queue.push(neighbor!)
+                    }
                 }
             }
+        }
+    }
+
+    navigate(row: number, col: number): TilePosition | null {
+        const node = this.tiles[row * this.cols + col]
+        console.assert(node !== null)
+        console.assert(node!.finalized)
+
+        const dirs = Object.values(GridDirection).filter((val) => typeof val === "number")
+        let minDir = null
+        let minDist = node!.distance
+
+        for (const dir of dirs) {
+            if (node!.edges[dir]) {
+                console.assert(this.isInBounds(row + TILE_OFFSETS[dir].row, col + TILE_OFFSETS[dir].col))
+                const neighbor = this.tiles[row * this.cols + col + toFlatArrayOffsets(TILE_OFFSETS[dir], this.cols)]
+                console.assert(neighbor !== null)
+                if (neighbor!.distance < minDist) {
+                    minDir = dir
+                    minDist = neighbor!.distance
+                }
+            }
+        }
+
+        if (minDir === null) {
+            return null
+        }
+
+        return {
+            row: row + TILE_OFFSETS[minDir].row,
+            col: col + TILE_OFFSETS[minDir].col
         }
     }
 }

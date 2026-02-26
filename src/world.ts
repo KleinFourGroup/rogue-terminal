@@ -28,8 +28,8 @@ export class World extends Container{
         this.addChild(this.entities.stage)
     }
 
-    isNavigable(row: number, col: number) {
-        return this.entities.isFree(row, col) && this.ground.isValid(row, col)
+    isNavigable(row: number, col: number, ignoreList: Entity[] = []) {
+        return this.entities.isFree(row, col, ignoreList) && this.ground.isValid(row, col)
     }
 
     addEntity(entity: Entity) {
@@ -77,7 +77,7 @@ export class World extends Container{
         return unfinished
     }
 
-    getNavigationGraph(row: number, col: number) {
+    getNavigationGraph(row: number, col: number, ignoreList: Entity[] = []) {
         const dirs = Object.values(GridDirection).filter((val) => typeof val === "number")
         const navGraph = new NavigationGrid(this.rows, this.cols)
 
@@ -86,7 +86,7 @@ export class World extends Container{
 
         function setEdges(node: NavigationNode, world: World) {
             for (const dir of dirs) {
-                node.edges[dir] = world.isNavigable(node.row + TILE_OFFSETS[dir].row, node.col + TILE_OFFSETS[dir].col)
+                node.edges[dir] = world.isNavigable(node.row + TILE_OFFSETS[dir].row, node.col + TILE_OFFSETS[dir].col, ignoreList)
             }
         }
 
@@ -108,5 +108,7 @@ export class World extends Container{
             navGraph.propagate(finalized.row, finalized.col)
             finalized = navGraph.finalizeLowest()
         }
+
+        return navGraph
     }
 }

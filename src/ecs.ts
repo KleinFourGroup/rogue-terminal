@@ -48,10 +48,10 @@ export class ECS {
         }
     }
 
-    isFree(row: number, col: number) {
+    isFree(row: number, col: number, ignoreList: Entity[] = []) {
         // console.log("Testing: ", row, col)
         for (const entity of this.entities) {
-            if (entity.tileCollision(row, col)) return false
+            if (entity.tileCollision(row, col) && ignoreList.indexOf(entity) === -1) return false
         }
 
         return true

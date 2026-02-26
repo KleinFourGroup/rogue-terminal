@@ -1,4 +1,5 @@
 import { Entity } from "../entity"
+import { getIdle } from "../idle_action"
 import { getSmoothMove } from "../move_action"
 import { TILE_OFFSETS, randomDirection } from "../position"
 import { IBehaviorLogic } from "./behavior"
@@ -16,7 +17,7 @@ export class RandomWalkAI implements IBehaviorLogic {
         const world = this.entity.system !== null ? this.entity.system.world : null
 
         if (world === null) {
-            return null
+            return getIdle(this.entity, this.block)
         }
 
         let dx = 0, dy = 0

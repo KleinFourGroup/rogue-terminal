@@ -8,6 +8,7 @@ import { TurnManager, TurnStatus } from "./turn_manager"
 import { World } from "./world"
 import { AILogic, setupAI } from "./behaviors/behavior"
 import { RandomWalkAI } from "./behaviors/random_walk"
+import { RandomMoveTargetAI } from "./behaviors/random_move_target"
 
 const ROWS = 11
 const COLS = 11
@@ -29,7 +30,7 @@ export class GameScene extends Container implements IScene {
         this.camera = new Camera(this.app, this)
 
         this.player = new Entity("@", Math.floor(ROWS / 2), Math.floor(COLS / 2))
-        setupAI(this.player, new RandomWalkAI(this.player, true)) // Still probably don't want this being called directly
+        setupAI(this.player, new RandomMoveTargetAI(this.player, true)) // Still probably don't want this being called directly
 
         this.turnManager = new TurnManager()
 
@@ -69,8 +70,6 @@ export class GameScene extends Container implements IScene {
     }
 
     tickAI() {
-        console.log("Tick!")
-
         const action = this.turnManager.currentTurn!.getComponent(AILogic)!.getAction()
         console.assert(action !== null)
         this.turnManager.currentTurn?.actor.setAction(action!)
