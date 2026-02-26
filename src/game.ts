@@ -4,11 +4,10 @@ import { GameApp } from "./app"
 import { TextSprite } from "./text_sprite"
 import { Camera } from "./camera"
 import { Entity } from "./entity"
-import { getSmoothMove } from "./move_action"
 import { TurnManager, TurnStatus } from "./turn_manager"
 import { World } from "./world"
-import { randomDirection, TILE_OFFSETS } from "./position"
-import { AILogic, RandomWalkAI } from "./behavior"
+import { AILogic, setupAI } from "./behaviors/behavior"
+import { RandomWalkAI } from "./behaviors/random_walk"
 
 const ROWS = 11
 const COLS = 11
@@ -30,7 +29,7 @@ export class GameScene extends Container implements IScene {
         this.camera = new Camera(this.app, this)
 
         this.player = new Entity("@", Math.floor(ROWS / 2), Math.floor(COLS / 2))
-        new RandomWalkAI(this.player, true) // Oooh this looks terrible; should have some logic done outside of the constructor
+        setupAI(this.player, new RandomWalkAI(this.player, true)) // Still probably don't want this being called directly
 
         this.turnManager = new TurnManager()
 
@@ -55,7 +54,7 @@ export class GameScene extends Container implements IScene {
             for (let dcol = -1; dcol <= 1; dcol += 2) {
                 for (let count = 1; count <= 3; count++) {
                     const newEntity = new Entity("O", this.player.row + count * drow, this.player.col + count * dcol)
-                    new RandomWalkAI(newEntity, false) // Yuck
+                    setupAI(newEntity, new RandomWalkAI(newEntity, false))
                     this.level.addEntity(newEntity)
                 }
             }
