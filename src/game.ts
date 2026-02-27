@@ -1,7 +1,7 @@
 import { Container } from "pixi.js"
 import { IScene } from "./scene"
 import { GameApp } from "./app"
-import { TextSprite } from "./text_sprite"
+import { TextSprite, TILE_SIZE } from "./text_sprite"
 import { Camera } from "./camera"
 import { Entity } from "./entity"
 import { TurnManager, TurnStatus } from "./turn_manager"
@@ -10,8 +10,10 @@ import { AILogic, setupAI } from "./behaviors/behavior"
 import { RandomWalkAI } from "./behaviors/random_walk"
 import { RandomMoveTargetAI } from "./behaviors/random_move_target"
 
-const ROWS = 11
-const COLS = 11
+const ROWS = 21
+const COLS = 21
+
+const TILES_DIAGONAL = 31
 
 const TICK_TIME = 1000 / 1200
 
@@ -129,5 +131,10 @@ export class GameScene extends Container implements IScene {
     updateResolution(): void {
         // Move the sprite to the center of the screen
         this.camera.setScreenPosition(this.app.width / 2, this.app.height / 2)
+
+        const screenDiagonal = Math.hypot(this.app.width, this.app.height) / (TILE_SIZE * Math.SQRT2)
+        const zoom = screenDiagonal / TILES_DIAGONAL
+        this.camera.setZoom(zoom)
+        this.app.debugOverlay.setZoom(zoom) // TODO: make less ugly
     }
 }

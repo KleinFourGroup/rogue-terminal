@@ -16,7 +16,7 @@ export class TextSprite extends Sprite {
 
         textureCtx.clearRect(0, 0, TILE_SIZE, TILE_SIZE)
         textureCtx.fillStyle = COLORS.TERMINAL_GREEN
-        textureCtx.font = "64px serif"
+        textureCtx.font = `${TILE_SIZE}px monospace`
         textureCtx.textBaseline = "middle"
         textureCtx.textAlign = "center"
         textureCtx.fillText(character, TILE_SIZE / 2, TILE_SIZE / 2)

@@ -22,4 +22,8 @@ export class Camera extends Container {
     setScreenPosition(x: number, y: number) {
         this.stage.position.set(x, y)
     }
+
+    setZoom(zoom: number) {
+        this.stage.scale.set(zoom)
+    }
 }

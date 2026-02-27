@@ -15,6 +15,8 @@ export class DebugOverlay extends Container {
     frameBuffer: number[]
     workBuffer: number[]
 
+    zoom: number
+
     constructor(app: GameApp) {
         super()
         this.app = app
@@ -25,10 +27,12 @@ export class DebugOverlay extends Container {
         this.FPS = NaN
         this.resolution = "?x?"
         this.load = NaN
+        this.zoom = 1
 
         this.text = new BitmapText({
             text: "",
             style: {
+                align: "right",
                 fontFamily: "monospace",
                 fill: COLORS.TERMINAL_GREEN,
                 fontSize: 24
@@ -50,6 +54,10 @@ export class DebugOverlay extends Container {
         if (this.workBuffer.length > BUFFER_LENGTH) this.workBuffer.shift()
     }
 
+    setZoom(zoom: number) {
+        this.zoom = zoom
+    }
+
     updateResolution() {
         this.resolution = `${this.app.width}x${this.app.height}`
         this.text.position.set(this.app.width - 5, 5)
@@ -64,6 +72,9 @@ export class DebugOverlay extends Container {
         this.FPS = (totalTime !== 0) ? 1000 * this.frameBuffer.length / totalTime : NaN
         this.load = (totalTime !== 0) ? 100 * totalWork / totalTime : NaN
 
-        this.text.text = `${this.FPS.toFixed(2)}@${this.resolution} (${this.load.toFixed(2)}%)`
+        const topLine = `${this.FPS.toFixed(2)}@${this.resolution} (${this.load.toFixed(2)}%)`
+        const zoomLine = `Zoom: ${(this.zoom * 100).toFixed(2)}%`
+
+        this.text.text = [topLine, zoomLine].join("\n")
     }
 }
