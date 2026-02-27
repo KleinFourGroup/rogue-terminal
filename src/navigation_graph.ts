@@ -32,12 +32,14 @@ export class NavigationNode {
 export class NavigationGrid {
     rows: number
     cols: number
+    zeroTiles: TilePosition[]
     tiles: (NavigationNode | null)[]
     queue: NavigationNode[]
 
     constructor(rows: number, cols: number) {
         this.rows = rows
         this.cols = cols
+        this.zeroTiles = []
         this.tiles = new Array(this.rows * this.cols).fill(null)
         this.queue = []
     }
@@ -75,6 +77,10 @@ export class NavigationGrid {
         const lowest = this.queue.shift()!
         console.assert(Number.isFinite(lowest.distance))
         lowest.finalized = true
+        
+        if (lowest.distance === 0) {
+            this.zeroTiles.push({row: lowest.row, col: lowest.col})
+        }
 
         return lowest
     }
@@ -101,6 +107,15 @@ export class NavigationGrid {
         }
     }
 
+    zeroCartesian(row: number, col: number) {
+        let minCart = Infinity
+        for (const tile of this.zeroTiles) {
+            minCart = Math.min(minCart, (tile.row - row) ** 2 + (tile.col - col) ** 2)
+        }
+
+        return minCart
+    }
+
     navigate(row: number, col: number, momentum: TilePosition | null = null): TilePosition | null {
         const node = this.tiles[row * this.cols + col]
         console.assert(node !== null)
@@ -109,7 +124,8 @@ export class NavigationGrid {
         const dirs = Object.values(GridDirection).filter((val) => typeof val === "number")
         let minDir = null
         let minDist = node!.distance
-        let maxCos = -1
+        let maxDotP = -1
+        let minCart = Infinity
 
         for (const dir of dirs) {
             if (node!.edges[dir]) {
@@ -121,10 +137,15 @@ export class NavigationGrid {
                     minDist = neighbor!.distance
                 } else if (neighbor!.distance === minDist && momentum !== null) {
                     const dotProduct = (momentum.row * TILE_OFFSETS[dir].row + momentum.col * TILE_OFFSETS[dir].col)
-                    const cos = dotProduct / (Math.hypot(momentum.row, momentum.col) * Math.hypot(TILE_OFFSETS[dir].row, TILE_OFFSETS[dir].col))
-                    if (cos > maxCos) {
+                    if (dotProduct > maxDotP) {
                         minDir = dir
-                        maxCos = cos
+                        maxDotP = dotProduct
+                    } else if (dotProduct === maxDotP) {
+                        const cartesian = this.zeroCartesian(row + TILE_OFFSETS[dir].row, col + TILE_OFFSETS[dir].col)
+                        if (cartesian < minCart) {
+                            minDir = dir
+                            minCart = cartesian
+                        }
                     }
                 }
             }
