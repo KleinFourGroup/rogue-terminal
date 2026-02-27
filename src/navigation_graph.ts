@@ -101,7 +101,7 @@ export class NavigationGrid {
         }
     }
 
-    navigate(row: number, col: number): TilePosition | null {
+    navigate(row: number, col: number, momentum: TilePosition | null = null): TilePosition | null {
         const node = this.tiles[row * this.cols + col]
         console.assert(node !== null)
         console.assert(node!.finalized)
@@ -109,6 +109,7 @@ export class NavigationGrid {
         const dirs = Object.values(GridDirection).filter((val) => typeof val === "number")
         let minDir = null
         let minDist = node!.distance
+        let maxCos = -1
 
         for (const dir of dirs) {
             if (node!.edges[dir]) {
@@ -118,6 +119,13 @@ export class NavigationGrid {
                 if (neighbor!.distance < minDist) {
                     minDir = dir
                     minDist = neighbor!.distance
+                } else if (neighbor!.distance === minDist && momentum !== null) {
+                    const dotProduct = (momentum.row * TILE_OFFSETS[dir].row + momentum.col * TILE_OFFSETS[dir].col)
+                    const cos = dotProduct / (Math.hypot(momentum.row, momentum.col) * Math.hypot(TILE_OFFSETS[dir].row, TILE_OFFSETS[dir].col))
+                    if (cos > maxCos) {
+                        minDir = dir
+                        maxCos = cos
+                    }
                 }
             }
         }

@@ -8,12 +8,24 @@ import { IBehaviorLogic } from "./behavior"
 export class RandomMoveTargetAI implements IBehaviorLogic {
     entity: Entity
     target: TilePosition | null
+    momentum: TilePosition
     block: boolean
 
     constructor(entity: Entity, block: boolean) {
         this.entity = entity
         this.target = null
+        this.momentum = {row: 0, col: 0}
         this.block = block
+    }
+
+    setMomentum(row: number, col: number) {
+        this.momentum.row = row
+        this.momentum.col = col
+    }
+
+    clearMomentum() {
+        this.momentum.row = 0
+        this.momentum.col = 0
     }
 
     getAction() {
@@ -40,15 +52,17 @@ export class RandomMoveTargetAI implements IBehaviorLogic {
         }
 
         const navGraph = world.getNavigationGraph(this.target.row, this.target.col, [this.entity])
-        const nextPosition = navGraph.navigate(this.entity.row, this.entity.col)
+        const nextPosition = navGraph.navigate(this.entity.row, this.entity.col, this.momentum)
 
         if (nextPosition === null) {
             world.ground.setHighlight(this.target.row, this.target.col, null)
             this.target = null
+            this.clearMomentum()
             return getIdle(this.entity, this.block)
         }
 
         const action = getSmoothMove(this.entity, nextPosition.row, nextPosition.col, this.block)
+        this.setMomentum(nextPosition.row - this.entity.row, nextPosition.col - this.entity.col)
 
         return action
     }
