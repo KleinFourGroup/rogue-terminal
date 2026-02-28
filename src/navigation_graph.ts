@@ -122,42 +122,52 @@ export class NavigationGrid {
         console.assert(node!.finalized)
 
         const dirs = Object.values(GridDirection).filter((val) => typeof val === "number")
-        let minDir = null
-        let minDist = node!.distance
-        let maxDotP = -1
-        let minCart = Infinity
+
+        const nextData = {
+            dir: null as GridDirection | null,
+            dist: node!.distance,
+            cartDist: Infinity,
+            dotP: -Infinity
+        }
+
+        function setNext(dir: GridDirection, distance: number, cartesian: number, dotProduct: number) {
+            nextData.dir = dir
+            nextData.dist = distance
+            nextData.cartDist = cartesian
+            nextData.dotP = dotProduct
+        }
 
         for (const dir of dirs) {
             if (node!.edges[dir]) {
                 console.assert(this.isInBounds(row + TILE_OFFSETS[dir].row, col + TILE_OFFSETS[dir].col))
                 const neighbor = this.tiles[row * this.cols + col + toFlatArrayOffsets(TILE_OFFSETS[dir], this.cols)]
                 console.assert(neighbor !== null)
-                if (neighbor!.distance < minDist) {
-                    minDir = dir
-                    minDist = neighbor!.distance
-                } else if (neighbor!.distance === minDist && momentum !== null) {
-                    const dotProduct = (momentum.row * TILE_OFFSETS[dir].row + momentum.col * TILE_OFFSETS[dir].col)
-                    if (dotProduct > maxDotP) {
-                        minDir = dir
-                        maxDotP = dotProduct
-                    } else if (dotProduct === maxDotP) {
-                        const cartesian = this.zeroCartesian(row + TILE_OFFSETS[dir].row, col + TILE_OFFSETS[dir].col)
-                        if (cartesian < minCart) {
-                            minDir = dir
-                            minCart = cartesian
+
+                const distance = neighbor!.distance
+                const cartesian = this.zeroCartesian(row + TILE_OFFSETS[dir].row, col + TILE_OFFSETS[dir].col)
+                const dotProduct = momentum !== null ? (momentum.row * TILE_OFFSETS[dir].row + momentum.col * TILE_OFFSETS[dir].col) : -Infinity
+                
+                if (distance < nextData.dist) {
+                    setNext(dir, distance, cartesian, dotProduct)
+                } else if (distance === nextData.dist) {
+                    if (cartesian < nextData.cartDist) {
+                        setNext(dir, distance, cartesian, dotProduct)
+                    } else if (cartesian === nextData.cartDist && momentum !== null) {
+                        if (dotProduct > nextData.dotP) {
+                            setNext(dir, distance, cartesian, dotProduct)
                         }
                     }
                 }
             }
         }
 
-        if (minDir === null) {
+        if (nextData.dir === null) {
             return null
         }
 
         return {
-            row: row + TILE_OFFSETS[minDir].row,
-            col: col + TILE_OFFSETS[minDir].col
+            row: row + TILE_OFFSETS[nextData.dir].row,
+            col: col + TILE_OFFSETS[nextData.dir].col
         }
     }
 }
