@@ -6,6 +6,7 @@ export class NavigationNode {
     distance: number
     finalized: boolean
     edges: Record<GridDirection, boolean>
+    heapIndex: number | null
 
     constructor(row: number, col: number) {
         this.row = row
@@ -22,10 +23,94 @@ export class NavigationNode {
             [GridDirection.SS]: false,
             [GridDirection.SE]: false
         }
+        this.heapIndex = null
     }
 
     setEdge(dir: GridDirection, traversible: boolean) {
         this.edges[dir] = traversible
+    }
+}
+
+class NavigationHeap {
+    heapArray: NavigationNode[]
+
+    constructor() {
+        this.heapArray = []
+    }
+
+    get length() {
+        return this.heapArray.length
+    }
+
+    peek() {
+        if (this.heapArray.length === 0) {
+            return null
+        }
+
+        return this.heapArray[0]
+    }
+
+    push(node: NavigationNode) {
+        this.heapArray.push(node)
+        this.upheap(this.heapArray.length - 1)
+    }
+
+    pop() {
+        if (this.heapArray.length === 0) {
+            return null
+        } else if (this.heapArray.length === 1) {
+            return this.heapArray.pop()!
+        }
+
+        const root = this.heapArray[0]
+        const edge = this.heapArray.pop()!
+
+        this.heapArray[0] = edge
+        this.downheap(0)
+
+        return root
+    }
+
+    upheap(index: number) {
+        while (index > 0) {
+            const parent = Math.floor((index - 1) / 2)
+
+            if (this.heapArray[parent].distance > this.heapArray[index].distance) {
+                [this.heapArray[index], this.heapArray[parent]] = [this.heapArray[parent], this.heapArray[index]]
+                this.heapArray[index].heapIndex = index // Update swapped's index
+                index = parent
+            } else {
+                break
+            }
+        }
+
+        this.heapArray[index].heapIndex = index // Update original's index
+    }
+
+    downheap(index: number) {
+        while (true) {
+            let toSwap: number | null = null
+            const leftChild = 2 * index + 1
+            const rightChild = 2 * index + 2
+
+            if (leftChild < this.heapArray.length && this.heapArray[leftChild].distance < this.heapArray[index].distance) {
+                toSwap = leftChild
+            }
+
+            if (rightChild < this.heapArray.length && this.heapArray[rightChild].distance < this.heapArray[index].distance) {
+                toSwap = (this.heapArray[rightChild].distance < this.heapArray[leftChild].distance) ? rightChild : toSwap
+            }
+
+            if (toSwap === null) {
+                break
+            } else {
+                [this.heapArray[index], this.heapArray[toSwap]] = [this.heapArray[toSwap], this.heapArray[index]]
+                this.heapArray[index].heapIndex = index // Update swapped's index
+                index = toSwap
+            }
+        }
+
+        this.heapArray[index].heapIndex = index // Update original's index
     }
 }
 
@@ -34,14 +119,14 @@ export class NavigationGrid {
     cols: number
     zeroTiles: TilePosition[]
     tiles: (NavigationNode | null)[]
-    queue: NavigationNode[]
+    heap: NavigationHeap
 
     constructor(rows: number, cols: number) {
         this.rows = rows
         this.cols = cols
         this.zeroTiles = []
         this.tiles = new Array(this.rows * this.cols).fill(null)
-        this.queue = []
+        this.heap = new NavigationHeap()
     }
     
     isInBounds(row: number, col: number) {
@@ -58,28 +143,19 @@ export class NavigationGrid {
         console.assert(this.tiles[row * this.cols + col] === null)
         console.assert(!node.finalized)
         this.tiles[row * this.cols + col] = node
-        this.queue.push(node)
+        this.heap.push(node)
     }
 
     finalizeLowest() {
-        if (this.queue.length === 0) {
-            return null
-        }
+        const lowest = this.heap.pop()
 
-        // Sort the queue
-        this.queue.sort((nodeA, nodeB) => {
-            if (!Number.isFinite(nodeB.distance)) {
-                return Number.isFinite(nodeA.distance) ? -1 : 0
+        if (lowest !== null) {
+            console.assert(Number.isFinite(lowest.distance))
+            lowest.finalized = true
+            
+            if (lowest.distance === 0) {
+                this.zeroTiles.push({row: lowest.row, col: lowest.col})
             }
-            return Number.isFinite(nodeA.distance) ? nodeA.distance - nodeB.distance : 1
-        })
-
-        const lowest = this.queue.shift()!
-        console.assert(Number.isFinite(lowest.distance))
-        lowest.finalized = true
-        
-        if (lowest.distance === 0) {
-            this.zeroTiles.push({row: lowest.row, col: lowest.col})
         }
 
         return lowest
@@ -99,8 +175,10 @@ export class NavigationGrid {
                 if (!neighbor!.finalized) {
                     neighbor!.distance = Math.min(node!.distance + 1, neighbor!.distance)
 
-                    if (this.queue.indexOf(neighbor!) === -1) {
-                        this.queue.push(neighbor!)
+                    if (neighbor!.heapIndex === null) {
+                        this.heap.push(neighbor!)
+                    } else {
+                        this.heap.upheap(neighbor!.heapIndex) // Kinda ugly, but it works
                     }
                 }
             }
