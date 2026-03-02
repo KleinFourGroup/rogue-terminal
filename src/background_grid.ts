@@ -1,5 +1,5 @@
 import { Container, Graphics } from "pixi.js"
-import { TextSprite, TILE_SIZE } from "./text_sprite"
+import { TextSprite, TILE_SIZE } from "./text/text_sprite"
 
 export class BackgroundGrid extends Container {
     rows: number

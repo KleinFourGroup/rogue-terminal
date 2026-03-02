@@ -1,7 +1,7 @@
 import { Container } from "pixi.js"
 import { IScene } from "./scene"
 import { GameApp } from "./app"
-import { TextSprite, TILE_SIZE } from "./text_sprite"
+import { TextSprite, TILE_SIZE } from "./text/text_sprite"
 import { Camera } from "./camera"
 import { Entity } from "./entity"
 import { TurnManager, TurnStatus } from "./turn_manager"

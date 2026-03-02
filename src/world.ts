@@ -2,7 +2,7 @@ import { Container } from "pixi.js"
 import { ECS } from "./ecs"
 import { BackgroundGrid } from "./background_grid"
 import { Entity } from "./entity"
-import { TextSprite } from "./text_sprite"
+import { TextSprite } from "./text/text_sprite"
 import { NavigationGrid, NavigationNode } from "./navigation_graph"
 import { GridDirection, TILE_OFFSETS } from "./position"
 
