@@ -31,7 +31,7 @@ export class GameScene extends Container implements IScene {
         this.app = app
         this.camera = new Camera(this.app, this)
 
-        this.player = new Entity("@", Math.floor(ROWS / 2), Math.floor(COLS / 2))
+        this.player = new Entity("@", app.canvasCache, Math.floor(ROWS / 2), Math.floor(COLS / 2))
         setupAI(this.player, new RandomMoveTargetAI(this.player, true)) // Still probably don't want this being called directly
 
         this.turnManager = new TurnManager()
@@ -45,7 +45,7 @@ export class GameScene extends Container implements IScene {
                 this.level.setValid(row, col, true)
 
                 if (row === 0 || row === ROWS - 1 || col === 0 || col === COLS - 1) {
-                    const wall = new Entity("#", row, col)
+                    const wall = new Entity("#", app.canvasCache, row, col)
                     this.level.addEntity(wall)
                 }
             }
@@ -56,7 +56,7 @@ export class GameScene extends Container implements IScene {
         for (let drow = -1; drow <= 1; drow += 2) {
             for (let dcol = -1; dcol <= 1; dcol += 2) {
                 for (let count = 1; count <= 3; count++) {
-                    const newEntity = new Entity("O", this.player.row + count * drow, this.player.col + count * dcol)
+                    const newEntity = new Entity("O", app.canvasCache, this.player.row + count * drow, this.player.col + count * dcol)
                     setupAI(newEntity, new RandomWalkAI(newEntity, false))
                     this.level.addEntity(newEntity)
                 }

@@ -3,6 +3,7 @@ import { AnimationManager } from "./animation_manager"
 import { ClassConstructor, Component } from "./component"
 import { ECS } from "./ecs"
 import { TilePosition, tileToPixel } from "./position"
+import { TextCanvasCache } from "./text/text_cache"
 import { TextSprite, TILE_SIZE } from "./text/text_sprite"
 
 export class Entity {
@@ -21,8 +22,8 @@ export class Entity {
 
     components: {[name: string]: Component}
 
-    constructor(text: string, row: number = 0, col: number = 0, width: number = 1, height: number = 1) {
-        this.sprite = new TextSprite(text)
+    constructor(text: string, cache: TextCanvasCache | null, row: number = 0, col: number = 0, width: number = 1, height: number = 1) {
+        this.sprite = new TextSprite(text, cache)
         this.row = row
         this.col = col
         this.width = width

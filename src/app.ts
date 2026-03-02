@@ -5,6 +5,7 @@ import { GameScene } from "./game"
 import { DebugOverlay } from "./debug_overlay"
 import { LoadingScreen } from "./loading_screen"
 import { AssetLoader } from "./assets"
+import { TextCanvasCache } from "./text/text_cache"
 
 export class GameApp extends Application {
     width: number
@@ -12,6 +13,8 @@ export class GameApp extends Application {
 
     faviconCanvas: HTMLCanvasElement
     faviconCtx: CanvasRenderingContext2D
+
+    canvasCache: TextCanvasCache
 
     debugOverlay: DebugOverlay
     sceneStage: Container
@@ -29,6 +32,8 @@ export class GameApp extends Application {
         this.faviconCanvas.height = 16
 
         this.faviconCtx = this.faviconCanvas.getContext("2d")!
+
+        this.canvasCache = new TextCanvasCache()
 
         this.debugOverlay = new DebugOverlay(this)
         this.sceneStage = new Container()
