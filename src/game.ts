@@ -16,7 +16,7 @@ const COLS = 21
 
 const TILES_DIAGONAL = 31
 
-const TICK_TIME = 1000 / 1200
+// const TICK_TIME = 1000 / 1200
 
 export class GameScene extends Container implements IScene {
     app: GameApp

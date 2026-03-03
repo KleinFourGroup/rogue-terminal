@@ -3,11 +3,9 @@ import { Entity } from "./entity"
 import { World } from "./world"
 import { AILogic } from "./behaviors/behavior"
 
-// TODO: optimize--if every wall is an entity, then we want a better test than
-// just iterating through a flat array.  Probably a quad tree?
-
 export class ECS {
     entities: Entity[]
+    grid: (Entity | null)[]
     rows: number
     cols: number
     world: World | null
@@ -18,6 +16,7 @@ export class ECS {
         this.cols = cols
 
         this.entities = []
+        this.grid = new Array<Entity | null>(this.rows * this.cols).fill(null)
         this.world = null
 
         this.stage = new Container()
@@ -30,11 +29,42 @@ export class ECS {
         
         this.world = world
     }
+
+    addToGrid(entity: Entity) {
+        for (let row = entity.row; row < entity.row + entity.height; row++) {
+            for (let col = entity.col; col < entity.col + entity.width; col++) {
+                if (this.isValid(row, col)) {
+                    const index = row * this.cols + col
+                    if (this.grid[index] === null) {
+                        this.grid[index] = entity
+                    } else {
+                        console.assert(false)
+                    }
+                }
+            }
+        }
+    }
+
+    deleteFromGrid(entity: Entity) {
+        for (let row = entity.row; row < entity.row + entity.height; row++) {
+            for (let col = entity.col; col < entity.col + entity.width; col++) {
+                if (this.isValid(row, col)) {
+                    const index = row * this.cols + col
+                    if (this.grid[index] === entity) {
+                        this.grid[index] = null
+                    } else {
+                        console.assert(false)
+                    }
+                }
+            }
+        }
+    }
     
     addEntity(entity: Entity) {
         if (this.entities.indexOf(entity) < 0) {
             this.entities.push(entity)
             entity.setECS(this)
+            this.addToGrid(entity)
             this.stage.addChild(entity.sprite)
         }
     }
@@ -44,14 +74,22 @@ export class ECS {
         if (index >= 0) {
             this.entities.splice(index, 1)
             entity.setECS(null)
+            this.deleteFromGrid(entity)
             this.stage.removeChild(entity.sprite)
         }
     }
 
+    moveEntity(entity: Entity, row: number, col: number) {
+        this.deleteFromGrid(entity)
+        entity.setPosition(row, col)
+        this.addToGrid(entity)
+    }
+
     isFree(row: number, col: number, ignoreList: Entity[] = []) {
         // console.log("Testing: ", row, col)
-        for (const entity of this.entities) {
-            if (entity.tileCollision(row, col) && ignoreList.indexOf(entity) === -1) return false
+        if (this.isValid(row, col)) {
+            const entity = this.grid[row * this.cols + col]
+            return entity === null || ignoreList.indexOf(entity) >= 0
         }
 
         return true

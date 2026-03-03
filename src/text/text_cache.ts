@@ -1,4 +1,5 @@
-import { TextCanvas, TextCanvasStyle } from "./text_canvas";
+import { TextCanvasStyle } from "./canvas_style";
+import { TextCanvas } from "./text_canvas";
 
 class StyledTextCanvasCache {
     style: TextCanvasStyle

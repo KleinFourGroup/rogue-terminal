@@ -42,7 +42,8 @@ export function getSmoothMove(entity: Entity, row: number, col: number, blocking
     const animation = new KeyframedAnimation(animationData, entity, null!, false) // Look into these !s
 
     function moveCallback(entity: Entity, _scene: Scene | null) {
-        entity.setPosition(row, col)
+        const ecs = entity.system!
+        ecs.moveEntity(entity, row, col)
         return true
     }
 
