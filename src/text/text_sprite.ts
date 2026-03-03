@@ -8,7 +8,7 @@ export class TextSprite extends Sprite {
     textCanvas: TextCanvas
 
     constructor(character: string, cache: TextCanvasCache | null = null, style: TextCanvasStyle = DEFAULT_STYLE) {
-        const textCanvas = (cache === null) ? new TextCanvas(style) : cache.getCanvas(DEFAULT_STYLE, character)
+        const textCanvas = (cache === null) ? new TextCanvas(style) : cache.getCanvas(style, character)
         if (cache === null) {
             textCanvas.writeText(character)
         }
