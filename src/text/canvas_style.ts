@@ -11,8 +11,12 @@ export class TextCanvasStyle {
         this.color = color
     }
 
+    static hash(tileSize: number, fontSize: number, color: string) {
+        return `${tileSize}|${fontSize}-${color}`
+    }
+
     styleHash() {
-        return `${this.tileSize}|${this.fontSize}-${this.color}`
+        return TextCanvasStyle.hash(this.tileSize, this.fontSize, this.color)
     }
 }
 
