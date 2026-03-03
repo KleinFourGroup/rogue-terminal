@@ -1,18 +1,14 @@
 import { Sprite, Texture } from "pixi.js"
-import { TextCanvas, TextCanvasStyle } from "./text_canvas"
-import { COLORS } from "../colors"
+import { TextCanvas } from "./text_canvas"
 import { TextCanvasCache } from "./text_cache"
-
-export const TILE_SIZE = 64
-
-export const DEFAULT_STYLE = new TextCanvasStyle(TILE_SIZE, TILE_SIZE, COLORS.TERMINAL_GREEN)
+import { DEFAULT_STYLE, TextCanvasStyle } from "./canvas_style"
 
 export class TextSprite extends Sprite {
     character: string
     textCanvas: TextCanvas
 
-    constructor(character: string, cache: TextCanvasCache | null = null) {
-        const textCanvas = (cache === null) ? new TextCanvas(DEFAULT_STYLE) : cache.getCanvas(DEFAULT_STYLE, character)
+    constructor(character: string, cache: TextCanvasCache | null = null, style: TextCanvasStyle = DEFAULT_STYLE) {
+        const textCanvas = (cache === null) ? new TextCanvas(style) : cache.getCanvas(DEFAULT_STYLE, character)
         if (cache === null) {
             textCanvas.writeText(character)
         }

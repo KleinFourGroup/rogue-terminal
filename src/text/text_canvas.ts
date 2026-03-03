@@ -1,18 +1,4 @@
-export class TextCanvasStyle {
-    tileSize: number // For now, just square canvases
-    fontSize: number
-    color: string
-
-    constructor(tileSize: number, fontSize: number, color: string) {
-        this.tileSize = tileSize
-        this.fontSize = fontSize
-        this.color = color
-    }
-
-    styleHash() {
-        return `${this.tileSize}|${this.fontSize}-${this.color}`
-    }
-}
+import { TextCanvasStyle } from "./canvas_style"
 
 export class TextCanvas {
     style: TextCanvasStyle

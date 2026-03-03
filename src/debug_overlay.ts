@@ -15,6 +15,8 @@ export class DebugOverlay extends Container {
     frameBuffer: number[]
     workBuffer: number[]
 
+    canvasCache: number
+
     zoom: number
 
     constructor(app: GameApp) {
@@ -27,6 +29,9 @@ export class DebugOverlay extends Container {
         this.FPS = NaN
         this.resolution = "?x?"
         this.load = NaN
+
+        this.canvasCache = 0
+        
         this.zoom = 1
 
         this.text = new BitmapText({

@@ -1,4 +1,4 @@
-import { TILE_SIZE } from "./text/text_sprite"
+import { TILE_SIZE } from "./text/canvas_style"
 
 export enum GridDirection {
     NW = 0,

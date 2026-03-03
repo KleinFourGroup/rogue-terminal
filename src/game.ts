@@ -1,7 +1,7 @@
 import { Container } from "pixi.js"
 import { IScene } from "./scene"
 import { GameApp } from "./app"
-import { TextSprite, TILE_SIZE } from "./text/text_sprite"
+import { TextSprite } from "./text/text_sprite"
 import { Camera } from "./camera"
 import { Entity } from "./entity"
 import { TurnManager, TurnStatus } from "./turn_manager"
@@ -9,6 +9,7 @@ import { World } from "./world"
 import { AILogic, setupAI } from "./behaviors/behavior"
 import { RandomWalkAI } from "./behaviors/random_walk"
 import { RandomMoveTargetAI } from "./behaviors/random_move_target"
+import { TILE_SIZE } from "./text/canvas_style"
 
 const ROWS = 21
 const COLS = 21
@@ -31,7 +32,7 @@ export class GameScene extends Container implements IScene {
         this.app = app
         this.camera = new Camera(this.app, this)
 
-        this.player = new Entity("@", app.canvasCache, Math.floor(ROWS / 2), Math.floor(COLS / 2))
+        this.player = new Entity("@", app.caches, Math.floor(ROWS / 2), Math.floor(COLS / 2))
         setupAI(this.player, new RandomMoveTargetAI(this.player, true)) // Still probably don't want this being called directly
 
         this.turnManager = new TurnManager()
@@ -45,7 +46,7 @@ export class GameScene extends Container implements IScene {
                 this.level.setValid(row, col, true)
 
                 if (row === 0 || row === ROWS - 1 || col === 0 || col === COLS - 1) {
-                    const wall = new Entity("#", app.canvasCache, row, col)
+                    const wall = new Entity("#", app.caches, row, col)
                     this.level.addEntity(wall)
                 }
             }
@@ -56,10 +57,18 @@ export class GameScene extends Container implements IScene {
         for (let drow = -1; drow <= 1; drow += 2) {
             for (let dcol = -1; dcol <= 1; dcol += 2) {
                 for (let count = 1; count <= 3; count++) {
-                    const newEntity = new Entity("O", app.canvasCache, this.player.row + count * drow, this.player.col + count * dcol)
+                    const newEntity = new Entity("O", app.caches, this.player.row + count * drow, this.player.col + count * dcol)
                     setupAI(newEntity, new RandomWalkAI(newEntity, false))
                     this.level.addEntity(newEntity)
                 }
+            }
+        }
+
+        for (let sign = -1; sign <= 1; sign += 2) {
+            for (let flip = 0; flip <= 1; flip++) {
+                const newEntity = new Entity("G", app.caches, this.player.row + 3 * sign * flip - 1, this.player.col + 3 * sign * (1 - flip), 3, 3)
+                // setupAI(newEntity, new RandomWalkAI(newEntity, false))
+                this.level.addEntity(newEntity)
             }
         }
 

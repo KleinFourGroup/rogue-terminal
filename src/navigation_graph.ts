@@ -196,14 +196,18 @@ export class NavigationGrid {
 
     navigate(row: number, col: number, momentum: TilePosition | null = null): TilePosition | null {
         const node = this.tiles[row * this.cols + col]
-        console.assert(node !== null)
-        console.assert(node!.finalized)
+        // It's not navigable
+        if (node === null) {
+            return null
+        }
+
+        console.assert(node.finalized)
 
         const dirs = Object.values(GridDirection).filter((val) => typeof val === "number")
 
         const nextData = {
             dir: null as GridDirection | null,
-            dist: node!.distance,
+            dist: node.distance,
             cartDist: Infinity,
             dotP: -Infinity
         }
@@ -216,7 +220,7 @@ export class NavigationGrid {
         }
 
         for (const dir of dirs) {
-            if (node!.edges[dir]) {
+            if (node.edges[dir]) {
                 console.assert(this.isInBounds(row + TILE_OFFSETS[dir].row, col + TILE_OFFSETS[dir].col))
                 const neighbor = this.tiles[row * this.cols + col + toFlatArrayOffsets(TILE_OFFSETS[dir], this.cols)]
                 console.assert(neighbor !== null)

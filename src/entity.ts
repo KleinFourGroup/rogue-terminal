@@ -1,10 +1,11 @@
 import { Actor } from "./actor"
 import { AnimationManager } from "./animation_manager"
+import { CacheManager } from "./cache_manager"
 import { ClassConstructor, Component } from "./component"
 import { ECS } from "./ecs"
 import { TilePosition, tileToPixel } from "./position"
-import { TextCanvasCache } from "./text/text_cache"
-import { TextSprite, TILE_SIZE } from "./text/text_sprite"
+import { TILE_SIZE } from "./text/canvas_style"
+import { TextSprite } from "./text/text_sprite"
 
 export class Entity {
     sprite: TextSprite
@@ -22,8 +23,8 @@ export class Entity {
 
     components: {[name: string]: Component}
 
-    constructor(text: string, cache: TextCanvasCache | null, row: number = 0, col: number = 0, width: number = 1, height: number = 1) {
-        this.sprite = new TextSprite(text, cache)
+    constructor(text: string, caches: CacheManager, row: number = 0, col: number = 0, width: number = 1, height: number = 1) {
+        this.sprite = new TextSprite(text, caches.canvasCache)
         this.row = row
         this.col = col
         this.width = width
