@@ -3,8 +3,8 @@ import { ECS } from "./ecs"
 import { BackgroundGrid } from "./background_grid"
 import { Entity } from "./entity"
 import { TextSprite } from "./text/text_sprite"
-import { NavigationGrid, NavigationNode } from "./navigation_graph"
-import { GridDirection, TILE_OFFSETS } from "./position"
+import { NavigationGrid, NavigationNode, NodePool } from "./navigation_graph"
+import { DIRS, TILE_OFFSETS } from "./position"
 
 export class World extends Container{
     rows: number
@@ -77,15 +77,14 @@ export class World extends Container{
         return unfinished
     }
 
-    getNavigationGraph(row: number, col: number, ignoreList: Entity[] = []) {
-        const dirs = Object.values(GridDirection).filter((val) => typeof val === "number")
+    getNavigationGraph(row: number, col: number, ignoreList: Entity[], pool: NodePool | null = null) {
         const navGraph = new NavigationGrid(this.rows, this.cols)
 
-        const startNode = new NavigationNode(row, col)
+        const startNode = (pool !== null) ? pool.getNode(row, col) : new NavigationNode(row, col)
         startNode.distance = 0
 
         function setEdges(node: NavigationNode, world: World) {
-            for (const dir of dirs) {
+            for (const dir of DIRS) {
                 node.edges[dir] = world.isNavigable(node.row + TILE_OFFSETS[dir].row, node.col + TILE_OFFSETS[dir].col, ignoreList)
             }
         }
@@ -97,9 +96,9 @@ export class World extends Container{
         let finalized = navGraph.finalizeLowest()
 
         while (finalized !== null) {
-            for (const dir of dirs) {
+            for (const dir of DIRS) {
                 if (finalized.edges[dir] && !navGraph.hasNode(finalized.row + TILE_OFFSETS[dir].row, finalized.col + TILE_OFFSETS[dir].col)) {
-                    const newNode = new NavigationNode(finalized.row + TILE_OFFSETS[dir].row, finalized.col + TILE_OFFSETS[dir].col)
+                    const newNode = (pool !== null) ? pool.getNode(finalized.row + TILE_OFFSETS[dir].row, finalized.col + TILE_OFFSETS[dir].col) : new NavigationNode(finalized.row + TILE_OFFSETS[dir].row, finalized.col + TILE_OFFSETS[dir].col)
                     setEdges(newNode, this)
                     navGraph.setNode(finalized.row + TILE_OFFSETS[dir].row, finalized.col + TILE_OFFSETS[dir].col, newNode)
                 }

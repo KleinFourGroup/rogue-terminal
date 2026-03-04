@@ -1,4 +1,4 @@
-import { GridDirection, TILE_OFFSETS, TilePosition, toFlatArrayOffsets } from "./position"
+import { DIRS, GridDirection, TILE_OFFSETS, TilePosition, toFlatArrayOffsets } from "./position"
 
 export class NavigationNode {
     row: number
@@ -28,6 +28,37 @@ export class NavigationNode {
 
     setEdge(dir: GridDirection, traversible: boolean) {
         this.edges[dir] = traversible
+    }
+}
+
+export class NodePool {
+    nodes: NavigationNode[]
+
+    constructor() {
+        this.nodes = []
+    }
+
+    getNode(row: number, col: number) {
+        if (this.nodes.length === 0) {
+            return new NavigationNode(row, col)
+        }
+
+        const node = this.nodes.pop()!
+
+        node.row = row
+        node.col = col
+        node.distance = Infinity
+        node.finalized = false
+
+        for (const dir of DIRS) {
+            node.edges[dir] = false
+        }
+
+        return node
+    }
+
+    freeNode(node: NavigationNode) {
+        this.nodes.push(node)
     }
 }
 
@@ -166,8 +197,7 @@ export class NavigationGrid {
         console.assert(node !== null)
         console.assert(node!.finalized)
 
-        const dirs = Object.values(GridDirection).filter((val) => typeof val === "number")
-        for (const dir of dirs) {
+        for (const dir of DIRS) {
             if (node!.edges[dir]) {
                 console.assert(this.isInBounds(row + TILE_OFFSETS[dir].row, col + TILE_OFFSETS[dir].col))
                 const neighbor = this.tiles[row * this.cols + col + toFlatArrayOffsets(TILE_OFFSETS[dir], this.cols)]
@@ -203,8 +233,6 @@ export class NavigationGrid {
 
         console.assert(node.finalized)
 
-        const dirs = Object.values(GridDirection).filter((val) => typeof val === "number")
-
         const nextData = {
             dir: null as GridDirection | null,
             dist: node.distance,
@@ -219,7 +247,7 @@ export class NavigationGrid {
             nextData.dotP = dotProduct
         }
 
-        for (const dir of dirs) {
+        for (const dir of DIRS) {
             if (node.edges[dir]) {
                 console.assert(this.isInBounds(row + TILE_OFFSETS[dir].row, col + TILE_OFFSETS[dir].col))
                 const neighbor = this.tiles[row * this.cols + col + toFlatArrayOffsets(TILE_OFFSETS[dir], this.cols)]
@@ -250,6 +278,14 @@ export class NavigationGrid {
         return {
             row: row + TILE_OFFSETS[nextData.dir].row,
             col: col + TILE_OFFSETS[nextData.dir].col
+        }
+    }
+
+    freeNodes(pool: NodePool) {
+        for (const node of this.tiles) {
+            if (node !== null) {
+                pool.freeNode(node)
+            }
         }
     }
 }

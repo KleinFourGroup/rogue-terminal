@@ -33,7 +33,7 @@ export class GameScene extends Container implements IScene {
         this.camera = new Camera(this.app, this)
 
         this.player = new Entity("@", app.caches, Math.floor(ROWS / 2), Math.floor(COLS / 2))
-        setupAI(this.player, new RandomMoveTargetAI(this.player, true)) // Still probably don't want this being called directly
+        setupAI(this.player, new RandomMoveTargetAI(this.player, true, app.caches.navNodePool)) // Still probably don't want this being called directly
 
         this.turnManager = new TurnManager()
 

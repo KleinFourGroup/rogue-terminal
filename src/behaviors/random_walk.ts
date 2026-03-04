@@ -1,7 +1,7 @@
 import { Entity } from "../entity"
 import { getIdle } from "../idle_action"
 import { getSmoothMove } from "../move_action"
-import { GridDirection, TILE_OFFSETS, TilePosition } from "../position"
+import { DIRS, TILE_OFFSETS, TilePosition } from "../position"
 import { IBehaviorLogic } from "./behavior"
 
 export class RandomWalkAI implements IBehaviorLogic {
@@ -22,9 +22,7 @@ export class RandomWalkAI implements IBehaviorLogic {
 
         let validMoves: TilePosition[] = []
         
-        const dirs = Object.values(GridDirection).filter((val) => typeof val === "number")
-
-        for (const dir of dirs) {
+        for (const dir of DIRS) {
             const offsets = TILE_OFFSETS[dir]
             if (world.isNavigable(this.entity.row + offsets.row, this.entity.col + offsets.col)) {
                 validMoves.push(offsets)

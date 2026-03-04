@@ -27,9 +27,10 @@ export const TILE_OFFSETS: Record<GridDirection, TilePosition> = {
     [GridDirection.SE]: {row: 1, col: 1}
 }
 
+export const DIRS = Object.values(GridDirection).filter((val) => typeof val === "number")
+
 export function randomDirection() {
-    const dirs = Object.values(GridDirection).filter((val) => typeof val === "number")
-    return dirs[Math.floor(Math.random() * dirs.length)]
+    return DIRS[Math.floor(Math.random() * DIRS.length)]
 }
 
 export function toFlatArrayOffsets(tileOffset: TilePosition, cols: number) {

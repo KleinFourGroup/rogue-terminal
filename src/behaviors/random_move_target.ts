@@ -2,6 +2,7 @@ import { COLORS } from "../colors"
 import { Entity } from "../entity"
 import { getIdle } from "../idle_action"
 import { getSmoothMove } from "../move_action"
+import { NodePool } from "../navigation_graph"
 import { TilePosition } from "../position"
 import { IBehaviorLogic } from "./behavior"
 
@@ -10,12 +11,14 @@ export class RandomMoveTargetAI implements IBehaviorLogic {
     target: TilePosition | null
     momentum: TilePosition
     block: boolean
+    pool: NodePool | null
 
-    constructor(entity: Entity, block: boolean) {
+    constructor(entity: Entity, block: boolean, pool: NodePool | null = null) {
         this.entity = entity
         this.target = null
         this.momentum = {row: 0, col: 0}
         this.block = block
+        this.pool = pool
     }
 
     setMomentum(row: number, col: number) {
@@ -51,8 +54,12 @@ export class RandomMoveTargetAI implements IBehaviorLogic {
             world.ground.setHighlight(this.target.row, this.target.col, COLORS.DARK_NEON_RED)
         }
 
-        const navGraph = world.getNavigationGraph(this.target.row, this.target.col, [this.entity])
+        const navGraph = world.getNavigationGraph(this.target.row, this.target.col, [this.entity], this.pool)
         const nextPosition = navGraph.navigate(this.entity.row, this.entity.col, this.momentum)
+
+        if (this.pool !== null) {
+            navGraph.freeNodes(this.pool)
+        }
 
         if (nextPosition === null) {
             world.ground.setHighlight(this.target.row, this.target.col, null)
