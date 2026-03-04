@@ -10,7 +10,6 @@ import { AILogic, setupAI } from "./behaviors/behavior"
 import { RandomWalkAI } from "./behaviors/random_walk"
 import { RandomMoveTargetAI } from "./behaviors/random_move_target"
 import { TILE_SIZE } from "./text/canvas_style"
-import { COLORS } from "./colors"
 
 const ROWS = 21
 const COLS = 21

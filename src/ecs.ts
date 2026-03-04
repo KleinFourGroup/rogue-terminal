@@ -35,14 +35,16 @@ export class ECS {
             for (let col = entity.col; col < entity.col + entity.width; col++) {
                 if (this.isValid(row, col)) {
                     const index = row * this.cols + col
-                    if (this.grid[index] === null) {
-                        this.grid[index] = entity
-                    } else {
-                        console.assert(false)
+                    if (this.grid[index] !== null) {
+                        return false
                     }
+
+                    this.grid[index] = entity
                 }
             }
         }
+
+        return true
     }
 
     deleteFromGrid(entity: Entity) {
@@ -62,10 +64,14 @@ export class ECS {
     
     addEntity(entity: Entity) {
         if (this.entities.indexOf(entity) < 0) {
-            this.entities.push(entity)
-            entity.setECS(this)
-            this.addToGrid(entity)
-            this.stage.addChild(entity.sprite)
+            const success = this.addToGrid(entity)
+            if (success) {
+                this.entities.push(entity)
+                entity.setECS(this)
+                this.stage.addChild(entity.sprite)
+            } else {
+                this.deleteFromGrid(entity)
+            }
         }
     }
 
@@ -82,7 +88,14 @@ export class ECS {
     moveEntity(entity: Entity, row: number, col: number) {
         this.deleteFromGrid(entity)
         entity.setPosition(row, col)
-        this.addToGrid(entity)
+        const success = this.addToGrid(entity)
+
+        if (!success) {
+            // Should revert instead, maybe?
+            this.removeEntity(entity)
+        }
+
+        return success
     }
 
     isFree(row: number, col: number, ignoreList: Entity[] = []) {
