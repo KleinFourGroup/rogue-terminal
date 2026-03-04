@@ -54,7 +54,7 @@ export class RandomMoveTargetAI implements IBehaviorLogic {
             world.ground.setHighlight(this.target.row, this.target.col, COLORS.DARK_NEON_RED)
         }
 
-        const navGraph = world.getNavigationGraph(this.target.row, this.target.col, [this.entity], this.pool)
+        const navGraph = world.getNavigationGraph(this.target.row, this.target.col, {ignoreList: [this.entity], pool: this.pool})
         const nextPosition = navGraph.navigate(this.entity.row, this.entity.col, this.momentum)
 
         if (this.pool !== null) {

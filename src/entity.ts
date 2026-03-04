@@ -25,7 +25,7 @@ export class Entity {
 
     constructor(text: string, caches: CacheManager, row: number = 0, col: number = 0, width: number = 1, height: number = 1) {
         const size = Math.min(width, height)
-        this.sprite = new TextSprite(text, caches.canvasCache, caches.styleCache.getStyle(size * TILE_SIZE, size * TILE_SIZE, DEFAULT_STYLE.color)) // CACHE!
+        this.sprite = new TextSprite(text, {cache: caches.canvasCache, style: caches.styleCache.getStyle(size * TILE_SIZE, size * TILE_SIZE, DEFAULT_STYLE.color)}) // CACHE!
         this.row = row
         this.col = col
         this.width = width

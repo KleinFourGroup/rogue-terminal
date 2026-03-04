@@ -6,6 +6,11 @@ import { TextSprite } from "./text/text_sprite"
 import { NavigationGrid, NavigationNode, NodePool } from "./navigation_graph"
 import { DIRS, TILE_OFFSETS } from "./position"
 
+export interface WorldNavigationOptions {
+     ignoreList: Entity[]
+     pool: NodePool | null
+}
+
 export class World extends Container{
     rows: number
     cols: number
@@ -77,7 +82,16 @@ export class World extends Container{
         return unfinished
     }
 
-    getNavigationGraph(row: number, col: number, ignoreList: Entity[], pool: NodePool | null = null) {
+    getNavigationGraph(row: number, col: number, options: Partial<WorldNavigationOptions> = {}) {
+        const DEFAULT_OPTIONS: WorldNavigationOptions = {
+            ignoreList: [],
+            pool: null
+        }
+
+        const fullOptions = { ...DEFAULT_OPTIONS, ...options}
+        const ignoreList = fullOptions.ignoreList
+        const pool = fullOptions.pool
+
         const navGraph = new NavigationGrid(this.rows, this.cols)
 
         const startNode = (pool !== null) ? pool.getNode(row, col) : new NavigationNode(row, col)
