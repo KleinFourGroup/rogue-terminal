@@ -10,6 +10,7 @@ import { AILogic, setupAI } from "./behaviors/behavior"
 import { RandomWalkAI } from "./behaviors/random_walk"
 import { RandomMoveTargetAI } from "./behaviors/random_move_target"
 import { TILE_SIZE } from "./text/canvas_style"
+import { COLORS } from "./colors"
 
 const ROWS = 21
 const COLS = 21
@@ -66,7 +67,7 @@ export class GameScene extends Container implements IScene {
 
         for (let sign = -1; sign <= 1; sign += 2) {
             for (let flip = 0; flip <= 1; flip++) {
-                const newEntity = new Entity("G", app.caches, this.player.row + 3 * sign * flip - 1, this.player.col + 3 * sign * (1 - flip), 3, 3)
+                const newEntity = new Entity("G", app.caches, this.player.row + 3 * sign * flip - 1, this.player.col + 3 * sign * (1 - flip) - 1, 3, 3)
                 // setupAI(newEntity, new RandomWalkAI(newEntity, false))
                 this.level.addEntity(newEntity)
             }
