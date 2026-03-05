@@ -1,6 +1,8 @@
 import { Container, Graphics } from "pixi.js"
 import { TextSprite } from "./text/text_sprite"
 import { TILE_SIZE } from "./text/canvas_style"
+import { Entity } from "./entity"
+import { COLORS } from "./colors"
 
 export class BackgroundGrid extends Container {
     rows: number
@@ -9,6 +11,7 @@ export class BackgroundGrid extends Container {
     textArray: (TextSprite | null)[]
     colorArray: (Graphics | null)[]
     highlightArray: (Graphics | null)[]
+    highlightOwnership: (Set<Entity> | null)[]
     validArray: boolean[]
 
     textLayer: Container
@@ -25,6 +28,7 @@ export class BackgroundGrid extends Container {
         this.textArray = new Array<TextSprite | null>(this.rows * this.cols).fill(null)
         this.colorArray = new Array<Graphics | null>(this.rows * this.cols).fill(null)
         this.highlightArray = new Array<Graphics | null>(this.rows * this.cols).fill(null)
+        this.highlightOwnership = new Array<Set<Entity> | null>(this.rows * this.cols).fill(null)
         this.validArray = new Array<boolean>(this.rows * this.cols).fill(false)
 
         this.textLayer = new Container()
@@ -109,6 +113,38 @@ export class BackgroundGrid extends Container {
                 for (const child of laterChildren) {
                     this.colorLayer.removeChild(child)
                     this.colorLayer.addChild(child)
+                }
+            }
+        }
+    }
+
+    setAlert(row: number, col: number, entity: Entity) {
+        if (this.isInBounds(row, col)) {
+            const index = row * this.cols + col
+
+            if (this.highlightOwnership[index] === null) {
+                this.highlightOwnership[index] = new Set<Entity>()
+            }
+
+            const alerts = this.highlightOwnership[index]
+            const wasClear = alerts.size === 0
+
+            alerts.add(entity)
+            if (wasClear) {
+                this.setHighlight(row, col, COLORS.DARK_NEON_RED)
+            }
+        }
+    }
+
+    clearAlert(row: number, col: number, entity: Entity) {
+        if (this.isInBounds(row, col)) {
+            const index = row * this.cols + col
+
+            if (this.highlightOwnership[index] !== null) {
+                const alerts = this.highlightOwnership[index]
+                alerts.delete(entity)
+                if (alerts.size === 0) {
+                    this.setHighlight(row, col, null)
                 }
             }
         }

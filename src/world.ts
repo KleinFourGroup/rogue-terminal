@@ -26,8 +26,16 @@ export class World extends Container {
         this.addChild(this.entities.stage)
     }
 
-    isNavigable(row: number, col: number, ignoreList: Entity[] = []) {
-        return this.entities.isFree(row, col, ignoreList) && this.ground.isValid(row, col)
+    isNavigable(row: number, col: number, ignoreList: Entity[] = [], width: number = 1, height: number = 1) {
+        for (let checkRow = row; checkRow < row + height; checkRow++) {
+            for (let checkCol = col; checkCol < col + width; checkCol++) {
+                if (!this.entities.isFree(checkRow, checkCol, ignoreList) || !this.ground.isValid(checkRow, checkCol)) {
+                    return false
+                }
+            }
+        }
+
+        return true
     }
 
     addEntity(entity: Entity) {

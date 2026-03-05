@@ -1,4 +1,3 @@
-import { COLORS } from "../colors"
 import { Entity } from "../entity"
 import { getIdle } from "../idle_action"
 import { getSmoothMove } from "../move_action"
@@ -12,14 +11,16 @@ export class RandomMoveTargetAI implements IBehaviorLogic {
     target: TilePosition | null
     momentum: TilePosition
     block: boolean
+    cooldown: number
     navigator: WorldNavigator | null
     pool: NodePool | null
 
-    constructor(entity: Entity, block: boolean, pool: NodePool | null = null) {
+    constructor(entity: Entity, block: boolean, pool: NodePool | null = null, cooldown: number = 1200) {
         this.entity = entity
         this.target = null
         this.momentum = {row: 0, col: 0}
         this.block = block
+        this.cooldown = cooldown
 
         const world = this.entity.system !== null ? this.entity.system.world : null
         this.navigator = world !== null ? new WorldNavigator(world) : null
@@ -36,13 +37,29 @@ export class RandomMoveTargetAI implements IBehaviorLogic {
         this.momentum.col = 0
     }
 
+    setAlert() {
+        for (let row = 0; row < this.entity.height; row++) {
+            for (let col = 0; col < this.entity.width; col++) {
+                this.navigator!.world.ground.setAlert(this.target!.row + row, this.target!.col + col, this.entity)
+            }
+        }
+    }
+
+    clearAlert() {
+        for (let row = 0; row < this.entity.height; row++) {
+            for (let col = 0; col < this.entity.width; col++) {
+                this.navigator!.world.ground.clearAlert(this.target!.row + row, this.target!.col + col, this.entity)
+            }
+        }
+    }
+
     getAction() {
         if (this.navigator === null) {
             return getIdle(this.entity, this.block)
         }
 
         if (this.target !== null && this.entity.row === this.target.row && this.entity.col === this.target.col) {
-            this.navigator.world.ground.setHighlight(this.target.row, this.target.col, null)
+            this.clearAlert()
             this.target = null
         }
 
@@ -52,12 +69,12 @@ export class RandomMoveTargetAI implements IBehaviorLogic {
                     row: Math.floor(Math.random() * this.navigator.world.rows),
                     col: Math.floor(Math.random() * this.navigator.world.cols)
                 }
-            } while (!this.navigator.world.isNavigable(this.target.row, this.target.col))
+            } while (!this.navigator.world.isNavigable(this.target.row, this.target.col, [this.entity], this.entity.width, this.entity.height))
             
-            this.navigator.world.ground.setHighlight(this.target.row, this.target.col, COLORS.DARK_NEON_RED)
+            this.setAlert()
         }
 
-        const navGraph = this.navigator.getNavigationGraph(this.target.row, this.target.col, {ignoreList: [this.entity], pool: this.pool})
+        const navGraph = this.navigator.getNavigationGraph(this.target.row, this.target.col, {width: this.entity.width, height: this.entity.height, ignoreList: [this.entity], pool: this.pool})
         const nextPosition = navGraph.navigate(this.entity.row, this.entity.col, this.momentum)
 
         if (this.pool !== null) {
@@ -65,13 +82,13 @@ export class RandomMoveTargetAI implements IBehaviorLogic {
         }
 
         if (nextPosition === null) {
-            this.navigator.world.ground.setHighlight(this.target.row, this.target.col, null)
+            this.clearAlert()
             this.target = null
             this.clearMomentum()
             return getIdle(this.entity, this.block)
         }
 
-        const action = getSmoothMove(this.entity, nextPosition.row, nextPosition.col, {blocking: this.block})
+        const action = getSmoothMove(this.entity, nextPosition.row, nextPosition.col, {blocking: this.block, cooldown: this.cooldown})
         this.setMomentum(nextPosition.row - this.entity.row, nextPosition.col - this.entity.col)
 
         return action

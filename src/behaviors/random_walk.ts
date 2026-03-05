@@ -15,24 +15,6 @@ export class RandomWalkAI implements IBehaviorLogic {
         this.cooldown = cooldown
     }
 
-    isValidMove(row: number, col: number) {
-        const world = this.entity.system !== null ? this.entity.system.world : null
-
-        if (world === null) {
-            return false
-        }
-
-        for (let checkRow = row; checkRow < row + this.entity.height; checkRow++) {
-            for (let checkCol = col; checkCol < col + this.entity.width; checkCol++) {
-                if (!world.isNavigable(checkRow, checkCol, [this.entity])) {
-                    return false
-                }
-            }
-        }
-
-        return true
-    }
-
     getAction() {
         const world = this.entity.system !== null ? this.entity.system.world : null
 
@@ -44,7 +26,7 @@ export class RandomWalkAI implements IBehaviorLogic {
         
         for (const dir of DIRS) {
             const offsets = TILE_OFFSETS[dir]
-            if (this.isValidMove(this.entity.row + offsets.row, this.entity.col + offsets.col)) {
+            if (world.isNavigable(this.entity.row + offsets.row, this.entity.col + offsets.col, [this.entity], this.entity.width, this.entity.height)) {
                 validMoves.push(offsets)
             }
         }

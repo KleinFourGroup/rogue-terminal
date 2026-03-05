@@ -72,6 +72,22 @@ export class GameScene extends Container implements IScene {
             }
         }
 
+        const offset = 3
+        const rows = [offset, ROWS - offset - 1]
+        const cols = [offset, COLS - offset - 1]
+
+        for (const row of rows) {
+            const rowSub = row === rows[1] ? 0 : -1
+            for (const col of cols) {
+                const colSub = col === cols[1] ? 0 : -1
+
+                const newEntity = new Entity("D", app.caches, row + rowSub, col + colSub, 2, 2)
+                this.level.addEntity(newEntity)
+                setupAI(newEntity, new RandomMoveTargetAI(newEntity, false, app.caches.navNodePool, 600)) // Still probably don't want this being called directly
+            }
+        }
+
+
         this.elapsed = 0
 
         this.addChild(this.level)
