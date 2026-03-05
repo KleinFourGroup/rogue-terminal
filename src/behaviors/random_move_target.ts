@@ -71,7 +71,7 @@ export class RandomMoveTargetAI implements IBehaviorLogic {
             return getIdle(this.entity, this.block)
         }
 
-        const action = getSmoothMove(this.entity, nextPosition.row, nextPosition.col, this.block)
+        const action = getSmoothMove(this.entity, nextPosition.row, nextPosition.col, {blocking: this.block})
         this.setMomentum(nextPosition.row - this.entity.row, nextPosition.col - this.entity.col)
 
         return action
