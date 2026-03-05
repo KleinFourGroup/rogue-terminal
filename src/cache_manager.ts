@@ -1,4 +1,4 @@
-import { NodePool } from "./navigation_graph"
+import { NodePool } from "./navigation/node_pool"
 import { CanvasStyleCache } from "./text/style_cache"
 import { TextCanvasCache } from "./text/text_cache"
 

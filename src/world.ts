@@ -3,15 +3,8 @@ import { ECS } from "./ecs"
 import { BackgroundGrid } from "./background_grid"
 import { Entity } from "./entity"
 import { TextSprite } from "./text/text_sprite"
-import { NavigationGrid, NavigationNode, NodePool } from "./navigation_graph"
-import { DIRS, TILE_OFFSETS } from "./position"
 
-export interface WorldNavigationOptions {
-     ignoreList: Entity[]
-     pool: NodePool | null
-}
-
-export class World extends Container{
+export class World extends Container {
     rows: number
     cols: number
 
@@ -80,48 +73,5 @@ export class World extends Container{
         }
 
         return unfinished
-    }
-
-    getNavigationGraph(row: number, col: number, options: Partial<WorldNavigationOptions> = {}) {
-        const DEFAULT_OPTIONS: WorldNavigationOptions = {
-            ignoreList: [],
-            pool: null
-        }
-
-        const fullOptions = { ...DEFAULT_OPTIONS, ...options}
-        const ignoreList = fullOptions.ignoreList
-        const pool = fullOptions.pool
-
-        const navGraph = new NavigationGrid(this.rows, this.cols)
-
-        const startNode = (pool !== null) ? pool.getNode(row, col) : new NavigationNode(row, col)
-        startNode.distance = 0
-
-        function setEdges(node: NavigationNode, world: World) {
-            for (const dir of DIRS) {
-                node.edges[dir] = world.isNavigable(node.row + TILE_OFFSETS[dir].row, node.col + TILE_OFFSETS[dir].col, ignoreList)
-            }
-        }
-
-        setEdges(startNode, this)
-
-        navGraph.setNode(row, col, startNode)
-
-        let finalized = navGraph.finalizeLowest()
-
-        while (finalized !== null) {
-            for (const dir of DIRS) {
-                if (finalized.edges[dir] && !navGraph.hasNode(finalized.row + TILE_OFFSETS[dir].row, finalized.col + TILE_OFFSETS[dir].col)) {
-                    const newNode = (pool !== null) ? pool.getNode(finalized.row + TILE_OFFSETS[dir].row, finalized.col + TILE_OFFSETS[dir].col) : new NavigationNode(finalized.row + TILE_OFFSETS[dir].row, finalized.col + TILE_OFFSETS[dir].col)
-                    setEdges(newNode, this)
-                    navGraph.setNode(finalized.row + TILE_OFFSETS[dir].row, finalized.col + TILE_OFFSETS[dir].col, newNode)
-                }
-            }
-            
-            navGraph.propagate(finalized.row, finalized.col)
-            finalized = navGraph.finalizeLowest()
-        }
-
-        return navGraph
     }
 }
