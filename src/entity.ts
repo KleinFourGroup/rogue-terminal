@@ -3,7 +3,7 @@ import { AnimationManager } from "./animation_manager"
 import { CacheManager } from "./cache_manager"
 import { ClassConstructor, Component } from "./component"
 import { ECS } from "./ecs"
-import { TilePosition, tileToPixel } from "./position"
+import { tileToPixel } from "./position"
 import { DEFAULT_STYLE, TILE_SIZE } from "./text/canvas_style"
 import { TextSprite } from "./text/text_sprite"
 

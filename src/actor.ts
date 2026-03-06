@@ -13,7 +13,7 @@ export class Actor {
     }
 
     isReady() {
-        return this.actionCoolDown == 0
+        return this.actionCoolDown === 0
     }
 
     isIdle() {

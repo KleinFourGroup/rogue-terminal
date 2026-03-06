@@ -1,9 +1,9 @@
-import { Entity } from "../entity";
-import { DIRS, TILE_OFFSETS } from "../position";
-import { World } from "../world";
-import { NavigationGrid } from "./navigation_graph";
-import { NavigationNode } from "./navigation_node";
-import { NodePool } from "./node_pool";
+import { Entity } from "../entity"
+import { DIRS, TILE_OFFSETS } from "../position"
+import { World } from "../world"
+import { NavigationGrid } from "./navigation_graph"
+import { NavigationNode } from "./navigation_node"
+import { NodePool } from "./node_pool"
 
 export interface WorldNavigatorOptions {
     width: number

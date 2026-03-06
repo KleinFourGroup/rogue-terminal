@@ -117,7 +117,6 @@ export class BackgroundGrid extends Container {
     colorLayer: Container
 
     alphaManager: AlphaGrid
-    adjustedAlphas: number[]
 
     constructor(rows: number, cols: number) {
         super()
@@ -133,7 +132,6 @@ export class BackgroundGrid extends Container {
         this.colorLayer = new Container()
 
         this.alphaManager = new AlphaGrid(this.rows, this.cols)
-        this.adjustedAlphas = []
 
         this.addChild(this.colorLayer)
         this.addChild(this.alertLayer)
@@ -216,18 +214,6 @@ export class BackgroundGrid extends Container {
         }
     }
 
-    setAlpha(row: number, col: number, alpha: number) {
-        if (this.isInBounds(row, col)) {
-            const index = row * this.cols + col
-
-            const textSprite = this.textArray[index]
-            if (textSprite !== null) {
-                textSprite.alpha = Math.min(alpha, textSprite.alpha)
-                this.adjustedAlphas.push(index)
-            }
-        }
-    }
-
     updateTileAlphas(activeEntities: Entity[]) {
         for (const entity of activeEntities) {
             this.alphaManager.unregister(entity)
@@ -249,15 +235,5 @@ export class BackgroundGrid extends Container {
         const updated = this.alphaManager.dirty.size
         this.alphaManager.dirty.clear()
         return updated
-    }
-
-    clearAlphas() {
-        for (const index of this.adjustedAlphas) {
-            this.textArray[index]!.alpha = 1
-        }
-
-        if (this.adjustedAlphas.length > 0) {
-            this.adjustedAlphas.splice(0, this.adjustedAlphas.length)
-        }
     }
 }
