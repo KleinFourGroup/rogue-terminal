@@ -40,7 +40,7 @@ export class RandomMoveTargetAI implements IBehaviorLogic {
     setAlert() {
         for (let row = 0; row < this.entity.height; row++) {
             for (let col = 0; col < this.entity.width; col++) {
-                this.navigator!.world.ground.setAlert(this.target!.row + row, this.target!.col + col, this.entity)
+                this.navigator!.world.ground.alertLayer.setAlert(this.target!.row + row, this.target!.col + col, this.entity)
             }
         }
     }
@@ -48,7 +48,7 @@ export class RandomMoveTargetAI implements IBehaviorLogic {
     clearAlert() {
         for (let row = 0; row < this.entity.height; row++) {
             for (let col = 0; col < this.entity.width; col++) {
-                this.navigator!.world.ground.clearAlert(this.target!.row + row, this.target!.col + col, this.entity)
+                this.navigator!.world.ground.alertLayer.clearAlert(this.target!.row + row, this.target!.col + col, this.entity)
             }
         }
     }

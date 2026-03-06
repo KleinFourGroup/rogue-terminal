@@ -4,18 +4,96 @@ import { TILE_SIZE } from "./text/canvas_style"
 import { Entity } from "./entity"
 import { COLORS } from "./colors"
 
+export class AlertGrid extends Container {
+    rows: number
+    cols: number
+
+    alerts: (Graphics | null)[]
+    ownership: (Set<Entity> | null)[]
+
+    constructor(rows: number, cols: number) {
+        super()
+        this.rows = rows
+        this.cols = cols
+
+        this.alerts = new Array<Graphics | null>(this.rows * this.cols).fill(null)
+        this.ownership = new Array<Set<Entity> | null>(this.rows * this.cols).fill(null)
+    }
+
+    isInBounds(row: number, col: number) {
+        return row >= 0 && row < this.rows && col >= 0 && col < this.cols
+    }
+
+    setAlert(row: number, col: number, entity: Entity) {
+        if (this.isInBounds(row, col)) {
+            const index = row * this.cols + col
+
+            if (this.ownership[index] === null) {
+                this.ownership[index] = new Set<Entity>()
+            }
+
+            const alerts = this.ownership[index]
+            const wasClear = alerts.size === 0
+
+            alerts.add(entity)
+            if (wasClear) {
+                this.drawAlert(row, col, COLORS.DARK_NEON_RED)
+            }
+        }
+    }
+
+    clearAlert(row: number, col: number, entity: Entity) {
+        if (this.isInBounds(row, col)) {
+            const index = row * this.cols + col
+
+            if (this.ownership[index] !== null) {
+                const alerts = this.ownership[index]
+                alerts.delete(entity)
+                if (alerts.size === 0) {
+                    this.drawAlert(row, col, null)
+                }
+            }
+        }
+    }
+
+    drawAlert(row: number, col: number, color: string | null) {
+        if (this.isInBounds(row, col)) {
+            const index = row * this.cols + col
+
+            if (this.alerts[index] !== null) {
+                const graphics = this.alerts[index]
+                graphics.clear()
+                if (color !== null) {
+                    graphics.roundRect(0, 0, TILE_SIZE, TILE_SIZE, TILE_SIZE / 4).stroke({width: 5, color: color})
+                }
+            } else if (color !== null) {
+                const graphics =  new Graphics().roundRect(0, 0, TILE_SIZE, TILE_SIZE, TILE_SIZE / 4).stroke({width: 5, color: color})
+                this.alerts[index] = graphics
+                this.addChild(graphics)
+                
+                graphics.position.set(col * TILE_SIZE, row * TILE_SIZE)
+
+                // Hideous insert sort, but in theory this should only be done once anyways, so...
+                const laterChildren = this.alerts.filter((val, ind) => ind > index && val !== null) as Graphics[]
+                for (const child of laterChildren) {
+                    this.removeChild(child)
+                    this.addChild(child)
+                }
+            }
+        }
+    }
+}
+
 export class BackgroundGrid extends Container {
     rows: number
     cols: number
 
     textArray: (TextSprite | null)[]
     colorArray: (Graphics | null)[]
-    highlightArray: (Graphics | null)[]
-    highlightOwnership: (Set<Entity> | null)[]
     validArray: boolean[]
 
     textLayer: Container
-    highlightLayer: Container
+    alertLayer: AlertGrid
     colorLayer: Container
 
     adjustedAlphas: number[]
@@ -27,18 +105,16 @@ export class BackgroundGrid extends Container {
 
         this.textArray = new Array<TextSprite | null>(this.rows * this.cols).fill(null)
         this.colorArray = new Array<Graphics | null>(this.rows * this.cols).fill(null)
-        this.highlightArray = new Array<Graphics | null>(this.rows * this.cols).fill(null)
-        this.highlightOwnership = new Array<Set<Entity> | null>(this.rows * this.cols).fill(null)
         this.validArray = new Array<boolean>(this.rows * this.cols).fill(false)
 
         this.textLayer = new Container()
-        this.highlightLayer = new Container()
+        this.alertLayer = new AlertGrid(this.rows, this.cols)
         this.colorLayer = new Container()
 
         this.adjustedAlphas = []
 
         this.addChild(this.colorLayer)
-        this.addChild(this.highlightLayer)
+        this.addChild(this.alertLayer)
         this.addChild(this.textLayer)
     }
 
@@ -113,65 +189,6 @@ export class BackgroundGrid extends Container {
                 for (const child of laterChildren) {
                     this.colorLayer.removeChild(child)
                     this.colorLayer.addChild(child)
-                }
-            }
-        }
-    }
-
-    setAlert(row: number, col: number, entity: Entity) {
-        if (this.isInBounds(row, col)) {
-            const index = row * this.cols + col
-
-            if (this.highlightOwnership[index] === null) {
-                this.highlightOwnership[index] = new Set<Entity>()
-            }
-
-            const alerts = this.highlightOwnership[index]
-            const wasClear = alerts.size === 0
-
-            alerts.add(entity)
-            if (wasClear) {
-                this.setHighlight(row, col, COLORS.DARK_NEON_RED)
-            }
-        }
-    }
-
-    clearAlert(row: number, col: number, entity: Entity) {
-        if (this.isInBounds(row, col)) {
-            const index = row * this.cols + col
-
-            if (this.highlightOwnership[index] !== null) {
-                const alerts = this.highlightOwnership[index]
-                alerts.delete(entity)
-                if (alerts.size === 0) {
-                    this.setHighlight(row, col, null)
-                }
-            }
-        }
-    }
-
-    setHighlight(row: number, col: number, color: string | null) {
-        if (this.isInBounds(row, col)) {
-            const index = row * this.cols + col
-
-            if (this.highlightArray[index] !== null) {
-                const graphics = this.highlightArray[index]
-                graphics.clear()
-                if (color !== null) {
-                    graphics.roundRect(0, 0, TILE_SIZE, TILE_SIZE, TILE_SIZE / 4).stroke({width: 5, color: color})
-                }
-            } else if (color !== null) {
-                const graphics =  new Graphics().roundRect(0, 0, TILE_SIZE, TILE_SIZE, TILE_SIZE / 4).stroke({width: 5, color: color})
-                this.highlightArray[index] = graphics
-                this.highlightLayer.addChild(graphics)
-                
-                graphics.position.set(col * TILE_SIZE, row * TILE_SIZE)
-
-                // Hideous insert sort, but in theory this should only be done once anyways, so...
-                const laterChildren = this.highlightArray.filter((val, ind) => ind > index && val !== null) as Graphics[]
-                for (const child of laterChildren) {
-                    this.highlightLayer.removeChild(child)
-                    this.highlightLayer.addChild(child)
                 }
             }
         }
