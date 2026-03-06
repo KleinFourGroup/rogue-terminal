@@ -72,6 +72,11 @@ export class ECS {
             } else {
                 this.deleteFromGrid(entity)
             }
+
+            if (this.world !== null) {
+                entity.cacheOverlaps(this.cols)
+                this.world.ground.alphaManager.register(entity)
+            }
         }
     }
 
@@ -82,6 +87,10 @@ export class ECS {
             entity.setECS(null)
             this.deleteFromGrid(entity)
             this.stage.removeChild(entity.sprite)
+
+            if (this.world !== null) {
+                this.world.ground.alphaManager.unregister(entity)
+            }
         }
     }
 

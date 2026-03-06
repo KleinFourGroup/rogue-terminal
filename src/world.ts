@@ -11,6 +11,8 @@ export class World extends Container {
     entities: ECS
     ground: BackgroundGrid
 
+    animatedActives: Entity[]
+
     constructor(rows: number, cols: number) {
         super()
 
@@ -19,6 +21,8 @@ export class World extends Container {
 
         this.entities = new ECS(this.rows, this.cols)
         this.ground = new BackgroundGrid(this.rows, this.cols)
+
+        this.animatedActives = []
 
         this.entities.setWorld(this)
 
@@ -57,18 +61,6 @@ export class World extends Container {
     advanceTicks(ticks: number) {
         this.entities.advanceTicks(ticks)
     }
-
-    updateTileAlphas() {
-        this.ground.clearAlphas()
-
-        for (const entity of this.entities.entities) {
-            const tiles = entity.intersectingTiles()
-            for (const tilePosition of tiles) {
-                const overlap = entity.tileOverlap(tilePosition.row, tilePosition.col)
-                this.ground.setAlpha(tilePosition.row, tilePosition.col, overlap)
-            }
-        }
-    }
     
     animateActive(deltaMS: number) {
         const activeEntities = this.entities.getActive()
@@ -79,6 +71,8 @@ export class World extends Container {
                 unfinished++
             }
         }
+
+        this.animatedActives = activeEntities
 
         return unfinished
     }

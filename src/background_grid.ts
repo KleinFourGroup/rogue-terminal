@@ -4,12 +4,42 @@ import { TILE_SIZE } from "./text/canvas_style"
 import { Entity } from "./entity"
 import { COLORS } from "./colors"
 
+export class AlphaGrid {
+    rows: number
+    cols: number
+
+    ownership: Set<Entity>[]
+    dirty: Set<number>
+
+    constructor(rows: number, cols: number) {
+        this.rows = rows
+        this.cols = cols
+
+        this.ownership = Array.from({length: this.rows * this.cols}, () => new Set<Entity>())
+        this.dirty = new Set<number>()
+    }
+
+    register(entity: Entity) {
+        for (const [index, _overlap] of entity.overlapCache) {
+            this.ownership[index].add(entity)
+            this.dirty.add(index)
+        }
+    }
+
+    unregister(entity: Entity) {
+        for (const [index, _overlap] of entity.overlapCache) {
+            this.ownership[index].delete(entity)
+            this.dirty.add(index)
+        }
+    }
+}
+
 export class AlertGrid extends Container {
     rows: number
     cols: number
 
     alerts: (Graphics | null)[]
-    ownership: (Set<Entity> | null)[]
+    ownership: Set<Entity>[]
 
     constructor(rows: number, cols: number) {
         super()
@@ -17,7 +47,7 @@ export class AlertGrid extends Container {
         this.cols = cols
 
         this.alerts = new Array<Graphics | null>(this.rows * this.cols).fill(null)
-        this.ownership = new Array<Set<Entity> | null>(this.rows * this.cols).fill(null)
+        this.ownership = Array.from({length: this.rows * this.cols}, () => new Set<Entity>())
     }
 
     isInBounds(row: number, col: number) {
@@ -26,13 +56,7 @@ export class AlertGrid extends Container {
 
     setAlert(row: number, col: number, entity: Entity) {
         if (this.isInBounds(row, col)) {
-            const index = row * this.cols + col
-
-            if (this.ownership[index] === null) {
-                this.ownership[index] = new Set<Entity>()
-            }
-
-            const alerts = this.ownership[index]
+            const alerts = this.ownership[row * this.cols + col]
             const wasClear = alerts.size === 0
 
             alerts.add(entity)
@@ -44,14 +68,10 @@ export class AlertGrid extends Container {
 
     clearAlert(row: number, col: number, entity: Entity) {
         if (this.isInBounds(row, col)) {
-            const index = row * this.cols + col
-
-            if (this.ownership[index] !== null) {
-                const alerts = this.ownership[index]
-                alerts.delete(entity)
-                if (alerts.size === 0) {
-                    this.drawAlert(row, col, null)
-                }
+            const alerts = this.ownership[row * this.cols + col]
+            alerts.delete(entity)
+            if (alerts.size === 0) {
+                this.drawAlert(row, col, null)
             }
         }
     }
@@ -96,6 +116,7 @@ export class BackgroundGrid extends Container {
     alertLayer: AlertGrid
     colorLayer: Container
 
+    alphaManager: AlphaGrid
     adjustedAlphas: number[]
 
     constructor(rows: number, cols: number) {
@@ -111,6 +132,7 @@ export class BackgroundGrid extends Container {
         this.alertLayer = new AlertGrid(this.rows, this.cols)
         this.colorLayer = new Container()
 
+        this.alphaManager = new AlphaGrid(this.rows, this.cols)
         this.adjustedAlphas = []
 
         this.addChild(this.colorLayer)
@@ -204,6 +226,29 @@ export class BackgroundGrid extends Container {
                 this.adjustedAlphas.push(index)
             }
         }
+    }
+
+    updateTileAlphas(activeEntities: Entity[]) {
+        for (const entity of activeEntities) {
+            this.alphaManager.unregister(entity)
+            entity.cacheOverlaps(this.cols)
+            this.alphaManager.register(entity)
+        }
+
+        for (const index of this.alphaManager.dirty) {
+            const textSprite = this.textArray[index]
+            if (textSprite !== null) {
+                textSprite.alpha = 1
+
+                for (const entity of this.alphaManager.ownership[index]) {
+                    textSprite.alpha = Math.min(textSprite.alpha, entity.overlapCache.get(index)!)
+                }
+            }
+        }
+
+        const updated = this.alphaManager.dirty.size
+        this.alphaManager.dirty.clear()
+        return updated
     }
 
     clearAlphas() {

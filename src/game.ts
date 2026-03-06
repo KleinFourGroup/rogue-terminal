@@ -92,7 +92,8 @@ export class GameScene extends Container implements IScene {
 
         this.addChild(this.level)
 
-        this.level.updateTileAlphas()
+        const updated = this.level.ground.updateTileAlphas(this.level.entities.entities)
+        this.app.debugOverlay.setAlphaUpdates(updated)
         this.camera.setPosition(this.player.sprite.x, this.player.sprite.y)
     }
 
@@ -149,7 +150,8 @@ export class GameScene extends Container implements IScene {
             this.turnManager.finishTurn()
         }
 
-        this.level.updateTileAlphas()
+        const updated = this.level.ground.updateTileAlphas(this.level.animatedActives)
+        this.app.debugOverlay.setAlphaUpdates(updated)
         this.camera.setPosition(this.player.sprite.x, this.player.sprite.y)
     }
     

@@ -16,6 +16,7 @@ export class DebugOverlay extends Container {
     workBuffer: number[]
 
     canvasCache: number
+    alphaUpdates: number
 
     zoom: number
 
@@ -31,7 +32,8 @@ export class DebugOverlay extends Container {
         this.load = NaN
 
         this.canvasCache = 0
-        
+        this.alphaUpdates = 0
+
         this.zoom = 1
 
         this.text = new BitmapText({
@@ -63,6 +65,10 @@ export class DebugOverlay extends Container {
         this.zoom = zoom
     }
 
+    setAlphaUpdates(updated: number) {
+        this.alphaUpdates = updated
+    }
+
     updateResolution() {
         this.resolution = `${this.app.width}x${this.app.height}`
         this.text.position.set(this.app.width - 5, 5)
@@ -78,8 +84,9 @@ export class DebugOverlay extends Container {
         this.load = (totalTime !== 0) ? 100 * totalWork / totalTime : NaN
 
         const topLine = `${this.FPS.toFixed(2)}@${this.resolution} (${this.load.toFixed(2)}%)`
+        const alphaLine = `Tile alphas: ${this.alphaUpdates}`
         const zoomLine = `Zoom: ${(this.zoom * 100).toFixed(2)}%`
 
-        this.text.text = [topLine, zoomLine].join("\n")
+        this.text.text = [topLine, alphaLine, zoomLine].join("\n")
     }
 }
