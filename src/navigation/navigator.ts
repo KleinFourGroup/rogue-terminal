@@ -1,5 +1,5 @@
 import { Entity } from "../entity"
-import { DIRS, TILE_OFFSETS } from "../position"
+import { DIRS, TILE_OFFSETS, TilePosition } from "../position"
 import { World } from "../world"
 import { NavigationGrid } from "./navigation_graph"
 import { NavigationNode } from "./navigation_node"
@@ -9,6 +9,7 @@ export interface WorldNavigatorOptions {
     width: number
     height: number
     ignoreList: Entity[]
+    target: TilePosition | null
     pool: NodePool | null
 }
 
@@ -16,6 +17,7 @@ const DEFAULT_OPTIONS: WorldNavigatorOptions = {
     width: 1,
     height: 1,
     ignoreList: [],
+    target: null,
     pool: null
 }
 
@@ -48,6 +50,10 @@ export class WorldNavigator {
         let finalized = navGraph.finalizeLowest()
 
         while (finalized !== null) {
+            if (fullOptions.target !== null && finalized.row === fullOptions.target.row && finalized.col === fullOptions.target.col) {
+                break
+            }
+            
             for (const dir of DIRS) {
                 if (finalized.edges[dir] && !navGraph.hasNode(finalized.row + TILE_OFFSETS[dir].row, finalized.col + TILE_OFFSETS[dir].col)) {
                     const newNode = (pool !== null) ? pool.getNode(finalized.row + TILE_OFFSETS[dir].row, finalized.col + TILE_OFFSETS[dir].col) : new NavigationNode(finalized.row + TILE_OFFSETS[dir].row, finalized.col + TILE_OFFSETS[dir].col)

@@ -109,20 +109,20 @@ export class NavigationGrid {
             if (node.edges[dir]) {
                 console.assert(this.isInBounds(row + TILE_OFFSETS[dir].row, col + TILE_OFFSETS[dir].col))
                 const neighbor = this.tiles[row * this.cols + col + toFlatArrayOffsets(TILE_OFFSETS[dir], this.cols)]
-                console.assert(neighbor !== null)
-
-                const distance = neighbor!.distance
-                const cartesian = this.zeroCartesian(row + TILE_OFFSETS[dir].row, col + TILE_OFFSETS[dir].col)
-                const dotProduct = momentum !== null ? (momentum.row * TILE_OFFSETS[dir].row + momentum.col * TILE_OFFSETS[dir].col) : -Infinity
-                
-                if (distance < nextData.dist) {
-                    setNext(dir, distance, cartesian, dotProduct)
-                } else if (distance === nextData.dist) {
-                    if (cartesian < nextData.cartDist) {
+                if (neighbor !== null) {
+                    const distance = neighbor.distance
+                    const cartesian = this.zeroCartesian(row + TILE_OFFSETS[dir].row, col + TILE_OFFSETS[dir].col)
+                    const dotProduct = momentum !== null ? (momentum.row * TILE_OFFSETS[dir].row + momentum.col * TILE_OFFSETS[dir].col) : -Infinity
+                    
+                    if (distance < nextData.dist) {
                         setNext(dir, distance, cartesian, dotProduct)
-                    } else if (cartesian === nextData.cartDist && momentum !== null) {
-                        if (dotProduct > nextData.dotP) {
+                    } else if (distance === nextData.dist) {
+                        if (cartesian < nextData.cartDist) {
                             setNext(dir, distance, cartesian, dotProduct)
+                        } else if (cartesian === nextData.cartDist && momentum !== null) {
+                            if (dotProduct > nextData.dotP) {
+                                setNext(dir, distance, cartesian, dotProduct)
+                            }
                         }
                     }
                 }

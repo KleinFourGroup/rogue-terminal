@@ -74,7 +74,8 @@ export class RandomMoveTargetAI implements IBehaviorLogic {
             this.setAlert()
         }
 
-        const navGraph = this.navigator.getNavigationGraph(this.target.row, this.target.col, {width: this.entity.width, height: this.entity.height, ignoreList: [this.entity], pool: this.pool})
+        const navGraph = this.navigator.getNavigationGraph(this.target.row, this.target.col,
+            {width: this.entity.width, height: this.entity.height, ignoreList: [this.entity], target: {row: this.entity.row, col: this.entity.col}, pool: this.pool})
         const nextPosition = navGraph.navigate(this.entity.row, this.entity.col, this.momentum)
 
         if (this.pool !== null) {
