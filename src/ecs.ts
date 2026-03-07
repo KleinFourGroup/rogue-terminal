@@ -86,11 +86,6 @@ export class ECS {
             }
 
             this.signals.onAdd.emit(entity)
-
-            // if (this.world !== null) {
-            //     entity.cacheOverlaps(this.cols)
-            //     this.world.ground.alphaManager.register(entity)
-            // }
         }
     }
 
@@ -103,10 +98,6 @@ export class ECS {
             this.stage.removeChild(entity.sprite)
 
             this.signals.onDelete.emit(entity)
-
-            // if (this.world !== null) {
-            //     this.world.ground.alphaManager.unregister(entity)
-            // }
         }
     }
 

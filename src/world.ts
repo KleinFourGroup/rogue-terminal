@@ -1,6 +1,6 @@
 import { Container } from "pixi.js"
 import { ECS } from "./ecs"
-import { BackgroundGrid } from "./background_grid"
+import { BackgroundGrid } from "./grid/background_grid"
 import { Entity } from "./entity"
 import { TextSprite } from "./text/text_sprite"
 
