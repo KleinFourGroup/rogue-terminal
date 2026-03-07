@@ -40,8 +40,9 @@ export class BackgroundGrid extends Container {
         this.addChild(this.textLayer)
     }
 
-    listen(onAddEntity: SignalEmitter<Entity>, onRemoveEntity: SignalEmitter<Entity>) {
-        this.alphaManager.listen(onAddEntity, onRemoveEntity)
+    setupListeners(onAddEntity: SignalEmitter<Entity>, onRemoveEntity: SignalEmitter<Entity>) {
+        this.alphaManager.setupListeners(onAddEntity, onRemoveEntity)
+        this.alertLayer.setupListeners(onRemoveEntity)
     }
 
     isInBounds(row: number, col: number) {

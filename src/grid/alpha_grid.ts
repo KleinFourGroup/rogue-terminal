@@ -17,7 +17,7 @@ export class AlphaGrid {
         this.dirty = new Set<number>()
     }
 
-    listen(onAddEntity: SignalEmitter<Entity>, onRemoveEntity: SignalEmitter<Entity>) {
+    setupListeners(onAddEntity: SignalEmitter<Entity>, onRemoveEntity: SignalEmitter<Entity>) {
         const addCallback = (entity: Entity) => {
             entity.cacheOverlaps(this.cols)
             this.register(entity)
