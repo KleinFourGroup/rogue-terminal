@@ -3,6 +3,7 @@ import { TextSprite } from "./text/text_sprite"
 import { TILE_SIZE } from "./text/canvas_style"
 import { Entity } from "./entity"
 import { COLORS } from "./colors"
+import { SignalEmitter } from "./signal"
 
 export class AlphaGrid {
     rows: number
@@ -17,6 +18,19 @@ export class AlphaGrid {
 
         this.ownership = Array.from({length: this.rows * this.cols}, () => new Set<Entity>())
         this.dirty = new Set<number>()
+    }
+
+    listen(onAddEntity: SignalEmitter<Entity>, onRemoveEntity: SignalEmitter<Entity>) {
+        const addCallback = (entity: Entity) => {
+            entity.cacheOverlaps(this.cols)
+            this.register(entity)
+        }
+        const removeCallback = (entity: Entity) => {
+            this.unregister(entity)
+        }
+
+        onAddEntity.subscribe(addCallback)
+        onRemoveEntity.subscribe(removeCallback)
     }
 
     register(entity: Entity) {
@@ -136,6 +150,10 @@ export class BackgroundGrid extends Container {
         this.addChild(this.colorLayer)
         this.addChild(this.alertLayer)
         this.addChild(this.textLayer)
+    }
+
+    listen(onAddEntity: SignalEmitter<Entity>, onRemoveEntity: SignalEmitter<Entity>) {
+        this.alphaManager.listen(onAddEntity, onRemoveEntity)
     }
 
     isInBounds(row: number, col: number) {

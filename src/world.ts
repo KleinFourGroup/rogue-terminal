@@ -22,6 +22,8 @@ export class World extends Container {
         this.entities = new ECS(this.rows, this.cols)
         this.ground = new BackgroundGrid(this.rows, this.cols)
 
+        this.ground.listen(this.entities.signals.onAdd, this.entities.signals.onDelete)
+
         this.animatedActives = []
 
         this.entities.setWorld(this)

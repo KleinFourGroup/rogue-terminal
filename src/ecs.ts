@@ -2,6 +2,12 @@ import { Container } from "pixi.js"
 import { Entity } from "./entity"
 import { World } from "./world"
 import { AILogic } from "./behaviors/behavior"
+import { SignalEmitter } from "./signal"
+
+interface ECSSignals {
+    onAdd: SignalEmitter<Entity>
+    onDelete: SignalEmitter<Entity>
+}
 
 export class ECS {
     entities: Entity[]
@@ -10,6 +16,7 @@ export class ECS {
     cols: number
     world: World | null
     stage: Container
+    signals: ECSSignals
 
     constructor(rows: number, cols: number) {
         this.rows = rows
@@ -18,6 +25,11 @@ export class ECS {
         this.entities = []
         this.grid = new Array<Entity | null>(this.rows * this.cols).fill(null)
         this.world = null
+
+        this.signals = {
+            onAdd: new SignalEmitter<Entity>,
+            onDelete: new SignalEmitter<Entity>
+        }
 
         this.stage = new Container()
     }
@@ -73,10 +85,12 @@ export class ECS {
                 this.deleteFromGrid(entity)
             }
 
-            if (this.world !== null) {
-                entity.cacheOverlaps(this.cols)
-                this.world.ground.alphaManager.register(entity)
-            }
+            this.signals.onAdd.emit(entity)
+
+            // if (this.world !== null) {
+            //     entity.cacheOverlaps(this.cols)
+            //     this.world.ground.alphaManager.register(entity)
+            // }
         }
     }
 
@@ -88,9 +102,11 @@ export class ECS {
             this.deleteFromGrid(entity)
             this.stage.removeChild(entity.sprite)
 
-            if (this.world !== null) {
-                this.world.ground.alphaManager.unregister(entity)
-            }
+            this.signals.onDelete.emit(entity)
+
+            // if (this.world !== null) {
+            //     this.world.ground.alphaManager.unregister(entity)
+            // }
         }
     }
 
