@@ -10,6 +10,7 @@ import { AILogic, setupAI } from "./behaviors/behavior"
 import { RandomWalkAI } from "./behaviors/random_walk"
 import { RandomMoveTargetAI } from "./behaviors/random_move_target"
 import { TILE_SIZE } from "./text/canvas_style"
+import { VisibilityManager } from "./grid/visibility_manager"
 
 const ROWS = 21
 const COLS = 21
@@ -26,6 +27,7 @@ export class GameScene extends Container implements IScene {
     elapsed: number
 
     turnManager: TurnManager
+    visibilityManager: VisibilityManager
 
     constructor(app: GameApp) {
         super()
@@ -35,6 +37,7 @@ export class GameScene extends Container implements IScene {
         this.player = new Entity("@", app.caches, Math.floor(ROWS / 2), Math.floor(COLS / 2))
 
         this.turnManager = new TurnManager()
+        this.visibilityManager = new VisibilityManager(ROWS, COLS)
 
         this.level = new World(ROWS, COLS)
 
@@ -92,6 +95,8 @@ export class GameScene extends Container implements IScene {
 
         this.addChild(this.level)
 
+        this.visibilityManager.calculateFOV(this.player)
+        this.level.ground.visibilityLayer.draw(this.visibilityManager)
         const updated = this.level.ground.updateTileAlphas(this.level.entities.entities)
         this.app.debugOverlay.setAlphaUpdates(updated)
         this.camera.setPosition(this.player.sprite.x, this.player.sprite.y)
@@ -106,7 +111,6 @@ export class GameScene extends Container implements IScene {
 
     update(deltaMS: number): void {
         if (this.turnManager.status === TurnStatus.NO_TURN) {
-            console.log("No current turn!  Fetching next one...")
             const nextTurn = this.level.nextAI()
             const toSkip = nextTurn!.actor.actionCoolDown
             this.level.advanceTicks(toSkip)
@@ -147,6 +151,12 @@ export class GameScene extends Container implements IScene {
         }
 
         if (this.turnManager.status === TurnStatus.FINISH_TURN) {
+            if (this.turnManager.currentTurn === this.player) {
+                console.log("Updating visibility!")
+                this.visibilityManager.reset()
+                this.visibilityManager.calculateFOV(this.player)
+                this.level.ground.visibilityLayer.draw(this.visibilityManager)
+            }
             this.turnManager.finishTurn()
         }
 

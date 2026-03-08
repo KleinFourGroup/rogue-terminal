@@ -1,58 +1,52 @@
-import { Entity } from "../entity"
+import { Container, Graphics } from "pixi.js"
+import { TILE_SIZE } from "../text/canvas_style"
+import { TileVisibility, VisibilityManager } from "./visibility_manager"
+import { COLORS } from "../colors"
 
-const FOV_DISTANCE = 5
-
-export enum TileVisibility {
-    UNEXPLORED,
-    HIDDEN,
-    VISIBLE
-}
-
-export class VisibilityGrid {
+export class VisibilitydGrid extends Container {
     rows: number
     cols: number
 
-    visibilityArray: TileVisibility[]
-    visibleSet: Set<number>
+    visibilityTiles: Graphics[]
 
     constructor(rows: number, cols: number) {
+        super()
         this.rows = rows
         this.cols = cols
 
-        this.visibilityArray = new Array<TileVisibility>(this.rows * this.cols).fill(TileVisibility.UNEXPLORED)
-        this.visibleSet = new Set<number>()
+        this.visibilityTiles = Array.from({length: this.rows * this.cols}, () => new Graphics())
+        this.visibilityTiles.forEach((tile, index) => {
+            const col = index % this.cols
+            const row = (index - col) / this.cols
+            tile.position.set(col * TILE_SIZE, row * TILE_SIZE)
+            this.addChild(tile)
+        })
     }
 
     isInBounds(row: number, col: number) {
         return row >= 0 && row < this.rows && col >= 0 && col < this.cols
     }
 
-    setVisibility(row: number, col: number, visibility: TileVisibility) {
-        if (this.isInBounds(row, col)) {
-            const index = row * this.cols + col
-            this.visibilityArray[index] = visibility
-            if (visibility === TileVisibility.VISIBLE) {
-                this.visibleSet.add(index)
+    setTile(row: number, col: number, visibility: TileVisibility) {
+        const tile = this.visibilityTiles[row * this.cols + col]
+        if (visibility === TileVisibility.VISIBLE) {
+            tile.visible = false
+        } else {
+            tile.visible = true
+            tile.clear()
+            tile.rect(0, 0, TILE_SIZE, TILE_SIZE).fill(COLORS.TERMINAL_BLACK)
+            if (visibility === TileVisibility.HIDDEN) {
+                tile.alpha = 0.5
+            } else {
+                tile.alpha = 1
             }
         }
     }
 
-    resetAll() {
-        this.visibilityArray.fill(TileVisibility.UNEXPLORED)
-        this.visibleSet.clear()
-    }
-
-    reset() {
-        for (const index of this.visibleSet) {
-            this.visibilityArray[index] = TileVisibility.HIDDEN
-        }
-        this.visibleSet.clear()
-    }
-
-    calculateFOV(entity: Entity) {
-        for (let row = entity.row - FOV_DISTANCE; row < entity.row + entity.height + FOV_DISTANCE; row++) {
-            for (let col = entity.col - FOV_DISTANCE; col < entity.col + entity.width + FOV_DISTANCE; col++) {
-                this.setVisibility(row, col, TileVisibility.VISIBLE)
+    draw(visibility: VisibilityManager) {
+        for (let row = 0; row < this.rows; row++) {
+            for (let col = 0; col < this.cols; col++) {
+                this.setTile(row, col, visibility.getVisibility(row, col))
             }
         }
     }
