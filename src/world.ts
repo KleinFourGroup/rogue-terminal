@@ -1,4 +1,4 @@
-import { Container } from "pixi.js"
+import { Container, Graphics } from "pixi.js"
 import { ECS } from "./ecs"
 import { BackgroundGrid } from "./grid/background_grid"
 import { Entity } from "./entity"
@@ -30,6 +30,11 @@ export class World extends Container {
 
         this.addChild(this.ground)
         this.addChild(this.entities.stage)
+    }
+
+    setVisibilityMask(mask: Graphics) {
+        this.entities.setVisibilityMask(mask)
+        this.ground.alertLayer.setVisibilityMask(mask)
     }
 
     isNavigable(row: number, col: number, ignoreList: Entity[] = [], width: number = 1, height: number = 1) {

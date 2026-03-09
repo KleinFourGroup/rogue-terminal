@@ -37,7 +37,7 @@ export class ECS {
         this.stage = new Container()
     }
 
-    setMask(mask: Graphics) {
+    setVisibilityMask(mask: Graphics) {
         this.visibleMask = mask
         this.stage.mask = mask
         this.stage.addChild(mask)

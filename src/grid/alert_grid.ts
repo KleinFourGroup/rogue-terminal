@@ -4,6 +4,7 @@ import { Entity } from "../entity"
 import { TILE_SIZE } from "../text/canvas_style"
 import { SignalEmitter } from "../signal"
 
+const STROKE_WIDTH = 5
 
 export class AlertGrid extends Container {
     rows: number
@@ -12,6 +13,7 @@ export class AlertGrid extends Container {
     alerts: (Graphics | null)[]
     ownershipArray: Set<Entity>[]
     ownershipMap: Map<Entity, Set<number>>
+    visibleMask: Graphics | null
 
     constructor(rows: number, cols: number) {
         super()
@@ -21,10 +23,18 @@ export class AlertGrid extends Container {
         this.alerts = new Array<Graphics | null>(this.rows * this.cols).fill(null)
         this.ownershipArray = Array.from({ length: this.rows * this.cols }, () => new Set<Entity>())
         this.ownershipMap = new Map<Entity, Set<number>>()
+
+        this.visibleMask = null
     }
 
     isInBounds(row: number, col: number) {
         return row >= 0 && row < this.rows && col >= 0 && col < this.cols
+    }
+
+    setVisibilityMask(mask: Graphics) {
+        this.visibleMask = mask
+        this.mask = mask
+        this.addChild(mask)
     }
 
     setupListeners(onRemoveEntity: SignalEmitter<Entity>) {
@@ -90,15 +100,18 @@ export class AlertGrid extends Container {
     drawAlert(row: number, col: number, color: string | null) {
         if (this.isInBounds(row, col)) {
             const index = row * this.cols + col
+            function drawRoundedBox(graphics: Graphics, color: string) {
+                return graphics.roundRect(STROKE_WIDTH / 2, STROKE_WIDTH / 2, TILE_SIZE - STROKE_WIDTH, TILE_SIZE - STROKE_WIDTH, TILE_SIZE / 4).stroke({ width: STROKE_WIDTH, color: color })
+            }
 
             if (this.alerts[index] !== null) {
                 const graphics = this.alerts[index]
                 graphics.clear()
                 if (color !== null) {
-                    graphics.roundRect(0, 0, TILE_SIZE, TILE_SIZE, TILE_SIZE / 4).stroke({ width: 5, color: color })
+                    drawRoundedBox(graphics, color)
                 }
             } else if (color !== null) {
-                const graphics = new Graphics().roundRect(0, 0, TILE_SIZE, TILE_SIZE, TILE_SIZE / 4).stroke({ width: 5, color: color })
+                const graphics = drawRoundedBox(new Graphics(), color)
                 this.alerts[index] = graphics
                 this.addChild(graphics)
 
