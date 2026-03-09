@@ -70,8 +70,8 @@ export class VisibilityManager {
     }
 
     resetAll() {
-        this.visibilityArray.fill(TileVisibility.UNEXPLORED)
         this.visibleCache = new Set<number>(this.visibleSet)
+        this.visibilityArray.fill(TileVisibility.UNEXPLORED)
         this.visibleSet.clear()
         this.visibleMask.clear()
     }
