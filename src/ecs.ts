@@ -1,4 +1,4 @@
-import { Container } from "pixi.js"
+import { Container, Graphics } from "pixi.js"
 import { Entity } from "./entity"
 import { World } from "./world"
 import { AILogic } from "./behaviors/behavior"
@@ -15,6 +15,7 @@ export class ECS {
     rows: number
     cols: number
     world: World | null
+    visibleMask: Graphics | null
     stage: Container
     signals: ECSSignals
 
@@ -26,12 +27,20 @@ export class ECS {
         this.grid = new Array<Entity | null>(this.rows * this.cols).fill(null)
         this.world = null
 
+        this.visibleMask = null
+
         this.signals = {
             onAdd: new SignalEmitter<Entity>,
             onDelete: new SignalEmitter<Entity>
         }
 
         this.stage = new Container()
+    }
+
+    setMask(mask: Graphics) {
+        this.visibleMask = mask
+        this.stage.mask = mask
+        this.stage.addChild(mask)
     }
 
     setWorld(world: World | null) {

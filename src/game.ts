@@ -40,6 +40,7 @@ export class GameScene extends Container implements IScene {
         this.visibilityManager = new VisibilityManager(ROWS, COLS)
 
         this.level = new World(ROWS, COLS)
+        this.level.entities.setMask(this.visibilityManager.visibleMask)
 
         for (let row = 0; row < ROWS; row++) {
             for (let col = 0; col < COLS; col++) {

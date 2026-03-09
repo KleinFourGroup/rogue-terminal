@@ -1,4 +1,7 @@
+import { Graphics } from "pixi.js"
 import { Entity } from "../entity"
+import { TILE_SIZE } from "../text/canvas_style"
+import { COLORS } from "../colors"
 
 const FOV_DISTANCE = 5
 
@@ -14,6 +17,7 @@ export class VisibilityManager {
 
     visibilityArray: TileVisibility[]
     visibleSet: Set<number>
+    visibleMask: Graphics
 
     constructor(rows: number, cols: number) {
         this.rows = rows
@@ -21,6 +25,7 @@ export class VisibilityManager {
 
         this.visibilityArray = new Array<TileVisibility>(this.rows * this.cols).fill(TileVisibility.UNEXPLORED)
         this.visibleSet = new Set<number>()
+        this.visibleMask = new Graphics()
     }
 
     isInBounds(row: number, col: number) {
@@ -60,6 +65,7 @@ export class VisibilityManager {
     resetAll() {
         this.visibilityArray.fill(TileVisibility.UNEXPLORED)
         this.visibleSet.clear()
+        this.visibleMask.clear()
     }
 
     reset() {
@@ -67,12 +73,14 @@ export class VisibilityManager {
             this.visibilityArray[index] = TileVisibility.HIDDEN
         }
         this.visibleSet.clear()
+        this.visibleMask.clear()
     }
 
     calculateFOV(entity: Entity) {
         for (let row = entity.row - FOV_DISTANCE; row < entity.row + entity.height + FOV_DISTANCE; row++) {
             for (let col = entity.col - FOV_DISTANCE; col < entity.col + entity.width + FOV_DISTANCE; col++) {
                 this.setVisibility(row, col, TileVisibility.VISIBLE)
+                this.visibleMask.rect(col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE).fill(COLORS.TERMINAL_BLACK)
             }
         }
     }
