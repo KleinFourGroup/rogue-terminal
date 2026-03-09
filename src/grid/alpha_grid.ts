@@ -17,17 +17,25 @@ export class AlphaGrid {
         this.dirty = new Set<number>()
     }
 
-    setupListeners(onAddEntity: SignalEmitter<Entity>, onRemoveEntity: SignalEmitter<Entity>) {
+    setupListeners(onAddEntity: SignalEmitter<Entity>, onRemoveEntity: SignalEmitter<Entity>, onCalculateVisibility: SignalEmitter<Set<number>>) {
         const addCallback = (entity: Entity) => {
             entity.cacheOverlaps(this.cols)
             this.register(entity)
         }
+
         const removeCallback = (entity: Entity) => {
             this.unregister(entity)
         }
 
+        const visibilityCallback = (indices: Set<number>) => {
+            for (const index of indices) {
+                this.dirty.add(index)
+            }
+        }
+
         onAddEntity.subscribe(addCallback)
         onRemoveEntity.subscribe(removeCallback)
+        onCalculateVisibility.subscribe(visibilityCallback)
     }
 
     register(entity: Entity) {

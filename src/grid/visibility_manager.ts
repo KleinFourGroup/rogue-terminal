@@ -2,6 +2,7 @@ import { Graphics } from "pixi.js"
 import { Entity } from "../entity"
 import { TILE_SIZE } from "../text/canvas_style"
 import { COLORS } from "../colors"
+import { SignalEmitter } from "../signal"
 
 const FOV_DISTANCE = 5
 
@@ -17,7 +18,10 @@ export class VisibilityManager {
 
     visibilityArray: TileVisibility[]
     visibleSet: Set<number>
+    visibleCache: Set<number>
     visibleMask: Graphics
+    
+    onCalculateVisibility: SignalEmitter<Set<number>>
 
     constructor(rows: number, cols: number) {
         this.rows = rows
@@ -25,7 +29,10 @@ export class VisibilityManager {
 
         this.visibilityArray = new Array<TileVisibility>(this.rows * this.cols).fill(TileVisibility.UNEXPLORED)
         this.visibleSet = new Set<number>()
+        this.visibleCache = new Set<number>()
         this.visibleMask = new Graphics()
+        
+        this.onCalculateVisibility = new SignalEmitter<Set<number>>()
     }
 
     isInBounds(row: number, col: number) {
@@ -64,11 +71,13 @@ export class VisibilityManager {
 
     resetAll() {
         this.visibilityArray.fill(TileVisibility.UNEXPLORED)
+        this.visibleCache = new Set<number>(this.visibleSet)
         this.visibleSet.clear()
         this.visibleMask.clear()
     }
 
     reset() {
+        this.visibleCache = new Set<number>(this.visibleSet)
         for (const index of this.visibleSet) {
             this.visibilityArray[index] = TileVisibility.HIDDEN
         }
@@ -83,5 +92,7 @@ export class VisibilityManager {
                 this.visibleMask.rect(col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE).fill(COLORS.TERMINAL_BLACK)
             }
         }
+
+        this.onCalculateVisibility.emit(this.visibleSet.symmetricDifference(this.visibleCache))
     }
 }

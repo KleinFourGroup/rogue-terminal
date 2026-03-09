@@ -6,6 +6,7 @@ import { SignalEmitter } from "../signal"
 import { AlphaGrid } from "./alpha_grid"
 import { AlertGrid } from "./alert_grid"
 import { VisibilitydGrid } from "./visibility_grid"
+import { TileVisibility, VisibilityManager } from "./visibility_manager"
 
 export class BackgroundGrid extends Container {
     rows: number
@@ -44,8 +45,8 @@ export class BackgroundGrid extends Container {
         this.addChild(this.visibilityLayer)
     }
 
-    setupListeners(onAddEntity: SignalEmitter<Entity>, onRemoveEntity: SignalEmitter<Entity>) {
-        this.alphaManager.setupListeners(onAddEntity, onRemoveEntity)
+    setupListeners(onAddEntity: SignalEmitter<Entity>, onRemoveEntity: SignalEmitter<Entity>, onCalculateVisibility: SignalEmitter<Set<number>>) {
+        this.alphaManager.setupListeners(onAddEntity, onRemoveEntity, onCalculateVisibility)
         this.alertLayer.setupListeners(onRemoveEntity)
     }
 
@@ -125,7 +126,7 @@ export class BackgroundGrid extends Container {
         }
     }
 
-    updateTileAlphas(activeEntities: Entity[]) {
+    updateTileAlphas(activeEntities: Entity[], visibilityManager: VisibilityManager) {
         for (const entity of activeEntities) {
             this.alphaManager.unregister(entity)
             entity.cacheOverlaps(this.cols)
@@ -137,8 +138,10 @@ export class BackgroundGrid extends Container {
             if (textSprite !== null) {
                 textSprite.alpha = 1
 
-                for (const entity of this.alphaManager.ownership[index]) {
-                    textSprite.alpha = Math.min(textSprite.alpha, entity.overlapCache.get(index)!)
+                if (visibilityManager.visibilityArray[index] === TileVisibility.VISIBLE) {
+                    for (const entity of this.alphaManager.ownership[index]) {
+                        textSprite.alpha = Math.min(textSprite.alpha, entity.overlapCache.get(index)!)
+                    }
                 }
             }
         }

@@ -3,6 +3,7 @@ import { ECS } from "./ecs"
 import { BackgroundGrid } from "./grid/background_grid"
 import { Entity } from "./entity"
 import { TextSprite } from "./text/text_sprite"
+import { VisibilityManager } from "./grid/visibility_manager"
 
 export class World extends Container {
     rows: number
@@ -10,6 +11,8 @@ export class World extends Container {
 
     entities: ECS
     ground: BackgroundGrid
+    
+    visibilityManager: VisibilityManager
 
     animatedActives: Entity[]
 
@@ -22,7 +25,9 @@ export class World extends Container {
         this.entities = new ECS(this.rows, this.cols)
         this.ground = new BackgroundGrid(this.rows, this.cols)
 
-        this.ground.setupListeners(this.entities.signals.onAdd, this.entities.signals.onDelete)
+        this.visibilityManager = new VisibilityManager(this.rows, this.cols)
+
+        this.ground.setupListeners(this.entities.signals.onAdd, this.entities.signals.onDelete, this.visibilityManager.onCalculateVisibility)
 
         this.animatedActives = []
 
@@ -30,6 +35,8 @@ export class World extends Container {
 
         this.addChild(this.ground)
         this.addChild(this.entities.stage)
+
+        this.setVisibilityMask(this.visibilityManager.visibleMask)
     }
 
     setVisibilityMask(mask: Graphics) {
