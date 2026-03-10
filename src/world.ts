@@ -4,6 +4,7 @@ import { BackgroundGrid } from "./grid/background_grid"
 import { Entity } from "./entity"
 import { TextSprite } from "./text/text_sprite"
 import { VisibilityManager } from "./visibility_manager"
+import { EntityVisibilityTracker } from "./entity_visibility_tracker"
 
 export class World extends Container {
     rows: number
@@ -13,6 +14,7 @@ export class World extends Container {
     ground: BackgroundGrid
     
     visibilityManager: VisibilityManager
+    visibleEntityTracker: EntityVisibilityTracker
 
     animatedActives: Entity[]
 
@@ -26,8 +28,10 @@ export class World extends Container {
         this.ground = new BackgroundGrid(this.rows, this.cols)
 
         this.visibilityManager = new VisibilityManager(this.rows, this.cols)
+        this.visibleEntityTracker = new EntityVisibilityTracker(this.entities, this.visibilityManager)
 
         this.ground.setupListeners(this.entities.signals.onAdd, this.entities.signals.onDelete, this.visibilityManager.onTileVisible, this.visibilityManager.onTileHide)
+        this.visibleEntityTracker.setupListeners(this.visibilityManager.onTileVisible, this.visibilityManager.onTileHide)
 
         this.animatedActives = []
 
@@ -37,6 +41,10 @@ export class World extends Container {
         this.addChild(this.entities.stage)
 
         this.setVisibilityMask(this.visibilityManager.visibleTileMask)
+
+        // Testing
+        this.visibleEntityTracker.onReveal.subscribe((entity: Entity) => {console.log(`Visible: ${entity}`)})
+        this.visibleEntityTracker.onHide.subscribe((entity: Entity) => {console.log(`Hidden: ${entity}`)})
     }
 
     setVisibilityMask(mask: Graphics) {

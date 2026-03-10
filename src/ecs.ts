@@ -123,6 +123,10 @@ export class ECS {
         return success
     }
 
+    getEntity(row: number, col: number) {
+        return this.grid[row * this.cols + col]
+    }
+
     isFree(row: number, col: number, ignoreList: Entity[] = []) {
         // console.log("Testing: ", row, col)
         if (this.isValid(row, col)) {
