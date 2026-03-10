@@ -12,6 +12,11 @@ export enum TileVisibility {
     VISIBLE
 }
 
+interface TileVisibilitySignals {
+    onTileVisible: SignalEmitter<Set<number>>
+    onTileHide: SignalEmitter<Set<number>>
+}
+
 export class VisibilityManager {
     rows: number
     cols: number
@@ -21,8 +26,7 @@ export class VisibilityManager {
     visibleTileCache: Set<number>
     visibleTileMask: Graphics
     
-    onTileVisible: SignalEmitter<Set<number>>
-    onTileHide: SignalEmitter<Set<number>>
+    signals: TileVisibilitySignals
 
     constructor(rows: number, cols: number) {
         this.rows = rows
@@ -33,8 +37,10 @@ export class VisibilityManager {
         this.visibleTileCache = new Set<number>()
         this.visibleTileMask = new Graphics()
         
-        this.onTileVisible = new SignalEmitter<Set<number>>()
-        this.onTileHide = new SignalEmitter<Set<number>>()
+        this.signals = {
+            onTileVisible: new SignalEmitter<Set<number>>(),
+            onTileHide: new SignalEmitter<Set<number>>()
+        }
     }
 
     isInBounds(row: number, col: number) {
@@ -95,10 +101,10 @@ export class VisibilityManager {
             }
         }
 
-        this.onTileVisible.emit(this.visibleTileSet.difference(this.visibleTileCache))
+        this.signals.onTileVisible.emit(this.visibleTileSet.difference(this.visibleTileCache))
     }
 
     calculateNewlyHidden() {
-        this.onTileHide.emit(this.visibleTileCache.difference(this.visibleTileSet))
+        this.signals.onTileHide.emit(this.visibleTileCache.difference(this.visibleTileSet))
     }
 }

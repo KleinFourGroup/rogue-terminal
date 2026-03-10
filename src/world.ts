@@ -30,8 +30,8 @@ export class World extends Container {
         this.visibilityManager = new VisibilityManager(this.rows, this.cols)
         this.visibleEntityTracker = new EntityVisibilityTracker(this.entities, this.visibilityManager)
 
-        this.ground.setupListeners(this.entities.signals.onAdd, this.entities.signals.onDelete, this.visibilityManager.onTileVisible, this.visibilityManager.onTileHide)
-        this.visibleEntityTracker.setupListeners(this.visibilityManager.onTileVisible, this.visibilityManager.onTileHide)
+        this.ground.setupListeners(this.entities.signals.onAdd, this.entities.signals.onDelete, this.visibilityManager.signals.onTileVisible, this.visibilityManager.signals.onTileHide)
+        this.visibleEntityTracker.setupListeners(this.visibilityManager.signals.onTileVisible, this.visibilityManager.signals.onTileHide, this.entities.signals.onAdd, this.entities.signals.onDelete, this.entities.signals.onMove)
 
         this.animatedActives = []
 
@@ -43,8 +43,8 @@ export class World extends Container {
         this.setVisibilityMask(this.visibilityManager.visibleTileMask)
 
         // Testing
-        this.visibleEntityTracker.onReveal.subscribe((entity: Entity) => {console.log(`Visible: ${entity}`)})
-        this.visibleEntityTracker.onHide.subscribe((entity: Entity) => {console.log(`Hidden: ${entity}`)})
+        this.visibleEntityTracker.signals.onReveal.subscribe((entity: Entity) => {console.log(`Visible: ${entity.sprite.character}`)})
+        this.visibleEntityTracker.signals.onHide.subscribe((entity: Entity) => {console.log(`Hidden: ${entity.sprite.character}`)})
     }
 
     setVisibilityMask(mask: Graphics) {

@@ -7,6 +7,7 @@ import { SignalEmitter } from "./signal"
 interface ECSSignals {
     onAdd: SignalEmitter<Entity>
     onDelete: SignalEmitter<Entity>
+    onMove: SignalEmitter<Entity>
 }
 
 export class ECS {
@@ -31,7 +32,8 @@ export class ECS {
 
         this.signals = {
             onAdd: new SignalEmitter<Entity>,
-            onDelete: new SignalEmitter<Entity>
+            onDelete: new SignalEmitter<Entity>,
+            onMove: new SignalEmitter<Entity>
         }
 
         this.stage = new Container()
@@ -118,6 +120,8 @@ export class ECS {
         if (!success) {
             // Should revert instead, maybe?
             this.removeEntity(entity)
+        } else {
+            this.signals.onMove.emit(entity)
         }
 
         return success
