@@ -6,7 +6,7 @@ import { SignalEmitter } from "../signal"
 import { AlphaGrid } from "./alpha_grid"
 import { AlertGrid } from "./alert_grid"
 import { VisibilitydGrid } from "./visibility_grid"
-import { TileVisibility, VisibilityManager } from "./visibility_manager"
+import { TileVisibility, VisibilityManager } from "../visibility_manager"
 
 export class BackgroundGrid extends Container {
     rows: number
@@ -45,8 +45,8 @@ export class BackgroundGrid extends Container {
         this.addChild(this.visibilityLayer)
     }
 
-    setupListeners(onAddEntity: SignalEmitter<Entity>, onRemoveEntity: SignalEmitter<Entity>, onCalculateVisibility: SignalEmitter<Set<number>>) {
-        this.alphaManager.setupListeners(onAddEntity, onRemoveEntity, onCalculateVisibility)
+    setupListeners(onAddEntity: SignalEmitter<Entity>, onRemoveEntity: SignalEmitter<Entity>, onTileVisible: SignalEmitter<Set<number>>, onTileHide: SignalEmitter<Set<number>>) {
+        this.alphaManager.setupListeners(onAddEntity, onRemoveEntity, onTileVisible, onTileHide)
         this.alertLayer.setupListeners(onRemoveEntity)
     }
 
