@@ -40,7 +40,7 @@ export function setupAI(entity: Entity, logic: IBehaviorLogic) {
     let comp = entity.getComponent(AILogic)
     if (comp === null) {
         comp = new AILogic(logic)
-        entity.addComponents(comp)
+        entity.addComponent(comp)
     } else {
         // This probably should never happen
         comp.setLogic(logic)

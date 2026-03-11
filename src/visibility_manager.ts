@@ -3,8 +3,7 @@ import { Entity } from "./entity"
 import { TILE_SIZE } from "./text/canvas_style"
 import { COLORS } from "./colors"
 import { SignalEmitter } from "./signal"
-
-const FOV_DISTANCE = 5
+import { Observer } from "./observer"
 
 export enum TileVisibility {
     UNEXPLORED,
@@ -94,8 +93,9 @@ export class VisibilityManager {
     }
 
     calculateFOV(entity: Entity) {
-        for (let row = entity.row - FOV_DISTANCE; row < entity.row + entity.height + FOV_DISTANCE; row++) {
-            for (let col = entity.col - FOV_DISTANCE; col < entity.col + entity.width + FOV_DISTANCE; col++) {
+        const observer = entity.getComponent(Observer)!
+        for (let row = entity.row - observer.viewDistance; row < entity.row + entity.height + observer.viewDistance; row++) {
+            for (let col = entity.col - observer.viewDistance; col < entity.col + entity.width + observer.viewDistance; col++) {
                 this.setVisibility(row, col, TileVisibility.VISIBLE)
                 this.visibleTileMask.rect(col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE).fill(COLORS.TERMINAL_BLACK)
             }

@@ -10,11 +10,14 @@ import { AILogic, setupAI } from "./behaviors/behavior"
 import { RandomWalkAI } from "./behaviors/random_walk"
 import { RandomMoveTargetAI } from "./behaviors/random_move_target"
 import { TILE_SIZE } from "./text/canvas_style"
+import { Observer } from "./observer"
 
 const ROWS = 21
 const COLS = 21
 
 const TILES_DIAGONAL = 31
+
+const FOV_DISTANCE = 5
 
 // const TICK_TIME = 1000 / 1200
 
@@ -33,6 +36,7 @@ export class GameScene extends Container implements IScene {
         this.camera = new Camera(this.app, this)
 
         this.player = new Entity("@", app.caches, Math.floor(ROWS / 2), Math.floor(COLS / 2))
+        this.player.addComponent(new Observer(FOV_DISTANCE))
 
         this.turnManager = new TurnManager()
 
@@ -149,10 +153,10 @@ export class GameScene extends Container implements IScene {
 
         if (this.turnManager.status === TurnStatus.FINISH_TURN) {
             // This whole hack only works for one observer
-            if (this.turnManager.currentTurn === this.player) {
+            if (this.turnManager.currentTurn!.hasComponent(Observer)) {
                 console.log("Updating visibility!")
                 this.level.visibilityManager.reset()
-                this.level.visibilityManager.calculateFOV(this.player)
+                this.level.visibilityManager.calculateFOV(this.turnManager.currentTurn!)
                 this.level.visibilityManager.calculateNewlyHidden()
                 this.level.ground.visibilityLayer.draw(this.level.visibilityManager)
             }

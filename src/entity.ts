@@ -22,7 +22,7 @@ export class Entity {
     animationManager: AnimationManager
     overlapCache: Map<number, number>
 
-    components: {[name: string]: Component}
+    components: Map<ClassConstructor<any>, Component> //{[name: string]: Component}
 
     constructor(text: string, caches: CacheManager, row: number = 0, col: number = 0, width: number = 1, height: number = 1) {
         const size = Math.min(width, height)
@@ -38,7 +38,7 @@ export class Entity {
         this.animationManager = new AnimationManager(this)
         this.overlapCache = new Map<number, number>()
 
-        this.components = {}
+        this.components = new Map()
         
         this.sprite.anchor.set(0.5)
         this.sprite.position.set(...tileToPixel(this.row, this.col, this.width, this.height))
@@ -57,27 +57,19 @@ export class Entity {
     }
 
     getComponent<Comp extends Component>(comp: ClassConstructor<Comp>): Comp | null {
-        const name = (comp as typeof Component).name
-        if (this.components.hasOwnProperty(name)) {
-            return this.components[name] as Comp
+        if (this.components.has(comp)) {
+            return this.components.get(comp) as Comp
         }
         return null
     }
 
-    addComponents(...components: Component[]) {
-        for (const component of components) {
-            this.components[(component.constructor as typeof Component).name] = component
-            component.setEntity(this)
-        }
+    addComponent<Comp extends Component>(component: Comp) {
+        this.components.set(component.constructor as ClassConstructor<Comp>, component)
+        component.setEntity(this)
     }
 
-    hasComponents(...components: Component[]) {
-        for (const component of components) {
-            if (!this.components.hasOwnProperty((component.constructor as typeof Component).name)) {
-                return false
-            }
-        }
-        return true
+    hasComponent<Comp extends Component>(comp: ClassConstructor<Comp>) {
+        return this.components.has(comp)
     }
 
     tileCollision(row: number, col: number) {
