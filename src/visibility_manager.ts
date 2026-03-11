@@ -4,6 +4,7 @@ import { TILE_SIZE } from "./text/canvas_style"
 import { COLORS } from "./colors"
 import { SignalEmitter } from "./signal"
 import { Observer } from "./observer"
+import { IEntitySprite } from "./text/entity_sprite"
 
 export enum TileVisibility {
     UNEXPLORED,
@@ -64,7 +65,7 @@ export class VisibilityManager {
         }
     }
 
-    isEntityVisible(entity: Entity) {
+    isEntityVisible(entity: IEntitySprite) {
         for (let row = entity.row; row < entity.row + entity.height; row++) {
             for (let col = entity.col; col < entity.col + entity.width; col++) {
                 if (this.isInBounds(row, col) && this.visibilityArray[row * this.cols + col] === TileVisibility.VISIBLE) {

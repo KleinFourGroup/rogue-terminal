@@ -8,4 +8,6 @@ export interface IEntitySprite {
 
     width: number
     height: number
+
+    setPosition(row: number, col: number): void
 }

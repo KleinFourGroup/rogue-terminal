@@ -1,6 +1,7 @@
 import { Graphics, Container } from "pixi.js"
-import { IEntityGrid } from "./entity_grid"
+import { EntityGridSignals, IEntityGrid } from "./entity_grid"
 import { MemoryEntity } from "./memory_entity"
+import { SignalEmitter } from "./signal"
 
 export class MemoryGrid implements IEntityGrid<MemoryEntity> {
     entities: MemoryEntity[]
@@ -9,7 +10,7 @@ export class MemoryGrid implements IEntityGrid<MemoryEntity> {
     cols: number
     visibleMask: Graphics | null
     stage: Container
-    // signals: ECSSignals
+    signals: EntityGridSignals<MemoryEntity>
 
     constructor(rows: number, cols: number) {
         this.rows = rows
@@ -19,6 +20,12 @@ export class MemoryGrid implements IEntityGrid<MemoryEntity> {
         this.grid = new Array<MemoryEntity | null>(this.rows * this.cols).fill(null)
         
         this.visibleMask = null
+        
+        this.signals = {
+            onAdd: new SignalEmitter<MemoryEntity>,
+            onDelete: new SignalEmitter<MemoryEntity>,
+            onMove: new SignalEmitter<MemoryEntity>
+        }
 
         this.stage = new Container()
     }
@@ -72,6 +79,8 @@ export class MemoryGrid implements IEntityGrid<MemoryEntity> {
             } else {
                 this.deleteFromGrid(entity)
             }
+
+            this.signals.onAdd.emit(entity)
         }
     }
 
@@ -81,7 +90,24 @@ export class MemoryGrid implements IEntityGrid<MemoryEntity> {
             this.entities.splice(index, 1)
             this.deleteFromGrid(entity)
             this.stage.removeChild(entity.sprite)
+
+            this.signals.onDelete.emit(entity)
         }
+    }
+
+    moveEntity(entity: MemoryEntity, row: number, col: number) {
+        this.deleteFromGrid(entity)
+        entity.setPosition(row, col)
+        const success = this.addToGrid(entity)
+
+        if (!success) {
+            // Should revert instead, maybe?
+            this.removeEntity(entity)
+        } else {
+            this.signals.onMove.emit(entity)
+        }
+
+        return success
     }
 
     getEntity(row: number, col: number) {

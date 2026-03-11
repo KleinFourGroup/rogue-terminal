@@ -11,6 +11,7 @@ import { RandomWalkAI } from "./behaviors/random_walk"
 import { RandomMoveTargetAI } from "./behaviors/random_move_target"
 import { TILE_SIZE } from "./text/canvas_style"
 import { Observer } from "./observer"
+import { FogMemory } from "./fog_memory"
 
 const ROWS = 21
 const COLS = 21
@@ -50,6 +51,7 @@ export class GameScene extends Container implements IScene {
 
                 if (row === 0 || row === ROWS - 1 || col === 0 || col === COLS - 1) {
                     const wall = new Entity("#", app.caches, row, col)
+                    wall.addComponent(new FogMemory(this.level.memories))
                     this.level.addEntity(wall)
                 }
             }

@@ -16,8 +16,15 @@ export class MemoryEntity implements IEntitySprite {
         this.col = entity.col
         this.width = entity.width
         this.height = entity.height
-        
+
         this.sprite.anchor.set(0.5)
+        this.sprite.position.set(...tileToPixel(this.row, this.col, this.width, this.height))
+    }
+
+    setPosition(row: number, col: number) {
+        this.row = row
+        this.col = col
+
         this.sprite.position.set(...tileToPixel(this.row, this.col, this.width, this.height))
     }
 }

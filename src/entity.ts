@@ -50,7 +50,6 @@ export class Entity implements IEntitySprite {
         this.col = col
 
         this.sprite.position.set(...tileToPixel(this.row, this.col, this.width, this.height))
-        // console.log(this.row, this.col)
     }
 
     setECS(system: ECS | null) {

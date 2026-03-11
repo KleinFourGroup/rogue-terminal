@@ -3,13 +3,7 @@ import { Entity } from "./entity"
 import { World } from "./world"
 import { AILogic } from "./behaviors/behavior"
 import { SignalEmitter } from "./signal"
-import { IEntityGrid } from "./entity_grid"
-
-interface ECSSignals {
-    onAdd: SignalEmitter<Entity>
-    onDelete: SignalEmitter<Entity>
-    onMove: SignalEmitter<Entity>
-}
+import { EntityGridSignals, IEntityGrid } from "./entity_grid"
 
 export class ECS implements IEntityGrid<Entity> {
     entities: Entity[]
@@ -19,7 +13,7 @@ export class ECS implements IEntityGrid<Entity> {
     world: World | null
     visibleMask: Graphics | null
     stage: Container
-    signals: ECSSignals
+    signals: EntityGridSignals<Entity>
 
     constructor(rows: number, cols: number) {
         this.rows = rows

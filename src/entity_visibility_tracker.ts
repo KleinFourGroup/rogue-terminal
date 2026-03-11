@@ -1,30 +1,30 @@
-import { ECS } from "./ecs"
-import { Entity } from "./entity"
+import { IEntityGrid } from "./entity_grid"
 import { SignalEmitter } from "./signal"
+import { IEntitySprite } from "./text/entity_sprite"
 import { VisibilityManager } from "./visibility_manager"
 
-interface EntityVisibilitySignals {
-    onReveal: SignalEmitter<Entity>
-    onHide: SignalEmitter<Entity>
+interface EntityVisibilitySignals<EntityType extends IEntitySprite> {
+    onReveal: SignalEmitter<EntityType>
+    onHide: SignalEmitter<EntityType>
 }
 
-export class EntityVisibilityTracker {
-    entities: ECS
+export class EntityVisibilityTracker<EntityType extends IEntitySprite> {
+    entities: IEntityGrid<EntityType>
     visibilityManager: VisibilityManager
-    visibleEntities: Set<Entity>
-    signals: EntityVisibilitySignals
+    visibleEntities: Set<EntityType>
+    signals: EntityVisibilitySignals<EntityType>
 
-    constructor(entities: ECS, visibilityManager: VisibilityManager) {
+    constructor(entities: IEntityGrid<EntityType>, visibilityManager: VisibilityManager) {
         this.entities = entities
         this.visibilityManager = visibilityManager
-        this.visibleEntities = new Set<Entity>()
+        this.visibleEntities = new Set<EntityType>()
         this.signals = {
-            onReveal: new SignalEmitter<Entity>(),
-            onHide: new SignalEmitter<Entity>()
+            onReveal: new SignalEmitter<EntityType>(),
+            onHide: new SignalEmitter<EntityType>()
         }
     }
 
-    setupListeners(onTileVisible: SignalEmitter<Set<number>>, onTileHide: SignalEmitter<Set<number>>, onAdd: SignalEmitter<Entity>, onDelete: SignalEmitter<Entity>, onMove: SignalEmitter<Entity>) {
+    setupListeners(onTileVisible: SignalEmitter<Set<number>>, onTileHide: SignalEmitter<Set<number>>, onAdd: SignalEmitter<EntityType>, onDelete: SignalEmitter<EntityType>, onMove: SignalEmitter<EntityType>) {
         const visibleCallback = (indices: Set<number>) => {
             for (const index of indices) {
                 const col = index % this.entities.cols
@@ -55,21 +55,21 @@ export class EntityVisibilityTracker {
             }
         }
 
-        const addCallback = (entity: Entity) => {
+        const addCallback = (entity: EntityType) => {
             if (this.visibilityManager.isEntityVisible(entity)) {
                 this.visibleEntities.add(entity)
                 this.signals.onReveal.emit(entity)
             }
         }
 
-        const deleteCallback = (entity: Entity) => {
+        const deleteCallback = (entity: EntityType) => {
             if (this.visibleEntities.has(entity)) {
                 this.visibleEntities.delete(entity)
                 this.signals.onHide.emit(entity)
             }
         }
 
-        const moveCallback = (entity: Entity) => {
+        const moveCallback = (entity: EntityType) => {
             if (this.visibilityManager.isEntityVisible(entity)) {
                 if (!this.visibleEntities.has(entity)) {
                     this.visibleEntities.add(entity)

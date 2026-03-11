@@ -5,16 +5,18 @@ import { Entity } from "./entity"
 import { TextSprite } from "./text/text_sprite"
 import { VisibilityManager } from "./visibility_manager"
 import { EntityVisibilityTracker } from "./entity_visibility_tracker"
+import { MemoryGrid } from "./memory_grid"
 
 export class World extends Container {
     rows: number
     cols: number
 
     entities: ECS
+    memories: MemoryGrid
     ground: BackgroundGrid
     
     visibilityManager: VisibilityManager
-    visibleEntityTracker: EntityVisibilityTracker
+    visibleEntityTracker: EntityVisibilityTracker<Entity>
 
     animatedActives: Entity[]
 
@@ -25,6 +27,7 @@ export class World extends Container {
         this.cols = cols
 
         this.entities = new ECS(this.rows, this.cols)
+        this.memories = new MemoryGrid(this.rows, this.cols)
         this.ground = new BackgroundGrid(this.rows, this.cols)
 
         this.visibilityManager = new VisibilityManager(this.rows, this.cols)
@@ -38,6 +41,7 @@ export class World extends Container {
         this.entities.setWorld(this)
 
         this.addChild(this.ground)
+        this.addChild(this.memories.stage)
         this.addChild(this.entities.stage)
 
         this.setVisibilityMask(this.visibilityManager.visibleTileMask)
