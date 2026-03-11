@@ -58,13 +58,13 @@ export class GameScene extends Container implements IScene {
         }
 
         this.level.addEntity(this.player)
-        setupAI(this.player, new RandomMoveTargetAI(this.player, true, app.caches.navNodePool)) // Still probably don't want this being called directly
+        setupAI(this.player, new RandomMoveTargetAI(this.player, this.level, true, app.caches.navNodePool)) // Still probably don't want this being called directly
 
         for (let drow = -1; drow <= 1; drow += 2) {
             for (let dcol = -1; dcol <= 1; dcol += 2) {
                 for (let count = 1; count <= 3; count++) {
                     const newEntity = new Entity("O", app.caches, this.player.row + count * drow, this.player.col + count * dcol)
-                    setupAI(newEntity, new RandomWalkAI(newEntity, false))
+                    setupAI(newEntity, new RandomWalkAI(newEntity, this.level, false))
                     this.level.addEntity(newEntity)
                 }
             }
@@ -73,7 +73,7 @@ export class GameScene extends Container implements IScene {
         for (let sign = -1; sign <= 1; sign += 2) {
             for (let flip = 0; flip <= 1; flip++) {
                 const newEntity = new Entity("G", app.caches, this.player.row + 3 * sign * flip - 1, this.player.col + 3 * sign * (1 - flip) - 1, 3, 3)
-                setupAI(newEntity, new RandomWalkAI(newEntity, false, 2400))
+                setupAI(newEntity, new RandomWalkAI(newEntity, this.level, false, 2400))
                 this.level.addEntity(newEntity)
             }
         }
@@ -89,7 +89,7 @@ export class GameScene extends Container implements IScene {
 
                 const newEntity = new Entity("D", app.caches, row + rowSub, col + colSub, 2, 2)
                 this.level.addEntity(newEntity)
-                setupAI(newEntity, new RandomMoveTargetAI(newEntity, false, app.caches.navNodePool, 600)) // Still probably don't want this being called directly
+                setupAI(newEntity, new RandomMoveTargetAI(newEntity, this.level, false, app.caches.navNodePool, 600)) // Still probably don't want this being called directly
             }
         }
 

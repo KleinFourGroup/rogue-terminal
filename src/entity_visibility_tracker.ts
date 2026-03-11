@@ -1,4 +1,4 @@
-import { IEntityGrid } from "./entity_grid"
+import { EntityGrid } from "./entity_grid"
 import { SignalEmitter } from "./signal"
 import { IEntitySprite } from "./text/entity_sprite"
 import { VisibilityManager } from "./visibility_manager"
@@ -9,12 +9,12 @@ interface EntityVisibilitySignals<EntityType extends IEntitySprite> {
 }
 
 export class EntityVisibilityTracker<EntityType extends IEntitySprite> {
-    entities: IEntityGrid<EntityType>
+    entities: EntityGrid<EntityType>
     visibilityManager: VisibilityManager
     visibleEntities: Set<EntityType>
     signals: EntityVisibilitySignals<EntityType>
 
-    constructor(entities: IEntityGrid<EntityType>, visibilityManager: VisibilityManager) {
+    constructor(entities: EntityGrid<EntityType>, visibilityManager: VisibilityManager) {
         this.entities = entities
         this.visibilityManager = visibilityManager
         this.visibleEntities = new Set<EntityType>()

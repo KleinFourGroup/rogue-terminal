@@ -2,7 +2,6 @@ import { Actor } from "./actor"
 import { AnimationManager } from "./animation_manager"
 import { CacheManager } from "./cache_manager"
 import { ClassConstructor, Component } from "./component"
-import { ECS } from "./ecs"
 import { tileToPixel } from "./position"
 import { DEFAULT_STYLE, TILE_SIZE } from "./text/canvas_style"
 import { IEntitySprite } from "./text/entity_sprite"
@@ -17,8 +16,6 @@ export class Entity implements IEntitySprite {
     width: number
     height: number
 
-    system: ECS | null
-
     actor: Actor
     animationManager: AnimationManager
     overlapCache: Map<number, number>
@@ -32,8 +29,6 @@ export class Entity implements IEntitySprite {
         this.col = col
         this.width = width
         this.height = height
-
-        this.system = null
 
         this.actor = new Actor(this)
         this.animationManager = new AnimationManager(this)
@@ -50,10 +45,6 @@ export class Entity implements IEntitySprite {
         this.col = col
 
         this.sprite.position.set(...tileToPixel(this.row, this.col, this.width, this.height))
-    }
-
-    setECS(system: ECS | null) {
-        this.system = system
     }
 
     getComponent<Comp extends Component>(comp: ClassConstructor<Comp>): Comp | null {

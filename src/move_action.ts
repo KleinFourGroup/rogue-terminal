@@ -1,6 +1,8 @@
 import { InstantAction } from "./action"
 import { AnimationFrame, AnimationInterval, KeyframedAnimation, KeyframedAnimationData } from "./animation"
+import { ECS } from "./ecs"
 import { Entity } from "./entity"
+import { GameScene } from "./game"
 import { tileToPixel } from "./position"
 import { Scene } from "./scene"
 
@@ -18,7 +20,7 @@ const DEFAULT_OPTIONS: MoveOptions = {
     cooldown: 1200
 }
 
-export function getSmoothMove(entity: Entity, row: number, col: number, options: Partial<MoveOptions> = {}) {
+export function getSmoothMove(entity: Entity, ecs: ECS, row: number, col: number, options: Partial<MoveOptions> = {}) {
     const fullOptions: MoveOptions = { ...DEFAULT_OPTIONS, ...options}
     
     const oldX = entity.sprite.x
@@ -56,7 +58,6 @@ export function getSmoothMove(entity: Entity, row: number, col: number, options:
     const animation = new KeyframedAnimation(animationData, entity, null!, false) // Look into these !s
 
     function moveCallback(entity: Entity, _scene: Scene | null) {
-        const ecs = entity.system!
         ecs.moveEntity(entity, row, col)
         return true
     }
