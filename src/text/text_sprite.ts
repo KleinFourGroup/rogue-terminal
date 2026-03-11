@@ -15,6 +15,7 @@ const DEFAULT_OPTIONS: TextSpriteOptions = {
 
 export class TextSprite extends Sprite {
     character: string
+    options: TextSpriteOptions
     textCanvas: TextCanvas
 
     constructor(character: string, options: Partial<TextSpriteOptions> = {}) {
@@ -26,6 +27,11 @@ export class TextSprite extends Sprite {
 
         super(Texture.from(textCanvas.canvas))
         this.character = character
+        this.options = fullOptions
         this.textCanvas = textCanvas
+    }
+
+    clone() {
+        return new TextSprite(this.character, this.options)
     }
 }

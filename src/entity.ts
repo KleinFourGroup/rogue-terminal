@@ -5,9 +5,10 @@ import { ClassConstructor, Component } from "./component"
 import { ECS } from "./ecs"
 import { tileToPixel } from "./position"
 import { DEFAULT_STYLE, TILE_SIZE } from "./text/canvas_style"
+import { IEntitySprite } from "./text/entity_sprite"
 import { TextSprite } from "./text/text_sprite"
 
-export class Entity {
+export class Entity implements IEntitySprite {
     sprite: TextSprite
 
     row: number
