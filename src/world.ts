@@ -39,7 +39,8 @@ export class World extends Container {
         this.visibleEntityTracker = new EntityVisibilityTracker<Entity>(this.entities, this.visibilityManager)
         this.visibleMemoryTracker = new EntityVisibilityTracker<MemoryEntity>(this.memories, this.visibilityManager)
 
-        this.ground.setupListeners(this.entities.signals.onAdd, this.entities.signals.onDelete, this.visibilityManager.signals.onTileVisible, this.visibilityManager.signals.onTileHide)
+        this.ground.setupListeners(this.entities.signals, this.memories.signals, this.visibilityManager.signals)
+
         this.visibleEntityTracker.setupListeners(this.visibilityManager.signals, this.entities.signals)
         this.visibleMemoryTracker.setupListeners(this.visibilityManager.signals, this.memories.signals)
         this.memoryManager.setupListeners(this.visibleEntityTracker.signals, this.visibleMemoryTracker.signals)

@@ -1,5 +1,8 @@
 import { Entity } from "../entity"
+import { EntityGridSignals } from "../entity_grid"
+import { MemoryEntity } from "../memory_entity"
 import { SignalEmitter } from "../signal"
+import { TileVisibilitySignals } from "../visibility_manager"
 
 
 export class AlphaGrid {
@@ -17,7 +20,7 @@ export class AlphaGrid {
         this.dirty = new Set<number>()
     }
 
-    setupListeners(onAddEntity: SignalEmitter<Entity>, onRemoveEntity: SignalEmitter<Entity>, onTileVisible: SignalEmitter<Set<number>>, onTileHide: SignalEmitter<Set<number>>) {
+    setupListeners(entitySignals: EntityGridSignals<Entity>, memorySignals: EntityGridSignals<MemoryEntity>, tileSignals: TileVisibilitySignals) {
         const addCallback = (entity: Entity) => {
             entity.cacheOverlaps(this.cols)
             this.register(entity)
@@ -27,16 +30,25 @@ export class AlphaGrid {
             this.unregister(entity)
         }
 
+        const forgetCallback = (memory: MemoryEntity) => {
+            for (let row = memory.row; row < memory.row + memory.height; row++) {
+                for (let col = memory.col; col < memory.col + memory.width; col++) {
+                    this.dirty.add(row * this.cols + col)
+                }
+            }
+        }
+
         const visibilityCallback = (indices: Set<number>) => {
             for (const index of indices) {
                 this.dirty.add(index)
             }
         }
 
-        onAddEntity.subscribe(addCallback)
-        onRemoveEntity.subscribe(removeCallback)
-        onTileVisible.subscribe(visibilityCallback)
-        onTileHide.subscribe(visibilityCallback)
+        entitySignals.onAdd.subscribe(addCallback)
+        entitySignals.onDelete.subscribe(removeCallback)
+        memorySignals.onDelete.subscribe(forgetCallback)
+        tileSignals.onTileVisible.subscribe(visibilityCallback)
+        tileSignals.onTileHide.subscribe(visibilityCallback)
     }
 
     register(entity: Entity) {

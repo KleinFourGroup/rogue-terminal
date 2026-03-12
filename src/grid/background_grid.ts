@@ -2,12 +2,13 @@ import { Container, Graphics } from "pixi.js"
 import { TextSprite } from "../text/text_sprite"
 import { TILE_SIZE } from "../text/canvas_style"
 import { Entity } from "../entity"
-import { SignalEmitter } from "../signal"
 import { AlphaGrid } from "./alpha_grid"
 import { AlertGrid } from "./alert_grid"
 import { VisibilitydGrid } from "./visibility_grid"
-import { TileVisibility, VisibilityManager } from "../visibility_manager"
+import { TileVisibility, TileVisibilitySignals, VisibilityManager } from "../visibility_manager"
 import { MemoryGrid } from "../memory_grid"
+import { EntityGridSignals } from "../entity_grid"
+import { MemoryEntity } from "../memory_entity"
 
 export class BackgroundGrid extends Container {
     rows: number
@@ -46,9 +47,10 @@ export class BackgroundGrid extends Container {
         this.addChild(this.visibilityLayer)
     }
 
-    setupListeners(onAddEntity: SignalEmitter<Entity>, onRemoveEntity: SignalEmitter<Entity>, onTileVisible: SignalEmitter<Set<number>>, onTileHide: SignalEmitter<Set<number>>) {
-        this.alphaManager.setupListeners(onAddEntity, onRemoveEntity, onTileVisible, onTileHide)
-        this.alertLayer.setupListeners(onRemoveEntity)
+    // setupListeners(onAddEntity: SignalEmitter<Entity>, onRemoveEntity: SignalEmitter<Entity>, onTileVisible: SignalEmitter<Set<number>>, onTileHide: SignalEmitter<Set<number>>) {
+    setupListeners(entitySignals: EntityGridSignals<Entity>, memorySignals: EntityGridSignals<MemoryEntity>, tileSignals: TileVisibilitySignals) {
+        this.alphaManager.setupListeners(entitySignals, memorySignals, tileSignals)
+        this.alertLayer.setupListeners(entitySignals.onDelete)
     }
 
     isInBounds(row: number, col: number) {
