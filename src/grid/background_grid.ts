@@ -4,10 +4,10 @@ import { TILE_SIZE } from "../text/canvas_style"
 import { Entity } from "../entity"
 import { AlphaGrid } from "./alpha_grid"
 import { AlertGrid } from "./alert_grid"
-import { TileVisibility, TileVisibilitySignals, VisibilityManager } from "../visibility_manager"
-import { MemoryGrid } from "../memory_grid"
+import { TileVisibility, TileVisibilitySignals, VisibilityManager } from "../visibility/visibility_manager"
+import { MemoryGrid } from "../visibility/memory_grid"
 import { EntityGridSignals } from "../entity_grid"
-import { MemoryEntity } from "../memory_entity"
+import { MemoryEntity } from "../visibility/memory_entity"
 
 export class BackgroundGrid extends Container {
     rows: number

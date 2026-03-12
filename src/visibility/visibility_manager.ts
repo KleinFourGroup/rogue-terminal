@@ -1,10 +1,10 @@
 import { Graphics } from "pixi.js"
-import { Entity } from "./entity"
-import { TILE_SIZE } from "./text/canvas_style"
-import { COLORS } from "./colors"
-import { SignalEmitter } from "./signal"
+import { Entity } from "../entity"
+import { TILE_SIZE } from "../text/canvas_style"
+import { COLORS } from "../colors"
+import { SignalEmitter } from "../signal"
 import { Observer } from "./observer"
-import { IEntitySprite } from "./text/entity_sprite"
+import { IEntitySprite } from "../text/entity_sprite"
 
 export enum TileVisibility {
     UNEXPLORED,

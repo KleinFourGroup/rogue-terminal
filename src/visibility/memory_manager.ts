@@ -1,4 +1,4 @@
-import { Entity } from "./entity"
+import { Entity } from "../entity"
 import { EntityVisibilitySignals } from "./entity_visibility_tracker"
 import { FogMemory } from "./fog_memory"
 import { MemoryEntity } from "./memory_entity"

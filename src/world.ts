@@ -3,12 +3,12 @@ import { ECS } from "./ecs"
 import { BackgroundGrid } from "./grid/background_grid"
 import { Entity } from "./entity"
 import { TextSprite } from "./text/text_sprite"
-import { TileVisibility, VisibilityManager } from "./visibility_manager"
-import { EntityVisibilityTracker } from "./entity_visibility_tracker"
-import { MemoryGrid } from "./memory_grid"
-import { MemoryEntity } from "./memory_entity"
-import { MemoryManager } from "./memory_manager"
-import { VisibilitydGrid } from "./grid/visibility_grid"
+import { TileVisibility, VisibilityManager } from "./visibility/visibility_manager"
+import { EntityVisibilityTracker } from "./visibility/entity_visibility_tracker"
+import { MemoryGrid } from "./visibility/memory_grid"
+import { MemoryEntity } from "./visibility/memory_entity"
+import { MemoryManager } from "./visibility/memory_manager"
+import { VisibilitydGrid } from "./visibility/visibility_grid"
 
 export class World extends Container {
     rows: number

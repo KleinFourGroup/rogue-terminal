@@ -1,4 +1,4 @@
-import { Component } from "./component"
+import { Component } from "../component"
 import { MemoryEntity } from "./memory_entity"
 import { MemoryGrid } from "./memory_grid"
 

@@ -1,7 +1,7 @@
 import { Entity } from "../entity"
 import { EntityGridSignals } from "../entity_grid"
-import { MemoryEntity } from "../memory_entity"
-import { TileVisibilitySignals } from "../visibility_manager"
+import { MemoryEntity } from "../visibility/memory_entity"
+import { TileVisibilitySignals } from "../visibility/visibility_manager"
 
 
 export class AlphaGrid {

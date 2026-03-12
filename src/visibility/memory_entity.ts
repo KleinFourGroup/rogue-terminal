@@ -1,7 +1,7 @@
-import { Entity } from "./entity";
-import { tileToPixel } from "./position";
-import { IEntitySprite } from "./text/entity_sprite"
-import { TextSprite } from "./text/text_sprite";
+import { Entity } from "../entity";
+import { tileToPixel } from "../position";
+import { IEntitySprite } from "../text/entity_sprite"
+import { TextSprite } from "../text/text_sprite";
 
 export class MemoryEntity implements IEntitySprite {
     sprite: TextSprite

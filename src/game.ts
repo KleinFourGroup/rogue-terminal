@@ -10,8 +10,8 @@ import { AILogic, setupAI } from "./behaviors/behavior"
 import { RandomWalkAI } from "./behaviors/random_walk"
 import { RandomMoveTargetAI } from "./behaviors/random_move_target"
 import { TILE_SIZE } from "./text/canvas_style"
-import { Observer } from "./observer"
-import { FogMemory } from "./fog_memory"
+import { Observer } from "./visibility/observer"
+import { FogMemory } from "./visibility/fog_memory"
 
 const ROWS = 21
 const COLS = 21
