@@ -2,7 +2,6 @@ import { InstantAction } from "./action"
 import { AnimationFrame, AnimationInterval, KeyframedAnimation, KeyframedAnimationData } from "./animation"
 import { ECS } from "./ecs"
 import { Entity } from "./entity"
-import { GameScene } from "./game"
 import { tileToPixel } from "./position"
 import { Scene } from "./scene"
 

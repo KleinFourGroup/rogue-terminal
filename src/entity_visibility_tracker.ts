@@ -1,9 +1,9 @@
-import { EntityGrid } from "./entity_grid"
+import { EntityGrid, EntityGridSignals } from "./entity_grid"
 import { SignalEmitter } from "./signal"
 import { IEntitySprite } from "./text/entity_sprite"
-import { VisibilityManager } from "./visibility_manager"
+import { TileVisibilitySignals, VisibilityManager } from "./visibility_manager"
 
-interface EntityVisibilitySignals<EntityType extends IEntitySprite> {
+export interface EntityVisibilitySignals<EntityType extends IEntitySprite> {
     onReveal: SignalEmitter<EntityType>
     onHide: SignalEmitter<EntityType>
 }
@@ -24,7 +24,7 @@ export class EntityVisibilityTracker<EntityType extends IEntitySprite> {
         }
     }
 
-    setupListeners(onTileVisible: SignalEmitter<Set<number>>, onTileHide: SignalEmitter<Set<number>>, onAdd: SignalEmitter<EntityType>, onDelete: SignalEmitter<EntityType>, onMove: SignalEmitter<EntityType>) {
+    setupListeners(tileSignals: TileVisibilitySignals, entitySignals: EntityGridSignals<EntityType>) {
         const visibleCallback = (indices: Set<number>) => {
             for (const index of indices) {
                 const col = index % this.entities.cols
@@ -83,10 +83,10 @@ export class EntityVisibilityTracker<EntityType extends IEntitySprite> {
             }
         }
 
-        onTileVisible.subscribe(visibleCallback)
-        onTileHide.subscribe(hideCallback)
-        onAdd.subscribe(addCallback)
-        onDelete.subscribe(deleteCallback)
-        onMove.subscribe(moveCallback)
+        tileSignals.onTileVisible.subscribe(visibleCallback)
+        tileSignals.onTileHide.subscribe(hideCallback)
+        entitySignals.onAdd.subscribe(addCallback)
+        entitySignals.onDelete.subscribe(deleteCallback)
+        entitySignals.onMove.subscribe(moveCallback)
     }
 }

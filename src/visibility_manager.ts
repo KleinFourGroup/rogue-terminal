@@ -12,7 +12,7 @@ export enum TileVisibility {
     VISIBLE
 }
 
-interface TileVisibilitySignals {
+export interface TileVisibilitySignals {
     onTileVisible: SignalEmitter<Set<number>>
     onTileHide: SignalEmitter<Set<number>>
 }

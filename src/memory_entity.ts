@@ -10,6 +10,8 @@ export class MemoryEntity implements IEntitySprite {
     width: number
     height: number
 
+    original: Entity
+
     constructor(entity: Entity) {
         this.sprite = entity.sprite.clone()
         this.row = entity.row
@@ -19,6 +21,8 @@ export class MemoryEntity implements IEntitySprite {
 
         this.sprite.anchor.set(0.5)
         this.sprite.position.set(...tileToPixel(this.row, this.col, this.width, this.height))
+
+        this.original = entity
     }
 
     setPosition(row: number, col: number) {
@@ -26,5 +30,9 @@ export class MemoryEntity implements IEntitySprite {
         this.col = col
 
         this.sprite.position.set(...tileToPixel(this.row, this.col, this.width, this.height))
+    }
+
+    isUpToDate() {
+        return this.row === this.original.row && this.col === this.original.col
     }
 }

@@ -6,6 +6,8 @@ import { TextSprite } from "./text/text_sprite"
 import { VisibilityManager } from "./visibility_manager"
 import { EntityVisibilityTracker } from "./entity_visibility_tracker"
 import { MemoryGrid } from "./memory_grid"
+import { MemoryEntity } from "./memory_entity"
+import { MemoryManager } from "./memory_manager"
 
 export class World extends Container {
     rows: number
@@ -16,7 +18,9 @@ export class World extends Container {
     ground: BackgroundGrid
     
     visibilityManager: VisibilityManager
+    memoryManager: MemoryManager
     visibleEntityTracker: EntityVisibilityTracker<Entity>
+    visibleMemoryTracker: EntityVisibilityTracker<MemoryEntity>
 
     animatedActives: Entity[]
 
@@ -31,10 +35,14 @@ export class World extends Container {
         this.ground = new BackgroundGrid(this.rows, this.cols)
 
         this.visibilityManager = new VisibilityManager(this.rows, this.cols)
-        this.visibleEntityTracker = new EntityVisibilityTracker(this.entities, this.visibilityManager)
+        this.memoryManager = new MemoryManager(this.rows, this.cols, this.visibilityManager)
+        this.visibleEntityTracker = new EntityVisibilityTracker<Entity>(this.entities, this.visibilityManager)
+        this.visibleMemoryTracker = new EntityVisibilityTracker<MemoryEntity>(this.memories, this.visibilityManager)
 
         this.ground.setupListeners(this.entities.signals.onAdd, this.entities.signals.onDelete, this.visibilityManager.signals.onTileVisible, this.visibilityManager.signals.onTileHide)
-        this.visibleEntityTracker.setupListeners(this.visibilityManager.signals.onTileVisible, this.visibilityManager.signals.onTileHide, this.entities.signals.onAdd, this.entities.signals.onDelete, this.entities.signals.onMove)
+        this.visibleEntityTracker.setupListeners(this.visibilityManager.signals, this.entities.signals)
+        this.visibleMemoryTracker.setupListeners(this.visibilityManager.signals, this.memories.signals)
+        this.memoryManager.setupListeners(this.visibleEntityTracker.signals, this.visibleMemoryTracker.signals)
 
         this.animatedActives = []
 
@@ -45,10 +53,6 @@ export class World extends Container {
         this.addChild(this.entities.stage)
 
         this.setVisibilityMask(this.visibilityManager.visibleTileMask)
-
-        // Testing
-        this.visibleEntityTracker.signals.onReveal.subscribe((entity: Entity) => {console.log(`Visible: ${entity.sprite.character}`)})
-        this.visibleEntityTracker.signals.onHide.subscribe((entity: Entity) => {console.log(`Hidden: ${entity.sprite.character}`)})
     }
 
     setVisibilityMask(mask: Graphics) {
