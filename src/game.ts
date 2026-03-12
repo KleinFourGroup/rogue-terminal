@@ -99,7 +99,8 @@ export class GameScene extends Container implements IScene {
         this.addChild(this.level)
 
         this.level.visibilityManager.calculateFOV(this.player)
-        this.level.ground.visibilityLayer.draw(this.level.visibilityManager)
+        this.level.visibilityManager.drawHiddenMask()
+        this.level.visibilityLayer.draw(this.level.visibilityManager)
         const updated = this.level.ground.updateTileAlphas(this.level.entities.entities, this.level.visibilityManager, this.level.memories)
         this.app.debugOverlay.setAlphaUpdates(updated)
         this.camera.setPosition(this.player.sprite.x, this.player.sprite.y)
@@ -160,7 +161,8 @@ export class GameScene extends Container implements IScene {
                 this.level.visibilityManager.reset()
                 this.level.visibilityManager.calculateFOV(this.turnManager.currentTurn!)
                 this.level.visibilityManager.calculateNewlyHidden()
-                this.level.ground.visibilityLayer.draw(this.level.visibilityManager)
+                this.level.visibilityManager.drawHiddenMask()
+                this.level.visibilityLayer.draw(this.level.visibilityManager)
             }
             this.turnManager.finishTurn()
         }

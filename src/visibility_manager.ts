@@ -12,6 +12,8 @@ export enum TileVisibility {
     VISIBLE
 }
 
+export const VISIBILITIES = Object.values(TileVisibility).filter((val) => typeof val === "number")
+
 export interface TileVisibilitySignals {
     onTileVisible: SignalEmitter<Set<number>>
     onTileHide: SignalEmitter<Set<number>>
@@ -22,9 +24,10 @@ export class VisibilityManager {
     cols: number
 
     visibilityArray: TileVisibility[]
-    visibleTileSet: Set<number>
-    visibleTileCache: Set<number>
-    visibleTileMask: Graphics
+    visibilitySets: Record<TileVisibility, Set<number>>
+    visibilityCaches: Record<TileVisibility, Set<number>>
+
+    visibilityMasks: Record<TileVisibility, Graphics>
     
     signals: TileVisibilitySignals
 
@@ -33,14 +36,30 @@ export class VisibilityManager {
         this.cols = cols
 
         this.visibilityArray = new Array<TileVisibility>(this.rows * this.cols).fill(TileVisibility.UNEXPLORED)
-        this.visibleTileSet = new Set<number>()
-        this.visibleTileCache = new Set<number>()
-        this.visibleTileMask = new Graphics()
+        
+        this.visibilitySets = {
+            [TileVisibility.UNEXPLORED]: new Set<number>(),
+            [TileVisibility.HIDDEN]: new Set<number>(),
+            [TileVisibility.VISIBLE]: new Set<number>()
+        }
+        this.visibilityCaches = {
+            [TileVisibility.UNEXPLORED]: new Set<number>(),
+            [TileVisibility.HIDDEN]: new Set<number>(),
+            [TileVisibility.VISIBLE]: new Set<number>()
+        }
+
+        this.visibilityMasks = {
+            [TileVisibility.UNEXPLORED]: new Graphics(),
+            [TileVisibility.HIDDEN]: new Graphics(),
+            [TileVisibility.VISIBLE]: new Graphics()
+        }
         
         this.signals = {
             onTileVisible: new SignalEmitter<Set<number>>(),
             onTileHide: new SignalEmitter<Set<number>>()
         }
+
+        this.flood(TileVisibility.UNEXPLORED)
     }
 
     isInBounds(row: number, col: number) {
@@ -55,13 +74,21 @@ export class VisibilityManager {
         return TileVisibility.UNEXPLORED
     }
 
+    flood(visibility: TileVisibility) {
+        for (let index = 0; index < this.rows * this.cols; index++) {
+            this.visibilitySets[visibility].add(index)
+        }
+    }
+
     setVisibility(row: number, col: number, visibility: TileVisibility) {
         if (this.isInBounds(row, col)) {
             const index = row * this.cols + col
+            const oldVisibility = this.visibilityArray[index]
             this.visibilityArray[index] = visibility
-            if (visibility === TileVisibility.VISIBLE) {
-                this.visibleTileSet.add(index)
+            if (visibility !== oldVisibility) {
+                this.visibilitySets[oldVisibility].delete(index)
             }
+            this.visibilitySets[visibility].add(index)
         }
     }
 
@@ -77,20 +104,43 @@ export class VisibilityManager {
         return false
     }
 
+    cacheVisibilitySets() {
+        for (const visibility of VISIBILITIES) {
+            this.visibilityCaches[visibility] = new Set<number>(this.visibilitySets[visibility])
+        }
+    }
+
+    clearVisibilitySets() {
+        for (const visibility of VISIBILITIES) {
+            this.visibilitySets[visibility].clear()
+        }
+    }
+
     resetAll() {
-        this.visibleTileCache = new Set<number>(this.visibleTileSet)
+        this.cacheVisibilitySets()
+        this.clearVisibilitySets()
         this.visibilityArray.fill(TileVisibility.UNEXPLORED)
-        this.visibleTileSet.clear()
-        this.visibleTileMask.clear()
+        this.flood(TileVisibility.UNEXPLORED)
+        this.visibilityMasks[TileVisibility.VISIBLE].clear()
     }
 
     reset() {
-        this.visibleTileCache = new Set<number>(this.visibleTileSet)
-        for (const index of this.visibleTileSet) {
+        this.cacheVisibilitySets()
+        for (const index of this.visibilitySets[TileVisibility.VISIBLE]) {
             this.visibilityArray[index] = TileVisibility.HIDDEN
+            this.visibilitySets[TileVisibility.HIDDEN].add(index)
         }
-        this.visibleTileSet.clear()
-        this.visibleTileMask.clear()
+        this.visibilitySets[TileVisibility.VISIBLE].clear()
+        this.visibilityMasks[TileVisibility.VISIBLE].clear()
+    }
+
+    drawHiddenMask() {
+        this.visibilityMasks[TileVisibility.HIDDEN].clear()
+        for (const index of this.visibilitySets[TileVisibility.HIDDEN]) {
+            const col = index % this.cols
+            const row = (index - col) / this.cols
+            this.visibilityMasks[TileVisibility.HIDDEN].rect(col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE).fill(COLORS.TERMINAL_BLACK)
+        }
     }
 
     calculateFOV(entity: Entity) {
@@ -98,14 +148,14 @@ export class VisibilityManager {
         for (let row = entity.row - observer.viewDistance; row < entity.row + entity.height + observer.viewDistance; row++) {
             for (let col = entity.col - observer.viewDistance; col < entity.col + entity.width + observer.viewDistance; col++) {
                 this.setVisibility(row, col, TileVisibility.VISIBLE)
-                this.visibleTileMask.rect(col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE).fill(COLORS.TERMINAL_BLACK)
+                this.visibilityMasks[TileVisibility.VISIBLE].rect(col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE).fill(COLORS.TERMINAL_BLACK)
             }
         }
 
-        this.signals.onTileVisible.emit(this.visibleTileSet.difference(this.visibleTileCache))
+        this.signals.onTileVisible.emit(this.visibilitySets[TileVisibility.VISIBLE].difference(this.visibilityCaches[TileVisibility.VISIBLE]))
     }
 
     calculateNewlyHidden() {
-        this.signals.onTileHide.emit(this.visibleTileCache.difference(this.visibleTileSet))
+        this.signals.onTileHide.emit(this.visibilityCaches[TileVisibility.VISIBLE].difference(this.visibilitySets[TileVisibility.VISIBLE]))
     }
 }

@@ -4,7 +4,6 @@ import { TILE_SIZE } from "../text/canvas_style"
 import { Entity } from "../entity"
 import { AlphaGrid } from "./alpha_grid"
 import { AlertGrid } from "./alert_grid"
-import { VisibilitydGrid } from "./visibility_grid"
 import { TileVisibility, TileVisibilitySignals, VisibilityManager } from "../visibility_manager"
 import { MemoryGrid } from "../memory_grid"
 import { EntityGridSignals } from "../entity_grid"
@@ -18,7 +17,6 @@ export class BackgroundGrid extends Container {
     colorArray: (Graphics | null)[]
     validArray: boolean[]
 
-    visibilityLayer: VisibilitydGrid
     textLayer: Container
     alertLayer: AlertGrid
     colorLayer: Container
@@ -34,7 +32,6 @@ export class BackgroundGrid extends Container {
         this.colorArray = new Array<Graphics | null>(this.rows * this.cols).fill(null)
         this.validArray = new Array<boolean>(this.rows * this.cols).fill(false)
 
-        this.visibilityLayer = new VisibilitydGrid(this.rows, this.cols)
         this.textLayer = new Container()
         this.alertLayer = new AlertGrid(this.rows, this.cols)
         this.colorLayer = new Container()
@@ -44,7 +41,6 @@ export class BackgroundGrid extends Container {
         this.addChild(this.colorLayer)
         this.addChild(this.alertLayer)
         this.addChild(this.textLayer)
-        this.addChild(this.visibilityLayer)
     }
 
     // setupListeners(onAddEntity: SignalEmitter<Entity>, onRemoveEntity: SignalEmitter<Entity>, onTileVisible: SignalEmitter<Set<number>>, onTileHide: SignalEmitter<Set<number>>) {

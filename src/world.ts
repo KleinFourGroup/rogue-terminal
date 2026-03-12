@@ -3,16 +3,18 @@ import { ECS } from "./ecs"
 import { BackgroundGrid } from "./grid/background_grid"
 import { Entity } from "./entity"
 import { TextSprite } from "./text/text_sprite"
-import { VisibilityManager } from "./visibility_manager"
+import { TileVisibility, VisibilityManager } from "./visibility_manager"
 import { EntityVisibilityTracker } from "./entity_visibility_tracker"
 import { MemoryGrid } from "./memory_grid"
 import { MemoryEntity } from "./memory_entity"
 import { MemoryManager } from "./memory_manager"
+import { VisibilitydGrid } from "./grid/visibility_grid"
 
 export class World extends Container {
     rows: number
     cols: number
 
+    visibilityLayer: VisibilitydGrid
     entities: ECS
     memories: MemoryGrid
     ground: BackgroundGrid
@@ -30,6 +32,7 @@ export class World extends Container {
         this.rows = rows
         this.cols = cols
 
+        this.visibilityLayer = new VisibilitydGrid(this.rows, this.cols)
         this.entities = new ECS(this.rows, this.cols)
         this.memories = new MemoryGrid(this.rows, this.cols)
         this.ground = new BackgroundGrid(this.rows, this.cols)
@@ -52,13 +55,15 @@ export class World extends Container {
         this.addChild(this.ground)
         this.addChild(this.memories.stage)
         this.addChild(this.entities.stage)
+        this.addChild(this.visibilityLayer)
 
-        this.setVisibilityMask(this.visibilityManager.visibleTileMask)
+        this.setVisibilityMasks()
     }
 
-    setVisibilityMask(mask: Graphics) {
-        this.entities.setVisibilityMask(mask)
-        this.ground.alertLayer.setVisibilityMask(mask)
+    setVisibilityMasks() {
+        this.entities.setVisibilityMask(this.visibilityManager.visibilityMasks[TileVisibility.VISIBLE])
+        this.memories.setVisibilityMask(this.visibilityManager.visibilityMasks[TileVisibility.HIDDEN])
+        this.ground.alertLayer.setVisibilityMask(this.visibilityManager.visibilityMasks[TileVisibility.VISIBLE])
     }
 
     isNavigable(row: number, col: number, ignoreList: Entity[] = [], width: number = 1, height: number = 1) {

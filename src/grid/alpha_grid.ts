@@ -1,7 +1,6 @@
 import { Entity } from "../entity"
 import { EntityGridSignals } from "../entity_grid"
 import { MemoryEntity } from "../memory_entity"
-import { SignalEmitter } from "../signal"
 import { TileVisibilitySignals } from "../visibility_manager"
 
 
