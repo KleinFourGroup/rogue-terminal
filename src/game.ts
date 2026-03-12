@@ -100,7 +100,7 @@ export class GameScene extends Container implements IScene {
 
         this.level.visibilityManager.calculateFOV(this.player)
         this.level.ground.visibilityLayer.draw(this.level.visibilityManager)
-        const updated = this.level.ground.updateTileAlphas(this.level.entities.entities, this.level.visibilityManager)
+        const updated = this.level.ground.updateTileAlphas(this.level.entities.entities, this.level.visibilityManager, this.level.memories)
         this.app.debugOverlay.setAlphaUpdates(updated)
         this.camera.setPosition(this.player.sprite.x, this.player.sprite.y)
     }
@@ -165,7 +165,7 @@ export class GameScene extends Container implements IScene {
             this.turnManager.finishTurn()
         }
 
-        const updated = this.level.ground.updateTileAlphas(this.level.animatedActives, this.level.visibilityManager)
+        const updated = this.level.ground.updateTileAlphas(this.level.animatedActives, this.level.visibilityManager, this.level.memories)
         this.app.debugOverlay.setAlphaUpdates(updated)
         this.camera.setPosition(this.player.sprite.x, this.player.sprite.y)
     }

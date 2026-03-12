@@ -7,6 +7,7 @@ import { AlphaGrid } from "./alpha_grid"
 import { AlertGrid } from "./alert_grid"
 import { VisibilitydGrid } from "./visibility_grid"
 import { TileVisibility, VisibilityManager } from "../visibility_manager"
+import { MemoryGrid } from "../memory_grid"
 
 export class BackgroundGrid extends Container {
     rows: number
@@ -126,7 +127,7 @@ export class BackgroundGrid extends Container {
         }
     }
 
-    updateTileAlphas(activeEntities: Entity[], visibilityManager: VisibilityManager) {
+    updateTileAlphas(activeEntities: Entity[], visibilityManager: VisibilityManager, memories: MemoryGrid) {
         for (const entity of activeEntities) {
             this.alphaManager.unregister(entity)
             entity.cacheOverlaps(this.cols)
@@ -142,6 +143,10 @@ export class BackgroundGrid extends Container {
                     for (const entity of this.alphaManager.ownership[index]) {
                         textSprite.alpha = Math.min(textSprite.alpha, entity.overlapCache.get(index)!)
                     }
+                } else {
+                    const col = index % this.cols
+                    const row = (index - col) / this.cols
+                    textSprite.alpha = memories.getEntity(row, col) !== null ? 0 : 1
                 }
             }
         }
