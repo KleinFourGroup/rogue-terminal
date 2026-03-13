@@ -1,21 +1,18 @@
 import { Container } from "pixi.js"
 import { IScene } from "./scene"
 import { GameApp } from "./app"
-import { TextSprite } from "./text/text_sprite"
 import { Camera } from "./camera"
 import { Entity } from "./entity"
 import { TurnManager, TurnStatus } from "./turn_manager"
 import { World } from "./world"
-import { AILogic, setupAI } from "./behaviors/behavior"
-import { RandomWalkAI } from "./behaviors/random_walk"
-import { RandomMoveTargetAI } from "./behaviors/random_move_target"
+import { AILogic } from "./behaviors/behavior"
 import { TILE_SIZE } from "./text/canvas_style"
 import { Observer } from "./visibility/observer"
-import { FogMemory } from "./visibility/fog_memory"
 import { buildLevel } from "./test_level/level_builder"
 
-const ROWS = 21
-const COLS = 21
+const ROOM_ROWS = 3
+const ROOM_COLS = 3
+const ROOM_SIZE = 11
 
 const TILES_DIAGONAL = 31
 
@@ -39,7 +36,7 @@ export class GameScene extends Container implements IScene {
 
         this.turnManager = new TurnManager()
 
-        const [level, player] = buildLevel(ROWS, COLS, FOV_DISTANCE, app.caches)
+        const [level, player] = buildLevel(ROOM_ROWS, ROOM_COLS, ROOM_SIZE, FOV_DISTANCE, app.caches)
         this.level = level
         this.player = player
 
@@ -47,9 +44,7 @@ export class GameScene extends Container implements IScene {
 
         this.addChild(this.level)
 
-        this.level.visibilityManager.calculateFOV(this.player)
-        this.level.visibilityManager.drawMasks()
-        this.level.visibilityLayer.draw(this.level.visibilityManager)
+        this.level.calculateView()
         const updated = this.level.ground.updateTileAlphas(this.level.entities.entities, this.level.visibilityManager, this.level.memories)
         this.app.debugOverlay.setAlphaUpdates(updated)
         this.camera.setPosition(this.player.sprite.x, this.player.sprite.y)

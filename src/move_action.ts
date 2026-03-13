@@ -5,7 +5,7 @@ import { Entity } from "./entity"
 import { tileToPixel } from "./position"
 import { Scene } from "./scene"
 
-const MOVE_LENGTH = 1000
+const MOVE_LENGTH = 500
 
 export interface MoveOptions {
     blocking: boolean
