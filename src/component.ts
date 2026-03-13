@@ -8,7 +8,7 @@ export abstract class Component {
         this.entity = null
     }
 
-    setEntity(entity: Entity) {
+    setEntity(entity: Entity | null) {
         this.entity = entity
     }
 }

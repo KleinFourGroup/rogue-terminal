@@ -158,11 +158,7 @@ export class GameScene extends Container implements IScene {
             // This whole hack only works for one observer
             if (this.turnManager.currentTurn!.hasComponent(Observer)) {
                 console.log("Updating visibility!")
-                this.level.visibilityManager.reset()
-                this.level.visibilityManager.calculateFOV(this.turnManager.currentTurn!)
-                this.level.visibilityManager.calculateNewlyHidden()
-                this.level.visibilityManager.drawHiddenMask()
-                this.level.visibilityLayer.draw(this.level.visibilityManager)
+                this.level.calculateView()
             }
             this.turnManager.finishTurn()
         }

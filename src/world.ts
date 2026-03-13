@@ -1,4 +1,4 @@
-import { Container, Graphics } from "pixi.js"
+import { Container } from "pixi.js"
 import { ECS } from "./ecs"
 import { BackgroundGrid } from "./grid/background_grid"
 import { Entity } from "./entity"
@@ -111,5 +111,15 @@ export class World extends Container {
         this.animatedActives = activeEntities
 
         return unfinished
+    }
+
+    calculateView() {
+        for (const entity of this.entities.getObservers()) {
+            this.visibilityManager.reset()
+            this.visibilityManager.calculateFOV(entity)
+            this.visibilityManager.calculateNewlyHidden()
+            this.visibilityManager.drawHiddenMask()
+            this.visibilityLayer.draw(this.visibilityManager)
+        }
     }
 }

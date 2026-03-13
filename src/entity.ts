@@ -3,9 +3,15 @@ import { AnimationManager } from "./animation_manager"
 import { CacheManager } from "./cache_manager"
 import { ClassConstructor, Component } from "./component"
 import { tileToPixel } from "./position"
+import { SignalEmitter } from "./signal"
 import { DEFAULT_STYLE, TILE_SIZE } from "./text/canvas_style"
 import { IEntitySprite } from "./text/entity_sprite"
 import { TextSprite } from "./text/text_sprite"
+
+interface EntitySignals {
+    onAdd: SignalEmitter<Component>
+    onRemove: SignalEmitter<Component>
+}
 
 export class Entity implements IEntitySprite {
     sprite: TextSprite
@@ -20,7 +26,8 @@ export class Entity implements IEntitySprite {
     animationManager: AnimationManager
     overlapCache: Map<number, number>
 
-    components: Map<ClassConstructor<any>, Component> //{[name: string]: Component}
+    components: Map<ClassConstructor<any>, Component>
+    signals: EntitySignals
 
     constructor(text: string, caches: CacheManager, row: number = 0, col: number = 0, width: number = 1, height: number = 1) {
         const size = Math.min(width, height)
@@ -35,6 +42,10 @@ export class Entity implements IEntitySprite {
         this.overlapCache = new Map<number, number>()
 
         this.components = new Map()
+        this.signals = {
+            onAdd: new SignalEmitter<Component>,
+            onRemove: new SignalEmitter<Component>
+        }
         
         this.sprite.anchor.set(0.5)
         this.sprite.position.set(...tileToPixel(this.row, this.col, this.width, this.height))
@@ -57,6 +68,16 @@ export class Entity implements IEntitySprite {
     addComponent<Comp extends Component>(component: Comp) {
         this.components.set(component.constructor as ClassConstructor<Comp>, component)
         component.setEntity(this)
+        this.signals.onAdd.emit(component)
+    }
+
+    removeComponent<Comp extends Component>(comp: ClassConstructor<Comp>) {
+        if (this.components.has(comp)) {
+            const component = this.components.get(comp)!
+            this.components.delete(comp)
+            component.setEntity(null)
+            this.signals.onRemove.emit(component)
+        }
     }
 
     hasComponent<Comp extends Component>(comp: ClassConstructor<Comp>) {
