@@ -12,6 +12,7 @@ import { RandomMoveTargetAI } from "./behaviors/random_move_target"
 import { TILE_SIZE } from "./text/canvas_style"
 import { Observer } from "./visibility/observer"
 import { FogMemory } from "./visibility/fog_memory"
+import { buildLevel } from "./test_level/level_builder"
 
 const ROWS = 21
 const COLS = 21
@@ -36,63 +37,11 @@ export class GameScene extends Container implements IScene {
         this.app = app
         this.camera = new Camera(this.app, this)
 
-        this.player = new Entity("@", app.caches, Math.floor(ROWS / 2), Math.floor(COLS / 2))
-        this.player.addComponent(new Observer(FOV_DISTANCE))
-
         this.turnManager = new TurnManager()
 
-        this.level = new World(ROWS, COLS)
-
-        for (let row = 0; row < ROWS; row++) {
-            for (let col = 0; col < COLS; col++) {
-                const tile = new TextSprite(".")
-                this.level.setGroundText(row, col, tile)
-                this.level.setValid(row, col, true)
-
-                if (row === 0 || row === ROWS - 1 || col === 0 || col === COLS - 1) {
-                    const wall = new Entity("#", app.caches, row, col)
-                    wall.addComponent(new FogMemory(this.level.memories))
-                    this.level.addEntity(wall)
-                }
-            }
-        }
-
-        this.level.addEntity(this.player)
-        setupAI(this.player, new RandomMoveTargetAI(this.player, this.level, true, app.caches.navNodePool)) // Still probably don't want this being called directly
-
-        for (let drow = -1; drow <= 1; drow += 2) {
-            for (let dcol = -1; dcol <= 1; dcol += 2) {
-                for (let count = 1; count <= 3; count++) {
-                    const newEntity = new Entity("O", app.caches, this.player.row + count * drow, this.player.col + count * dcol)
-                    setupAI(newEntity, new RandomWalkAI(newEntity, this.level, false))
-                    this.level.addEntity(newEntity)
-                }
-            }
-        }
-
-        for (let sign = -1; sign <= 1; sign += 2) {
-            for (let flip = 0; flip <= 1; flip++) {
-                const newEntity = new Entity("G", app.caches, this.player.row + 3 * sign * flip - 1, this.player.col + 3 * sign * (1 - flip) - 1, 3, 3)
-                setupAI(newEntity, new RandomWalkAI(newEntity, this.level, false, 2400))
-                this.level.addEntity(newEntity)
-            }
-        }
-
-        const offset = 3
-        const rows = [offset, ROWS - offset - 1]
-        const cols = [offset, COLS - offset - 1]
-
-        for (const row of rows) {
-            const rowSub = row === rows[1] ? 0 : -1
-            for (const col of cols) {
-                const colSub = col === cols[1] ? 0 : -1
-
-                const newEntity = new Entity("D", app.caches, row + rowSub, col + colSub, 2, 2)
-                this.level.addEntity(newEntity)
-                setupAI(newEntity, new RandomMoveTargetAI(newEntity, this.level, false, app.caches.navNodePool, 600)) // Still probably don't want this being called directly
-            }
-        }
-
+        const [level, player] = buildLevel(ROWS, COLS, FOV_DISTANCE, app.caches)
+        this.level = level
+        this.player = player
 
         this.elapsed = 0
 
