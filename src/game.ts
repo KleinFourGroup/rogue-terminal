@@ -99,7 +99,7 @@ export class GameScene extends Container implements IScene {
         this.addChild(this.level)
 
         this.level.visibilityManager.calculateFOV(this.player)
-        this.level.visibilityManager.drawHiddenMask()
+        this.level.visibilityManager.drawMasks()
         this.level.visibilityLayer.draw(this.level.visibilityManager)
         const updated = this.level.ground.updateTileAlphas(this.level.entities.entities, this.level.visibilityManager, this.level.memories)
         this.app.debugOverlay.setAlphaUpdates(updated)

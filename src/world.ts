@@ -114,12 +114,12 @@ export class World extends Container {
     }
 
     calculateView() {
+        this.visibilityManager.reset()
         for (const entity of this.entities.getObservers()) {
-            this.visibilityManager.reset()
             this.visibilityManager.calculateFOV(entity)
-            this.visibilityManager.calculateNewlyHidden()
-            this.visibilityManager.drawHiddenMask()
-            this.visibilityLayer.draw(this.visibilityManager)
         }
+        this.visibilityManager.emitDifferences()
+        this.visibilityManager.drawMasks()
+        this.visibilityLayer.draw(this.visibilityManager)
     }
 }

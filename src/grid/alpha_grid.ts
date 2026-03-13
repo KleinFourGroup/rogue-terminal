@@ -1,7 +1,7 @@
 import { Entity } from "../entity"
 import { EntityGridSignals } from "../entity_grid"
 import { MemoryEntity } from "../visibility/memory_entity"
-import { TileVisibilitySignals } from "../visibility/visibility_manager"
+import { TileVisibility, TileVisibilitySignals } from "../visibility/visibility_manager"
 
 
 export class AlphaGrid {
@@ -46,8 +46,8 @@ export class AlphaGrid {
         entitySignals.onAdd.subscribe(addCallback)
         entitySignals.onDelete.subscribe(removeCallback)
         memorySignals.onDelete.subscribe(forgetCallback)
-        tileSignals.onTileVisible.subscribe(visibilityCallback)
-        tileSignals.onTileHide.subscribe(visibilityCallback)
+        tileSignals[TileVisibility.VISIBLE].subscribe(visibilityCallback)
+        tileSignals[TileVisibility.HIDDEN].subscribe(visibilityCallback)
     }
 
     register(entity: Entity) {

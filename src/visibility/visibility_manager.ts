@@ -14,10 +14,7 @@ export enum TileVisibility {
 
 export const VISIBILITIES = Object.values(TileVisibility).filter((val) => typeof val === "number")
 
-export interface TileVisibilitySignals {
-    onTileVisible: SignalEmitter<Set<number>>
-    onTileHide: SignalEmitter<Set<number>>
-}
+export type TileVisibilitySignals = Record<TileVisibility, SignalEmitter<Set<number>>>
 
 export class VisibilityManager {
     rows: number
@@ -55,8 +52,9 @@ export class VisibilityManager {
         }
         
         this.signals = {
-            onTileVisible: new SignalEmitter<Set<number>>(),
-            onTileHide: new SignalEmitter<Set<number>>()
+            [TileVisibility.UNEXPLORED]: new SignalEmitter<Set<number>>(),
+            [TileVisibility.HIDDEN]: new SignalEmitter<Set<number>>(),
+            [TileVisibility.VISIBLE]: new SignalEmitter<Set<number>>()
         }
 
         this.flood(TileVisibility.UNEXPLORED)
@@ -134,12 +132,14 @@ export class VisibilityManager {
         this.visibilityMasks[TileVisibility.VISIBLE].clear()
     }
 
-    drawHiddenMask() {
-        this.visibilityMasks[TileVisibility.HIDDEN].clear()
-        for (const index of this.visibilitySets[TileVisibility.HIDDEN]) {
-            const col = index % this.cols
-            const row = (index - col) / this.cols
-            this.visibilityMasks[TileVisibility.HIDDEN].rect(col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE).fill(COLORS.TERMINAL_BLACK)
+    drawMasks() {
+        for (const visibility of VISIBILITIES) {
+            this.visibilityMasks[visibility].clear()
+            for (const index of this.visibilitySets[visibility]) {
+                const col = index % this.cols
+                const row = (index - col) / this.cols
+                this.visibilityMasks[visibility].rect(col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE).fill(COLORS.TERMINAL_BLACK)
+            }
         }
     }
 
@@ -148,14 +148,13 @@ export class VisibilityManager {
         for (let row = entity.row - observer.viewDistance; row < entity.row + entity.height + observer.viewDistance; row++) {
             for (let col = entity.col - observer.viewDistance; col < entity.col + entity.width + observer.viewDistance; col++) {
                 this.setVisibility(row, col, TileVisibility.VISIBLE)
-                this.visibilityMasks[TileVisibility.VISIBLE].rect(col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE).fill(COLORS.TERMINAL_BLACK)
             }
         }
-
-        this.signals.onTileVisible.emit(this.visibilitySets[TileVisibility.VISIBLE].difference(this.visibilityCaches[TileVisibility.VISIBLE]))
     }
 
-    calculateNewlyHidden() {
-        this.signals.onTileHide.emit(this.visibilityCaches[TileVisibility.VISIBLE].difference(this.visibilitySets[TileVisibility.VISIBLE]))
+    emitDifferences() {
+        for (const visibility of VISIBILITIES) {
+            this.signals[visibility].emit(this.visibilitySets[visibility].difference(this.visibilityCaches[visibility]))
+        }
     }
 }

@@ -1,7 +1,7 @@
 import { EntityGrid, EntityGridSignals } from "../entity_grid"
 import { SignalEmitter } from "../signal"
 import { IEntitySprite } from "../text/entity_sprite"
-import { TileVisibilitySignals, VisibilityManager } from "./visibility_manager"
+import { TileVisibility, TileVisibilitySignals, VisibilityManager } from "./visibility_manager"
 
 export interface EntityVisibilitySignals<EntityType extends IEntitySprite> {
     onReveal: SignalEmitter<EntityType>
@@ -83,8 +83,8 @@ export class EntityVisibilityTracker<EntityType extends IEntitySprite> {
             }
         }
 
-        tileSignals.onTileVisible.subscribe(visibleCallback)
-        tileSignals.onTileHide.subscribe(hideCallback)
+        tileSignals[TileVisibility.VISIBLE].subscribe(visibleCallback)
+        tileSignals[TileVisibility.HIDDEN].subscribe(hideCallback)
         entitySignals.onAdd.subscribe(addCallback)
         entitySignals.onDelete.subscribe(deleteCallback)
         entitySignals.onMove.subscribe(moveCallback)
