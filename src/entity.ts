@@ -2,7 +2,7 @@ import { Actor } from "./actor"
 import { AnimationManager } from "./animation_manager"
 import { CacheManager } from "./cache_manager"
 import { ClassConstructor, Component } from "./component"
-import { tileToPixel } from "./position"
+import { TilePosition, tileToPixel } from "./position"
 import { SignalEmitter } from "./signal"
 import { DEFAULT_STYLE, TILE_SIZE } from "./text/canvas_style"
 import { IEntitySprite } from "./text/entity_sprite"
@@ -56,6 +56,18 @@ export class Entity implements IEntitySprite {
         this.col = col
 
         this.sprite.position.set(...tileToPixel(this.row, this.col, this.width, this.height))
+    }
+
+    footprint() {
+        let result = new Array<TilePosition>(0)
+        
+        for (let row = this.row; row < this.row + this.height; row++) {
+            for (let col = this.col; col < this.col + this.width; col++) {
+                result.push({row: row, col: col})
+            }
+        }
+
+        return result
     }
 
     getComponent<Comp extends Component>(comp: ClassConstructor<Comp>): Comp | null {

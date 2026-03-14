@@ -1,4 +1,4 @@
-import { InstantAction } from "./action"
+import { ActionStatus, InstantAction } from "./action"
 import { AnimationFrame, AnimationInterval, KeyframedAnimation, KeyframedAnimationData } from "./animation"
 import { Entity } from "./entity"
 import { Scene } from "./scene"
@@ -25,7 +25,7 @@ export function getIdle(entity: Entity, blocking: boolean = false) {
     const animation = new KeyframedAnimation(animationData, entity, null, false) // Look into these !s
 
     function idleCallback(_entity: Entity, _scene: Scene | null) {
-        return true
+        return {status: ActionStatus.ACTION_FINISHED, footprint: []}
     }
 
     return new InstantAction<Scene | null>(entity, idleCallback, animation, 1200, blocking, null)

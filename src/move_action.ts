@@ -1,4 +1,4 @@
-import { InstantAction } from "./action"
+import { ActionStatus, InstantAction } from "./action"
 import { AnimationFrame, AnimationInterval, KeyframedAnimation, KeyframedAnimationData } from "./animation"
 import { ECS } from "./ecs"
 import { Entity } from "./entity"
@@ -57,8 +57,8 @@ export function getSmoothMove(entity: Entity, ecs: ECS, row: number, col: number
     const animation = new KeyframedAnimation(animationData, entity, null!, false) // Look into these !s
 
     function moveCallback(entity: Entity, _scene: Scene | null) {
-        ecs.moveEntity(entity, row, col)
-        return true
+        let result = ecs.moveEntity(entity, row, col)
+        return {status: result ? ActionStatus.ACTION_FINISHED : ActionStatus.ACTION_FAILED, footprint: entity.footprint()}
     }
 
     return new InstantAction<Scene | null>(entity, moveCallback, animation, fullOptions.cooldown, fullOptions.blocking, null)

@@ -1,5 +1,6 @@
 import { IAnimation } from "./animation"
 import { Entity } from "./entity"
+import { TilePosition } from "./position"
 
 export enum ActionStatus {
     ACTION_NOT_STARTED,
@@ -8,7 +9,12 @@ export enum ActionStatus {
     ACTION_FINISHED
 }
 
-export type ActionCallback<T> = (entity: Entity, actionData: T) => boolean
+export interface ActionResult {
+    status: ActionStatus
+    footprint: TilePosition[]
+}
+
+export type ActionCallback<T> = (entity: Entity, actionData: T) => ActionResult
 
 export interface IAction<T> {
     entity: Entity
@@ -67,7 +73,7 @@ export class InstantAction<T> implements IAction<T> {
     
     advance(_deltaMS: number, actionData: T | null = null): ActionStatus {
         const success = this.callback(this.entity, actionData !== null ? actionData : this.actionData)
-        this.status = success ? ActionStatus.ACTION_FINISHED : ActionStatus.ACTION_FAILED
+        this.status = success.status ? ActionStatus.ACTION_FINISHED : ActionStatus.ACTION_FAILED
         return this.status
     }
 
