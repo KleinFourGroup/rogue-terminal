@@ -3,7 +3,7 @@ import { Entity } from "./entity"
 
 export class Actor {
     entity: Entity
-    currAction: IAction | null
+    currAction: IAction<any> | null
     actionCoolDown: number
 
     constructor(entity: Entity) {
@@ -24,14 +24,14 @@ export class Actor {
         return this.currAction?.blocking
     }
 
-    doAction(action: IAction) {
+    doAction(action: IAction<any>) {
         if (this.isReady()) {
             this.currAction = action
             this.advanceAction(0)
         }
     }
 
-    setAction(action: IAction) {
+    setAction(action: IAction<any>) {
         if (this.isReady()) {
             this.currAction = action
         }
@@ -44,7 +44,7 @@ export class Actor {
             this.entity.animationManager.setActiveAnimation(this.currAction.animation)
         }
 
-        const result = this.currAction!.advance(deltaMS)
+        const result = this.currAction!.advance(deltaMS, null)
 
         if (result === ActionStatus.ACTION_FINISHED) {
             this.actionCoolDown = this.currAction!.tickLength

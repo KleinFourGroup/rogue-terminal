@@ -1,13 +1,12 @@
 import { Entity } from "./entity"
-import { Scene } from "./scene"
 
-export type AnimationInterval = (time: number, target: Entity, scene: Scene) => void
-export type AnimationFrame = (target: Entity, scene: Scene) => void
+export type AnimationInterval<T> = (time: number, target: Entity, data: T) => void
+export type AnimationFrame<T> = (target: Entity, data: T) => void
 
-export type KeyframedAnimationData = {
+export type KeyframedAnimationData<T> = {
     keyframes: number[]
-    frameAnimations: (AnimationFrame | null)[]
-    betweenAnimations: (AnimationInterval | null)[]
+    frameAnimations: (AnimationFrame<T> | null)[]
+    betweenAnimations: (AnimationInterval<T> | null)[]
 }
 
 export interface IAnimation {
@@ -22,16 +21,16 @@ export interface IAnimation {
     isFinished(): boolean
 }
 
-export class KeyframedAnimation implements IAnimation {
-    animation: KeyframedAnimationData
+export class KeyframedAnimation<T> implements IAnimation {
+    animation: KeyframedAnimationData<T>
     target: Entity
-    scene: Scene
+    animationData: T
     loop: boolean
     elapsed: number
     loopNum: number
     lastKeyframe: number
 
-    constructor(animation: KeyframedAnimationData, target: Entity, scene: Scene, loop: boolean) {
+    constructor(animation: KeyframedAnimationData<T>, target: Entity, animationData: T, loop: boolean) {
         console.assert(animation.keyframes.length === animation.frameAnimations.length)
         console.assert(animation.keyframes.length === animation.betweenAnimations.length + 1)
         console.assert(animation.keyframes[0] === 0)
@@ -40,7 +39,7 @@ export class KeyframedAnimation implements IAnimation {
         }
         this.animation = animation
         this.target = target
-        this.scene = scene
+        this.animationData = animationData
         this.loop = loop
         this.elapsed = 0.0
         this.loopNum = 0
@@ -69,7 +68,7 @@ export class KeyframedAnimation implements IAnimation {
         while (this.lastKeyframe < this.animation.keyframes.length) {
             // console.log(`Processing frame ${frameInd}`)
             if (this.animation.frameAnimations[this.lastKeyframe] !== null) {
-                this.animation.frameAnimations[this.lastKeyframe]!(this.target, this.scene)
+                this.animation.frameAnimations[this.lastKeyframe]!(this.target, this.animationData)
             }
             this.elapsed = this.duration
             this.lastKeyframe++
@@ -87,7 +86,7 @@ export class KeyframedAnimation implements IAnimation {
             while (frameInd < this.animation.keyframes.length && this.animation.keyframes[frameInd] <= this.elapsed) {
                 // console.log(`Processing frame ${frameInd}`)
                 if (this.animation.frameAnimations[frameInd] !== null) {
-                    this.animation.frameAnimations[frameInd]!(this.target, this.scene)
+                    this.animation.frameAnimations[frameInd]!(this.target, this.animationData)
                 }
                 processedTime = this.animation.keyframes[frameInd]
                 this.lastKeyframe = frameInd
@@ -101,7 +100,7 @@ export class KeyframedAnimation implements IAnimation {
                 let overflow = this.elapsed - this.animation.keyframes[this.lastKeyframe]
                 processedTime = this.elapsed
                 if (this.animation.betweenAnimations[this.lastKeyframe] !== null) {
-                    this.animation.betweenAnimations[this.lastKeyframe]!(overflow, this.target, this.scene)
+                    this.animation.betweenAnimations[this.lastKeyframe]!(overflow, this.target, this.animationData)
                 }
             }
 
@@ -111,7 +110,7 @@ export class KeyframedAnimation implements IAnimation {
                 this.elapsed -= this.duration
                 processedTime = 0
                 if (this.animation.frameAnimations[0] !== null) {
-                    this.animation.frameAnimations[0](this.target, this.scene)
+                    this.animation.frameAnimations[0](this.target, this.animationData)
                 }
                 this.lastKeyframe = 0
             }

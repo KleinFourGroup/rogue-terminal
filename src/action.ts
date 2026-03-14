@@ -1,6 +1,5 @@
 import { IAnimation } from "./animation"
 import { Entity } from "./entity"
-import { Scene } from "./scene"
 
 export enum ActionStatus {
     ACTION_NOT_STARTED,
@@ -9,11 +8,11 @@ export enum ActionStatus {
     ACTION_FINISHED
 }
 
-export type ActionCallback = (entity: Entity, scene: Scene | null) => boolean
+export type ActionCallback<T> = (entity: Entity, actionData: T) => boolean
 
-export interface IAction {
+export interface IAction<T> {
     entity: Entity
-    scene: Scene | null
+    actionData: T
 
     elapsed: number
     animation: IAnimation
@@ -23,14 +22,14 @@ export interface IAction {
 
     init(): ActionStatus
     finish(): ActionStatus
-    advance(deltaMS: number): ActionStatus
+    advance(deltaMS: number, actionData: T | null): ActionStatus
 
     currentStatus(): ActionStatus
 }
 
-export class InstantAction implements IAction {
+export class InstantAction<T> implements IAction<T> {
     elapsed: number
-    callback: ActionCallback
+    callback: ActionCallback<T>
     animation: IAnimation
     tickLength: number
 
@@ -39,16 +38,16 @@ export class InstantAction implements IAction {
     status: ActionStatus
 
     entity: Entity
-    scene: Scene | null
+    actionData: T
 
-    constructor(entity: Entity, callback: ActionCallback, animation: IAnimation, tickLength: number, blocking: boolean = false, scene: Scene | null = null) {
+    constructor(entity: Entity, callback: ActionCallback<T>, animation: IAnimation, tickLength: number, blocking: boolean = false, actionData: T) {
         this.entity = entity
         this.callback = callback
         this.animation = animation
         this.tickLength = tickLength
         this.blocking = blocking
 
-        this.scene = scene
+        this.actionData = actionData
         this.elapsed = 0
 
         this.status = ActionStatus.ACTION_NOT_STARTED
@@ -66,8 +65,8 @@ export class InstantAction implements IAction {
         return this.advance(0)
     }
     
-    advance(_deltaMS: number): ActionStatus {
-        const success = this.callback(this.entity, this.scene)
+    advance(_deltaMS: number, actionData: T | null = null): ActionStatus {
+        const success = this.callback(this.entity, actionData !== null ? actionData : this.actionData)
         this.status = success ? ActionStatus.ACTION_FINISHED : ActionStatus.ACTION_FAILED
         return this.status
     }

@@ -28,27 +28,27 @@ export function getSmoothMove(entity: Entity, ecs: ECS, row: number, col: number
     const [newX, newY] = tileToPixel(row, col, entity.width, entity.height)
 
     
-    function startFrame(target: Entity, _scene: Scene) {
+    function startFrame(target: Entity, _scene: Scene | null) {
         target.sprite.x = oldX
         target.sprite.y = oldY
     }
 
-    function endFrame(target: Entity, _scene: Scene) {
+    function endFrame(target: Entity, _scene: Scene | null) {
         target.sprite.x = newX
         target.sprite.y = newY
     }
 
-    function betweenFrame(time: number, target: Entity, _scene: Scene) {
+    function betweenFrame(time: number, target: Entity, _scene: Scene | null) {
         let progress = (1 - Math.cos(Math.min(time / fullOptions.duration, 1) * Math.PI)) / 2
         target.sprite.x = oldX * (1 - progress) + newX * progress
         target.sprite.y = oldY * (1 - progress) + newY * progress
     }
 
     let keyframes: number[] = [0, fullOptions.duration]
-    let frameAnimations: AnimationFrame[] = [startFrame, endFrame]
-    let betweenAnimations: AnimationInterval[] = [betweenFrame]
+    let frameAnimations: AnimationFrame<Scene | null>[] = [startFrame, endFrame]
+    let betweenAnimations: AnimationInterval<Scene | null>[] = [betweenFrame]
 
-    let animationData: KeyframedAnimationData = {
+    let animationData: KeyframedAnimationData<Scene | null> = {
         keyframes: keyframes,
         frameAnimations: frameAnimations,
         betweenAnimations: betweenAnimations
@@ -61,5 +61,5 @@ export function getSmoothMove(entity: Entity, ecs: ECS, row: number, col: number
         return true
     }
 
-    return new InstantAction(entity, moveCallback, animation, fullOptions.cooldown, fullOptions.blocking, null)
+    return new InstantAction<Scene | null>(entity, moveCallback, animation, fullOptions.cooldown, fullOptions.blocking, null)
 }
