@@ -1,10 +1,10 @@
-import { IAnimation } from "./animation"
+import { IStaticAnimation } from "./static_animation"
 import { Entity } from "./entity"
 
 export class AnimationManager {
     entity: Entity
 
-    activeAnimation: IAnimation | null
+    activeAnimation: IStaticAnimation | null
 
     constructor(entity: Entity) {
         this.entity = entity
@@ -15,7 +15,7 @@ export class AnimationManager {
         return this.activeAnimation !== null
     }
 
-    setActiveAnimation(animation: IAnimation) {
+    setActiveAnimation(animation: IStaticAnimation) {
         this.activeAnimation = animation
         this.activeAnimation.init(0)
     }

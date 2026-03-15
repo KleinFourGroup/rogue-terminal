@@ -1,9 +1,10 @@
-import { ActionStatus, IAction } from "./action"
+import { ActionStatus } from "./action"
+import { IStaticAction } from "./static_action"
 import { Entity } from "./entity"
 
 export class Actor {
     entity: Entity
-    currAction: IAction<any> | null
+    currAction: IStaticAction<any> | null
     actionCoolDown: number
 
     constructor(entity: Entity) {
@@ -24,14 +25,14 @@ export class Actor {
         return this.currAction?.blocking
     }
 
-    doAction(action: IAction<any>) {
+    doAction(action: IStaticAction<any>) {
         if (this.isReady()) {
             this.currAction = action
             this.advanceAction(0)
         }
     }
 
-    setAction(action: IAction<any>) {
+    setAction(action: IStaticAction<any>) {
         if (this.isReady()) {
             this.currAction = action
         }

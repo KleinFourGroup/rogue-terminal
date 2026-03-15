@@ -1,5 +1,7 @@
-import { ActionStatus, InstantAction } from "./action"
-import { AnimationFrame, AnimationInterval, KeyframedAnimation, KeyframedAnimationData } from "./animation"
+import { ActionStatus } from "./action"
+import { InstantAction } from "./static_action"
+import { AnimationFrame, AnimationInterval, KeyframedAnimationData } from "./animation"
+import { KeyframedAnimation } from "./static_animation"
 import { Entity } from "./entity"
 import { Scene } from "./scene"
 
@@ -25,7 +27,7 @@ export function getIdle(entity: Entity, blocking: boolean = false) {
     const animation = new KeyframedAnimation(animationData, entity, null, false) // Look into these !s
 
     function idleCallback(_entity: Entity, _scene: Scene | null) {
-        return {status: ActionStatus.ACTION_FINISHED, footprint: []}
+        return {status: ActionStatus.ACTION_FINISHED, footprint: entity.footprint()}
     }
 
     return new InstantAction<Scene | null>(entity, idleCallback, animation, 1200, blocking, null)
