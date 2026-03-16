@@ -81,7 +81,7 @@ export class KeyframeAnimation<T> implements IAnimation {
     }
 
 
-    advance(): AnimationResult {
+    advance() {
         if (this.result.status === AnimationStatus.ANIMATION_FINISHED || this.result.status === AnimationStatus.ANIMATION_ERROR) {
             return this.result
         }
@@ -103,6 +103,10 @@ export class KeyframeAnimation<T> implements IAnimation {
             this.advance()
         }
 
+        return this.result
+    }
+
+    currentStatus() {
         return this.result
     }
 }

@@ -41,7 +41,6 @@ export class ActionSequence<T> implements IAction<T> {
         this.result = this.steps[this.currStep](this.entity, this.actionData)
         this.currStep++
         return this.result
-
     }
 
     finish() {
