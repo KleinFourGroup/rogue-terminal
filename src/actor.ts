@@ -1,14 +1,16 @@
 import { ActionStatus } from "./action"
 import { IStaticAction } from "./static_action"
 import { Entity } from "./entity"
+import { Component } from "./component"
 
-export class Actor {
-    entity: Entity
+export class Actor extends Component {
+    declare entity: Entity
     currAction: IStaticAction<any> | null
     actionCoolDown: number
 
     constructor(entity: Entity) {
-        this.entity = entity
+        super()
+        this.setEntity(entity)
         this.currAction = null
         this.actionCoolDown = 0
     }

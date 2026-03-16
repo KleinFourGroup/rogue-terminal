@@ -1,6 +1,5 @@
 import { Entity } from "./entity"
 import { TilePosition } from "./position"
-import { SignalEmitter } from "./signal"
 
 export enum ActionStatus {
     ACTION_NOT_STARTED,
@@ -14,25 +13,19 @@ export interface ActionResult {
     footprint: TilePosition[]
 }
 
-export interface ActionStepSignal<T> {
-    status: ActionStatus
-    animationData: T
-}
-
 export type ActionCallback<T> = (entity: Entity, actionData: T) => ActionResult
 
-interface IAction<T, A> {
+export interface IAction<T> {
     entity: Entity
     actionData: T
 
     tickLength: number
 
-    onStep: SignalEmitter<ActionStepSignal<A>>
+    init(): ActionResult
+    advance(): ActionResult
+    finish(): ActionResult
+    abort(): ActionResult
 
-    init(): ActionStatus
-    advance(): ActionStatus
-    finish(): ActionStatus
-
-    currentStatus(): ActionStatus
+    currentStatus(): ActionResult
 }
 

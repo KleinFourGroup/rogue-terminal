@@ -46,6 +46,9 @@ export class Entity implements IEntitySprite {
             onAdd: new SignalEmitter<Component>,
             onRemove: new SignalEmitter<Component>
         }
+
+        this.addComponent(this.actor)
+        this.addComponent(this.animationManager)
         
         this.sprite.anchor.set(0.5)
         this.sprite.position.set(...tileToPixel(this.row, this.col, this.width, this.height))

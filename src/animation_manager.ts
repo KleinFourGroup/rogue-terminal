@@ -1,13 +1,15 @@
 import { IStaticAnimation } from "./static_animation"
 import { Entity } from "./entity"
+import { Component } from "./component"
 
-export class AnimationManager {
-    entity: Entity
+export class AnimationManager extends Component {
+    declare entity: Entity
 
     activeAnimation: IStaticAnimation | null
 
     constructor(entity: Entity) {
-        this.entity = entity
+        super()
+        this.setEntity(entity)
         this.activeAnimation = null
     }
 
