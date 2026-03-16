@@ -9,15 +9,27 @@ export type KeyframedAnimationData<T> = {
     betweenAnimations: (AnimationInterval<T> | null)[]
 }
 
-interface IAnimation {
+export enum AnimationStatus {
+    ANIMATION_NOT_STARTED,
+    ANIMATION_PROGRESS,
+    ANIMATION_STEP,
+    ANIMATION_FINISHED,
+    ANIMATION_ERROR
+}
+
+export interface AnimationResult {
+    status: AnimationStatus,
+    overflow: number
+}
+
+export interface IAnimation {
     elapsed: number
-    duration: number
-    loop: boolean
 
-    init(deltaMS: number): void
-    finish(): void
-    animate(deltaMS: number): void
+    init(deltaMS: number): AnimationResult
+    animate(deltaMS: number): AnimationResult
+    advance(): AnimationResult
+    finish(): AnimationResult
 
-    isFinished(): boolean
+    currentStatus(): AnimationResult
 }
 
