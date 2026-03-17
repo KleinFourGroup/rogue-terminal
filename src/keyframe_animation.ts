@@ -1,7 +1,7 @@
 import { AnimationFrame, AnimationInterval, AnimationResult, AnimationStatus, IAnimation } from "./animation"
 import { Entity } from "./entity"
 
-export type KeyframedAnimationData<T> = {
+export type KeyframeAnimationData<T> = {
     keyframes: number[]
     frameAnimations: AnimationFrame<T>[]
     betweenAnimations: AnimationInterval<T>[]
@@ -10,14 +10,14 @@ export type KeyframedAnimationData<T> = {
 export class KeyframeAnimation<T> implements IAnimation {
     target: Entity
     animationData: T
-    animation: KeyframedAnimationData<T>
+    animation: KeyframeAnimationData<T>
 
     elapsed: number
     result: AnimationResult
 
     keyframe: number
 
-    constructor( target: Entity, animationData: T, animation: KeyframedAnimationData<T>) {
+    constructor( target: Entity, animationData: T, animation: KeyframeAnimationData<T>) {
         console.assert(animation.keyframes.length === animation.frameAnimations.length)
         console.assert(animation.keyframes.length === animation.betweenAnimations.length + 1)
         console.assert(animation.keyframes[0] === 0)

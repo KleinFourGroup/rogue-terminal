@@ -1,7 +1,7 @@
 import { ActionStatus } from "./action"
-import { InstantAction } from "./static_action"
-import { AnimationFrame, AnimationInterval, KeyframedAnimationData } from "./animation"
-import { KeyframedAnimation } from "./static_animation"
+import { InstantAction } from "./instant_action"
+import { AnimationFrame, AnimationInterval } from "./animation"
+import { KeyframeAnimation, KeyframeAnimationData } from "./keyframe_animation"
 import { ECS } from "./ecs"
 import { Entity } from "./entity"
 import { tileToPixel } from "./position"
@@ -50,18 +50,20 @@ export function getSmoothMove(entity: Entity, ecs: ECS, row: number, col: number
     let frameAnimations: AnimationFrame<Scene | null>[] = [startFrame, endFrame]
     let betweenAnimations: AnimationInterval<Scene | null>[] = [betweenFrame]
 
-    let animationData: KeyframedAnimationData<Scene | null> = {
+    let animationData: KeyframeAnimationData<Scene | null> = {
         keyframes: keyframes,
         frameAnimations: frameAnimations,
         betweenAnimations: betweenAnimations
     }
 
-    const animation = new KeyframedAnimation(animationData, entity, null!, false) // Look into these !s
+    const animation = new KeyframeAnimation(entity, null, animationData) // Look into these !s
 
     function moveCallback(entity: Entity, _scene: Scene | null) {
         let result = ecs.moveEntity(entity, row, col)
         return {status: result ? ActionStatus.ACTION_FINISHED : ActionStatus.ACTION_FAILED, footprint: entity.footprint()}
     }
 
-    return new InstantAction<Scene | null>(entity, moveCallback, animation, fullOptions.cooldown, fullOptions.blocking, null)
+    const action = new InstantAction<Scene | null>(entity, null, fullOptions.cooldown, moveCallback, {blocking: fullOptions.blocking})
+
+    return [action, animation] as const
 }
