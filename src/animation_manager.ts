@@ -1,6 +1,7 @@
-import { IAnimation } from "./animation"
+import { AnimationStatus, IAnimation } from "./animation"
 import { Entity } from "./entity"
 import { Component } from "./component"
+import { SignalEmitter } from "./signal"
 
 export enum AnimatorSignal {
     STEP,
@@ -11,27 +12,47 @@ export class AnimationManager extends Component {
     declare entity: Entity
 
     activeAnimation: IAnimation | null
+    onStep: SignalEmitter<AnimatorSignal>
 
     constructor(entity: Entity) {
         super()
         this.setEntity(entity)
         this.activeAnimation = null
+        this.onStep = new SignalEmitter<AnimatorSignal>()
     }
 
     isActive() {
         return this.activeAnimation !== null
     }
 
-    setActiveAnimation(animation: IAnimation) {
+    setActiveAnimation(animation: IAnimation, init: boolean = false) {
         this.activeAnimation = animation
-        this.activeAnimation.init(0)
+        if (init) {
+            this.activeAnimation.init(0)
+        }
     }
 
     animate(deltaMS: number) {
-        this.activeAnimation?.animate(deltaMS)
+        const result = this.activeAnimation!.animate(deltaMS)
 
-        if (this.activeAnimation?.isFinished()) {
-            this.activeAnimation = null
+        switch (result.status) {
+            case AnimationStatus.ANIMATION_FINISHED:
+                this.activeAnimation = null
+                this.onStep.emit(AnimatorSignal.FINISHED)
+                break
+            case AnimationStatus.ANIMATION_STEP:
+                this.onStep.emit(AnimatorSignal.STEP)
+                break
+            case AnimationStatus.ANIMATION_PROGRESS:
+                // No-op
+                break
+            case AnimationStatus.ANIMATION_ERROR:
+                // Should never happen, so...
+                this.activeAnimation = null
+                this.onStep.emit(AnimatorSignal.FINISHED)
+                break
+            default:
+                break
         }
     }
 }
