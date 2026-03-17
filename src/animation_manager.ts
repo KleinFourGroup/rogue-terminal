@@ -1,11 +1,16 @@
-import { IStaticAnimation } from "./static_animation"
+import { IAnimation } from "./animation"
 import { Entity } from "./entity"
 import { Component } from "./component"
+
+export enum AnimatorSignal {
+    STEP,
+    FINISHED
+}
 
 export class AnimationManager extends Component {
     declare entity: Entity
 
-    activeAnimation: IStaticAnimation | null
+    activeAnimation: IAnimation | null
 
     constructor(entity: Entity) {
         super()
@@ -17,7 +22,7 @@ export class AnimationManager extends Component {
         return this.activeAnimation !== null
     }
 
-    setActiveAnimation(animation: IStaticAnimation) {
+    setActiveAnimation(animation: IAnimation) {
         this.activeAnimation = animation
         this.activeAnimation.init(0)
     }
