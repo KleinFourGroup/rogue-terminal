@@ -4,6 +4,7 @@ import { Component } from "./component"
 import { SignalEmitter } from "./signal"
 import { TileVisibility, VisibilityManager } from "./visibility/visibility_manager"
 import { TilePosition } from "./position"
+import { AnimatorSignal } from "./animation_manager"
 
 export enum ActorSignal {
     ANIMATION_CONTINUE,
@@ -23,17 +24,44 @@ export class Actor extends Component {
     actionCoolDown: number
     status: ActorStatus
 
-    visibilityManager: VisibilityManager
+    visibilityManager: VisibilityManager | null
     onAct: SignalEmitter<ActorSignal>
 
-    constructor(entity: Entity, visibilityManager: VisibilityManager) {
+    constructor(entity: Entity) {
         super()
         this.setEntity(entity)
         this.currAction = null
         this.status = ActorStatus.IDLE
-        this.visibilityManager = visibilityManager
+        this.visibilityManager = null
         this.onAct = new SignalEmitter<ActorSignal>
         this.actionCoolDown = 0
+    }
+
+    setVisibilityManager(visibilityManager: VisibilityManager) {
+        this.visibilityManager = visibilityManager
+    }
+
+    setupListener(onStep: SignalEmitter<AnimatorSignal>) {
+        const animationCallback = (message: AnimatorSignal) => {
+            switch (message) {
+                case AnimatorSignal.STEP:
+                    if (this.status === ActorStatus.AWAIT_ANIMATION) {
+                        this.advanceAction()
+                    } else {
+                        throw new Error(`(Actor.animationCallback) Recieved STEP message while in state ${this.status}`)
+                    }
+                    break
+                case AnimatorSignal.FINISHED:
+                    if (this.status !== ActorStatus.AWAIT_FINISH) {
+                        throw new Error(`(Actor.animationCallback) Recieved FINISHED message while in state ${this.status}`)
+                    }
+                    break
+                default:
+                    throw new Error(`(Actor.animationCallback) Unexpected AnimatorSignal: ${message}`)
+            }
+        }
+
+        onStep.subscribe(animationCallback)
     }
 
     isReady() {
@@ -85,15 +113,14 @@ export class Actor extends Component {
                 this.actionCoolDown = this.currAction!.tickLength
                 this.currAction = null
                 this.status = ActorStatus.AWAIT_FINISH
-                this.onAct.emit(checkVisibility(result.footprint, this.visibilityManager) ? ActorSignal.ANIMATION_CONTINUE : ActorSignal.ANIMATION_SKIP)
+                this.onAct.emit(checkVisibility(result.footprint, this.visibilityManager!) ? ActorSignal.ANIMATION_CONTINUE : ActorSignal.ANIMATION_SKIP)
                 break
             case ActionStatus.ACTION_PROCEED:
                 this.status = ActorStatus.AWAIT_ANIMATION
-                this.onAct.emit(checkVisibility(result.footprint, this.visibilityManager) ? ActorSignal.ANIMATION_CONTINUE : ActorSignal.ANIMATION_SKIP)
+                this.onAct.emit(checkVisibility(result.footprint, this.visibilityManager!) ? ActorSignal.ANIMATION_CONTINUE : ActorSignal.ANIMATION_SKIP)
                 break
             default:
-                // TODO: Haven't thought the other cases out yet, but they shouldn't happen yet either
-                break
+                throw new Error(`(Actor.advanceAction) Unexpected ActionStatus: ${result.status}`)
         }
 
         return result

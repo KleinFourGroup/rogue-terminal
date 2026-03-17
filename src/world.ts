@@ -79,6 +79,8 @@ export class World extends Container {
     }
 
     addEntity(entity: Entity) {
+        // Eww
+        entity.actor.setVisibilityManager(this.visibilityManager)
         this.entities.addEntity(entity)
     }
 
