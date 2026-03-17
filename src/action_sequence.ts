@@ -61,5 +61,4 @@ export class ActionSequence<T> implements IAction<T> {
     currentStatus() {
         return this.result
     }
-
 }

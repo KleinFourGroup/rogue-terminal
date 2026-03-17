@@ -1,11 +1,12 @@
 import { ActionStatus } from "./action"
 import { InstantAction } from "./instant_action"
-import { AnimationFrame, AnimationInterval } from "./animation"
+import { AnimationFrame, AnimationInterval, IAnimation } from "./animation"
 import { KeyframeAnimation, KeyframeAnimationData } from "./keyframe_animation"
 import { ECS } from "./ecs"
 import { Entity } from "./entity"
 import { tileToPixel } from "./position"
 import { Scene } from "./scene"
+import { AnimationSequence, EmptyAnimation } from "./animation_transform"
 
 const MOVE_LENGTH = 500
 
@@ -56,7 +57,10 @@ export function getSmoothMove(entity: Entity, ecs: ECS, row: number, col: number
         betweenAnimations: betweenAnimations
     }
 
-    const animation = new KeyframeAnimation(entity, null, animationData) // Look into these !s
+    let animation: IAnimation = new KeyframeAnimation(entity, null, animationData)
+    if (fullOptions.blocking) {
+        animation = new AnimationSequence(animation, new EmptyAnimation())
+    }
 
     function moveCallback(entity: Entity, _scene: Scene | null) {
         let result = ecs.moveEntity(entity, row, col)

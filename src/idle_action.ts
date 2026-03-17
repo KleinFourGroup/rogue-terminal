@@ -1,9 +1,10 @@
 import { ActionStatus } from "./action"
-import { AnimationFrame, AnimationInterval } from "./animation"
+import { AnimationFrame, AnimationInterval, IAnimation } from "./animation"
 import { KeyframeAnimation, KeyframeAnimationData } from "./keyframe_animation"
 import { Entity } from "./entity"
 import { Scene } from "./scene"
 import { InstantAction } from "./instant_action"
+import { AnimationSequence, EmptyAnimation } from "./animation_transform"
 
 const IDLE_LENGTH = 500
 
@@ -24,7 +25,10 @@ export function getIdle(entity: Entity, blocking: boolean = false) {
         betweenAnimations: betweenAnimations
     }
 
-    const animation = new KeyframeAnimation<Scene | null>(entity, null, animationData) // Look into these !s
+    let animation: IAnimation = new KeyframeAnimation<Scene | null>(entity, null, animationData)
+    if (blocking) {
+        animation = new AnimationSequence(animation, new EmptyAnimation())
+    }
 
     function idleCallback(_entity: Entity, _scene: Scene | null) {
         return {status: ActionStatus.ACTION_FINISHED, footprint: entity.footprint()}
