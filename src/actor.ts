@@ -1,4 +1,4 @@
-import { ActionStatus, IAction } from "./action"
+import { ActionStatus, IAction } from "./action/action"
 import { Entity } from "./entity"
 import { Component } from "./component"
 import { SignalEmitter } from "./signal"
@@ -7,6 +7,7 @@ import { TilePosition } from "./position"
 import { AnimatorSignal } from "./animation_manager"
 
 export enum ActorSignal {
+    ANIMATION_START,
     ANIMATION_CONTINUE,
     ANIMATION_SKIP
 }
@@ -107,6 +108,10 @@ export class Actor extends Component {
         }
 
         const result = this.currAction!.advance()
+
+        if (this.status === ActorStatus.NOT_STARTED) {
+            this.onAct.emit(ActorSignal.ANIMATION_START)
+        }
 
         switch (result.status) {
             case ActionStatus.ACTION_FINISHED:

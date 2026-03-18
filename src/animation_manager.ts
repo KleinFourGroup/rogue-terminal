@@ -1,4 +1,4 @@
-import { AnimationResult, AnimationStatus, IAnimation } from "./animation"
+import { AnimationResult, AnimationStatus, IAnimation } from "./animation/animation"
 import { Entity } from "./entity"
 import { Component } from "./component"
 import { SignalEmitter } from "./signal"
@@ -25,6 +25,9 @@ export class AnimationManager extends Component {
     setupListener(onAct: SignalEmitter<ActorSignal>) {
         const actorCallback = (message: ActorSignal) => {
             switch (message) {
+                case ActorSignal.ANIMATION_START:
+                    this.activeAnimation!.init(0)
+                    break
                 case ActorSignal.ANIMATION_CONTINUE:
                     let overflow = this.activeAnimation!.currentStatus().overflow
                     this.animate(overflow)

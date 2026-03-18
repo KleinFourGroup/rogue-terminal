@@ -1,6 +1,6 @@
 import { Entity } from "../entity"
-import { getIdle } from "../idle_action"
-import { getSmoothMove } from "../move_action"
+import { getIdle } from "../action/idle_action"
+import { getSmoothMove } from "../action/move_action"
 import { DIRS, TILE_OFFSETS, TilePosition } from "../position"
 import { World } from "../world"
 import { IBehaviorLogic } from "./behavior"

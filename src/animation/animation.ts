@@ -1,4 +1,4 @@
-import { Entity } from "./entity"
+import { Entity } from "../entity"
 
 export type AnimationInterval<T> = (time: number, target: Entity, data: T) => void
 export type AnimationFrame<T> = (target: Entity, data: T) => void

@@ -1,5 +1,5 @@
 import { AnimationFrame, AnimationInterval, AnimationResult, AnimationStatus, IAnimation } from "./animation"
-import { Entity } from "./entity"
+import { Entity } from "../entity"
 
 export type KeyframeAnimationData<T> = {
     keyframes: number[]

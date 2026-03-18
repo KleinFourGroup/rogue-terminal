@@ -1,4 +1,4 @@
-import { ActionStatus, ActionCallback } from "./action"
+import { ActionStatus, ActionCallback } from "./action/action"
 import { IStaticAnimation } from "./static_animation"
 import { Entity } from "./entity"
 

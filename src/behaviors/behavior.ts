@@ -1,8 +1,8 @@
-import { IAction } from "../action"
-import { IAnimation } from "../animation"
+import { IAction } from "../action/action"
+import { IAnimation } from "../animation/animation"
 import { Component } from "../component"
 import { Entity } from "../entity"
-import { getIdle } from "../idle_action"
+import { getIdle } from "../action/idle_action"
 
 export interface IBehaviorLogic {
     entity: Entity

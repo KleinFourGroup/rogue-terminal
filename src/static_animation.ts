@@ -1,4 +1,4 @@
-import { KeyframedAnimationData } from "./animation"
+import { KeyframedAnimationData } from "./animation/animation"
 import { Entity } from "./entity"
 
 

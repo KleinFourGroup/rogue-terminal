@@ -1,4 +1,4 @@
-import { ActionStatus } from "./action"
+import { ActionStatus } from "./action/action"
 import { Entity } from "./entity"
 
 export enum TurnStatus {

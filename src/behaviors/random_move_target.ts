@@ -1,6 +1,6 @@
 import { Entity } from "../entity"
-import { getIdle } from "../idle_action"
-import { getSmoothMove } from "../move_action"
+import { getIdle } from "../action/idle_action"
+import { getSmoothMove } from "../action/move_action"
 import { WorldNavigator } from "../navigation/navigator"
 import { NodePool } from "../navigation/node_pool"
 import { TilePosition } from "../position"

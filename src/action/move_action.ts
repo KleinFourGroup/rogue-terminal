@@ -1,12 +1,12 @@
 import { ActionStatus } from "./action"
 import { InstantAction } from "./instant_action"
-import { AnimationFrame, AnimationInterval, IAnimation } from "./animation"
-import { KeyframeAnimation, KeyframeAnimationData } from "./keyframe_animation"
-import { ECS } from "./ecs"
-import { Entity } from "./entity"
-import { tileToPixel } from "./position"
-import { Scene } from "./scene"
-import { AnimationSequence, EmptyAnimation } from "./animation_transform"
+import { AnimationFrame, AnimationInterval, IAnimation } from "../animation/animation"
+import { KeyframeAnimation, KeyframeAnimationData } from "../animation/keyframe_animation"
+import { ECS } from "../ecs"
+import { Entity } from "../entity"
+import { tileToPixel } from "../position"
+import { Scene } from "../scene"
+import { AnimationSequence, EmptyAnimation } from "../animation/animation_transform"
 
 const MOVE_LENGTH = 500
 

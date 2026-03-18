@@ -1,5 +1,5 @@
 import { ActionCallback, ActionResult, ActionStatus, IAction } from "./action"
-import { Entity } from "./entity"
+import { Entity } from "../entity"
 
 export class ActionSequence<T> implements IAction<T> {
     entity: Entity

@@ -1,6 +1,6 @@
 import { ActionCallback, ActionResult, ActionStatus } from "./action"
 import { ActionSequence } from "./action_sequence"
-import { Entity } from "./entity"
+import { Entity } from "../entity"
 
 export interface InstantActionOptions<T> {
     abortStep: ActionCallback<T> | null

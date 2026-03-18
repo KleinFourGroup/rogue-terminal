@@ -1,5 +1,5 @@
-import { Entity } from "./entity"
-import { TilePosition } from "./position"
+import { Entity } from "../entity"
+import { TilePosition } from "../position"
 
 export enum ActionStatus {
     ACTION_NOT_STARTED,
