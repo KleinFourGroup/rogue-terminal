@@ -19,6 +19,9 @@ export interface IAction<T> {
     entity: Entity
     actionData: T
 
+    // This might get purged if we completely isolate the action and animation underlying subroutines
+    initialBlock: boolean
+
     tickLength: number
 
     init(): ActionResult

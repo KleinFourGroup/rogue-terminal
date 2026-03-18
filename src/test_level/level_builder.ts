@@ -118,17 +118,17 @@ export function buildLevel(ROOM_ROWS: number, ROOM_COLS: number, ROOM_SIZE: numb
         }
     }
 
-    placeGiants(level, caches, 1, 1, ROOM_SIZE)
+    placeDogs(level, caches, 1, 1, ROOM_SIZE)
 
-    placeOrcs(level, caches, 0, 1, ROOM_SIZE)
-    placeOrcs(level, caches, 2, 1, ROOM_SIZE)
-    placeOrcs(level, caches, 1, 0, ROOM_SIZE)
-    placeOrcs(level, caches, 1, 2, ROOM_SIZE)
+    // placeOrcs(level, caches, 0, 1, ROOM_SIZE)
+    // placeOrcs(level, caches, 2, 1, ROOM_SIZE)
+    // placeOrcs(level, caches, 1, 0, ROOM_SIZE)
+    // placeOrcs(level, caches, 1, 2, ROOM_SIZE)
 
-    placeDogs(level, caches, 0, 0, ROOM_SIZE)
-    placeDogs(level, caches, 0, 2, ROOM_SIZE)
-    placeDogs(level, caches, 2, 0, ROOM_SIZE)
-    placeDogs(level, caches, 2, 2, ROOM_SIZE)
+    // placeDogs(level, caches, 0, 0, ROOM_SIZE)
+    // placeDogs(level, caches, 0, 2, ROOM_SIZE)
+    // placeDogs(level, caches, 2, 0, ROOM_SIZE)
+    // placeDogs(level, caches, 2, 2, ROOM_SIZE)
 
     return [level, player] as const
 }

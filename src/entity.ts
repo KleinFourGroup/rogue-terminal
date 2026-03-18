@@ -8,12 +8,16 @@ import { DEFAULT_STYLE, TILE_SIZE } from "./text/canvas_style"
 import { IEntitySprite } from "./text/entity_sprite"
 import { TextSprite } from "./text/text_sprite"
 
+let ID_NUM = 0
+
 interface EntitySignals {
     onAdd: SignalEmitter<Component>
     onRemove: SignalEmitter<Component>
 }
 
 export class Entity implements IEntitySprite {
+    id: string
+
     sprite: TextSprite
 
     row: number
@@ -30,6 +34,7 @@ export class Entity implements IEntitySprite {
     signals: EntitySignals
 
     constructor(text: string, caches: CacheManager, row: number = 0, col: number = 0, width: number = 1, height: number = 1) {
+        this.id = `${text}#${ID_NUM++}`
         const size = Math.min(width, height)
         this.sprite = new TextSprite(text, {cache: caches.canvasCache, style: caches.styleCache.getStyle(size * TILE_SIZE, size * TILE_SIZE, DEFAULT_STYLE.color)}) // CACHE!
         this.row = row
@@ -47,6 +52,8 @@ export class Entity implements IEntitySprite {
             onRemove: new SignalEmitter<Component>
         }
 
+        this.actor.setupListener(this.animationManager.onStep)
+        this.animationManager.setupListener(this.actor.onAct)
         this.addComponent(this.actor)
         this.addComponent(this.animationManager)
         

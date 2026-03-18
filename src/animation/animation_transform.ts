@@ -16,6 +16,7 @@ export class EmptyAnimation implements IAnimation {
 
         return this.animate(deltaMS)
     }
+    
     animate(deltaMS: number) {
         switch (this.status) {
             case AnimationStatus.ANIMATION_NOT_STARTED:

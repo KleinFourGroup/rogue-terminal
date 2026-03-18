@@ -69,7 +69,7 @@ export class KeyframeAnimation<T> implements IAnimation {
         if (this.elapsed < elapsedTarget) {
             console.assert(this.keyframe > 0)
             this.elapsed = elapsedTarget
-            this.animation.betweenAnimations[this.keyframe - 1](deltaMS, this.target, this.animationData)
+            this.animation.betweenAnimations[this.keyframe - 1](this.elapsed - this.animation.keyframes[this.keyframe - 1], this.target, this.animationData)
         }
 
         this.result = {

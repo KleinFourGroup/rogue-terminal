@@ -51,14 +51,17 @@ export class GameScene extends Container implements IScene {
     }
 
     tickAI() {
-        const action = this.turnManager.currentTurn!.getComponent(AILogic)!.getAction()
-        console.assert(action !== null)
-        this.turnManager.currentTurn?.actor.setAction(action!)
+        console.log("Running AI:", this.turnManager.currentTurn!.id)
+        const [action, animation] = this.turnManager.currentTurn!.getComponent(AILogic)!.getAction()
+        console.assert(action !== null && animation !== null)
+        this.turnManager.currentTurn!.actor.setAction(action!)
+        this.turnManager.currentTurn!.animationManager.setActiveAnimation(animation!)
         // console.log(this.player.row, this.player.col)
     }
 
     update(deltaMS: number): void {
         if (this.turnManager.status === TurnStatus.NO_TURN) {
+            console.log("TurnManager in state", TurnStatus[this.turnManager.status])
             const nextTurn = this.level.nextAI()
             const toSkip = nextTurn!.actor.actionCoolDown
             this.level.advanceTicks(toSkip)
@@ -66,14 +69,17 @@ export class GameScene extends Container implements IScene {
         }
 
         if (this.turnManager.status === TurnStatus.START_TURN) {
+            console.log("TurnManager in state", TurnStatus[this.turnManager.status])
             this.turnManager.checkLastAnimation()
         }
 
         if (this.turnManager.status === TurnStatus.WAIT_FOR_LAST_ANIMATION) {
+            console.log("TurnManager in state", TurnStatus[this.turnManager.status])
             this.turnManager.checkLastAnimation()
         }
 
         if (this.turnManager.status === TurnStatus.RUN_AI) {
+            console.log("TurnManager in state", TurnStatus[this.turnManager.status])
             this.tickAI()
             this.turnManager.finishedAI()
         }
@@ -83,22 +89,31 @@ export class GameScene extends Container implements IScene {
             // in exchange counting unfinished active animations as we execute them
             // const outstanding = this.entities.getActive().length
             // this.turnManager.setOutstandingAnimations(outstanding)
+            console.log("TurnManager in state", TurnStatus[this.turnManager.status])
             this.turnManager.checkOutstandingAnimations()
         }
 
-        if (this.turnManager.status === TurnStatus.ACTION_PROGRESS) {
-            const actionStatus = this.turnManager.currentTurn!.actor.advanceAction(deltaMS)
-            this.turnManager.updateActionProgress(actionStatus)
+        if (this.turnManager.status === TurnStatus.ACTION_INIT) {
+            console.log("TurnManager in state", TurnStatus[this.turnManager.status])
+            const actionStatus = this.turnManager.currentTurn!.actor.advanceAction().status
+            this.turnManager.initActionProgress(actionStatus)
+        }
+
+        if (this.turnManager.status === TurnStatus.LATE_BLOCK) {
+            console.log("TurnManager in state", TurnStatus[this.turnManager.status])
+            this.turnManager.checkOutstandingAnimations()
         }
 
         const outstanding = this.level.animateActive(deltaMS)
         this.turnManager.setOutstandingAnimations(outstanding)
 
-        if (this.turnManager.status === TurnStatus.FINISH_BLOCK) {
-            this.turnManager.checkBlockingAnimation()
+        if (this.turnManager.status === TurnStatus.ACTION_PROGRESS) {
+            console.log("TurnManager in state", TurnStatus[this.turnManager.status])
+            this.turnManager.updateActionProgress(this.turnManager.currentTurn!.actor.status)
         }
 
         if (this.turnManager.status === TurnStatus.FINISH_TURN) {
+            console.log("TurnManager in state", TurnStatus[this.turnManager.status])
             // This whole hack only works for one observer
             if (this.turnManager.currentTurn!.hasComponent(Observer)) {
                 console.log("Updating visibility!")

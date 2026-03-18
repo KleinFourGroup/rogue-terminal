@@ -1,21 +1,35 @@
 import { ActionCallback, ActionResult, ActionStatus, IAction } from "./action"
 import { Entity } from "../entity"
 
+export interface ActionSequenceOptions<T> {
+    abortStep: ActionCallback<T> | null
+    blocking: boolean
+}
+
+const DEFAULT_OPTIONS: ActionSequenceOptions<any> = {
+    abortStep: null,
+    blocking: true
+}
+
 export class ActionSequence<T> implements IAction<T> {
     entity: Entity
     actionData: T
+    initialBlock: boolean
     tickLength: number
     steps: ActionCallback<T>[]
     abortStep: ActionCallback<T> | null
     result: ActionResult
     currStep: number
 
-    constructor(entity: Entity, actionData: T, tickLength: number, steps: ActionCallback<T>[], abortStep: ActionCallback<T> | null = null) {
+    constructor(entity: Entity, actionData: T, tickLength: number, steps: ActionCallback<T>[], options: Partial<ActionSequenceOptions<T>> = {}) {
+        const fullOptions = { ...DEFAULT_OPTIONS, ...options}
+
         this.entity = entity
         this.actionData = actionData
+        this.initialBlock = fullOptions.blocking
         this.tickLength = tickLength
         this.steps = steps
-        this.abortStep = abortStep
+        this.abortStep = fullOptions.abortStep
         this.result = {
             status: ActionStatus.ACTION_NOT_STARTED,
             footprint: this.entity.footprint()

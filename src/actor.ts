@@ -44,18 +44,20 @@ export class Actor extends Component {
 
     setupListener(onStep: SignalEmitter<AnimatorSignal>) {
         const animationCallback = (message: AnimatorSignal) => {
+            console.log("Actor", this.entity!.id, "recieved message:", AnimatorSignal[message])
             switch (message) {
                 case AnimatorSignal.STEP:
                     if (this.status === ActorStatus.AWAIT_ANIMATION) {
                         this.advanceAction()
                     } else {
-                        throw new Error(`(Actor.animationCallback) Recieved STEP message while in state ${this.status}`)
+                        throw new Error(`(Actor.animationCallback) Recieved STEP message while in state ${ActorStatus[this.status]}`)
                     }
                     break
                 case AnimatorSignal.FINISHED:
                     if (this.status !== ActorStatus.AWAIT_FINISH) {
-                        throw new Error(`(Actor.animationCallback) Recieved FINISHED message while in state ${this.status}`)
+                        throw new Error(`(Actor.animationCallback) Recieved FINISHED message while in state ${ActorStatus[this.status]}`)
                     }
+                    this.status = ActorStatus.IDLE
                     break
                 default:
                     throw new Error(`(Actor.animationCallback) Unexpected AnimatorSignal: ${message}`)
@@ -74,7 +76,7 @@ export class Actor extends Component {
     }
 
     isBlocking() {
-        return this.status !== ActorStatus.IDLE && this.status !== ActorStatus.AWAIT_FINISH
+        return (this.status == ActorStatus.NOT_STARTED && this.currAction!.initialBlock) || (this.status === ActorStatus.AWAIT_ANIMATION)
     }
 
     doAction(action: IAction<any>) {

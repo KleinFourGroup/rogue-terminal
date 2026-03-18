@@ -1,11 +1,6 @@
 import { ActionCallback, ActionResult, ActionStatus } from "./action"
-import { ActionSequence } from "./action_sequence"
+import { ActionSequence, ActionSequenceOptions } from "./action_sequence"
 import { Entity } from "../entity"
-
-export interface InstantActionOptions<T> {
-    abortStep: ActionCallback<T> | null
-    blocking: boolean
-}
 
 function NOOP<T>(entity: Entity, _actionData: T): ActionResult {
     return {
@@ -15,12 +10,8 @@ function NOOP<T>(entity: Entity, _actionData: T): ActionResult {
 }
 
 export class InstantAction<T> extends ActionSequence<T> {
-    constructor(entity: Entity, actionData: T, tickLength: number, step: ActionCallback<T>, options: Partial<InstantActionOptions<T>> = {}) {
-        const DEFAULT_OPTIONS: InstantActionOptions<T> = {
-            abortStep: null,
-            blocking: true
-        }
-        const fullOptions = { ...DEFAULT_OPTIONS, ...options}
+    constructor(entity: Entity, actionData: T, tickLength: number, step: ActionCallback<T>, options: Partial<ActionSequenceOptions<T>> = {}) {
+        const blocking = options.blocking === undefined ? true : options.blocking
 
         function stepWrapper(entity: Entity, actionData: T) {
             let result = step(entity, actionData)
@@ -28,6 +19,6 @@ export class InstantAction<T> extends ActionSequence<T> {
             return result
         }
 
-        super(entity, actionData, tickLength, fullOptions.blocking ? [stepWrapper, NOOP<T>] : [step], fullOptions.abortStep)
+        super(entity, actionData, tickLength, blocking ? [stepWrapper, NOOP<T>] : [step], options)
     }
 }

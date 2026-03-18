@@ -9,24 +9,33 @@ export enum AnimatorSignal {
     FINISHED
 }
 
+export enum AnimatorStatus {
+    IDLE,
+    NOT_STARTED,
+    ACTIVE
+}
+
 export class AnimationManager extends Component {
     declare entity: Entity
 
+    status: AnimatorStatus
     activeAnimation: IAnimation | null
     onStep: SignalEmitter<AnimatorSignal>
 
     constructor(entity: Entity) {
         super()
         this.setEntity(entity)
+        this.status = AnimatorStatus.IDLE
         this.activeAnimation = null
         this.onStep = new SignalEmitter<AnimatorSignal>()
     }
 
     setupListener(onAct: SignalEmitter<ActorSignal>) {
         const actorCallback = (message: ActorSignal) => {
+            console.log("Animator", this.entity!.id, "recieved message:", ActorSignal[message])
             switch (message) {
                 case ActorSignal.ANIMATION_START:
-                    this.activeAnimation!.init(0)
+                    this.initAnimation()
                     break
                 case ActorSignal.ANIMATION_CONTINUE:
                     let overflow = this.activeAnimation!.currentStatus().overflow
@@ -36,7 +45,7 @@ export class AnimationManager extends Component {
                     this.advance()
                     break
                 default:
-                    throw new Error(`(AnimationManager.actorCallback) Unexpected ActorSignal: ${message}`)
+                    throw new Error(`(AnimationManager.actorCallback) Unexpected ActorSignal: ${ActorSignal[message]}`)
             }
         }
 
@@ -44,19 +53,28 @@ export class AnimationManager extends Component {
     }
 
     isActive() {
-        return this.activeAnimation !== null
+        return this.status === AnimatorStatus.ACTIVE
     }
 
     setActiveAnimation(animation: IAnimation, init: boolean = false) {
         this.activeAnimation = animation
+        this.status = AnimatorStatus.NOT_STARTED
         if (init) {
-            this.activeAnimation.init(0)
+            this.initAnimation()
+        }
+    }
+
+    initAnimation() {
+        if (this.status === AnimatorStatus.NOT_STARTED) {
+            this.status = AnimatorStatus.ACTIVE
+            this.activeAnimation!.init(0)
         }
     }
 
     handleResult(result: AnimationResult) {
         switch (result.status) {
             case AnimationStatus.ANIMATION_FINISHED:
+                this.status = AnimatorStatus.IDLE
                 this.activeAnimation = null
                 this.onStep.emit(AnimatorSignal.FINISHED)
                 break
@@ -68,6 +86,7 @@ export class AnimationManager extends Component {
                 break
             case AnimationStatus.ANIMATION_ERROR:
                 // Should never happen, so...
+                this.status = AnimatorStatus.IDLE
                 this.activeAnimation = null
                 this.onStep.emit(AnimatorSignal.FINISHED)
                 break
