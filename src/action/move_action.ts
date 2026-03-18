@@ -4,7 +4,7 @@ import { AnimationFrame, AnimationInterval, IAnimation } from "../animation/anim
 import { KeyframeAnimation, KeyframeAnimationData } from "../animation/keyframe_animation"
 import { ECS } from "../ecs"
 import { Entity } from "../entity"
-import { tileToPixel } from "../position"
+import { TilePositionSet, tileToPixel } from "../position"
 import { Scene } from "../scene"
 import { AnimationSequence, EmptyAnimation } from "../animation/animation_transform"
 
@@ -63,8 +63,12 @@ export function getSmoothMove(entity: Entity, ecs: ECS, row: number, col: number
     }
 
     function moveCallback(entity: Entity, _scene: Scene | null) {
+        const oldFootprint = entity.footprint()
         let result = ecs.moveEntity(entity, row, col)
-        return {status: result ? ActionStatus.ACTION_FINISHED : ActionStatus.ACTION_FAILED, footprint: entity.footprint()}
+        return {
+            status: result ? ActionStatus.ACTION_FINISHED : ActionStatus.ACTION_FAILED,
+            footprint: new TilePositionSet(oldFootprint, entity.footprint())
+        }
     }
 
     const action = new InstantAction<Scene | null>(entity, null, fullOptions.cooldown, moveCallback, {blocking: fullOptions.blocking})

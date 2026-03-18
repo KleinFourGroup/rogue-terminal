@@ -1,5 +1,5 @@
 import { Entity } from "../entity"
-import { TilePosition } from "../position"
+import { TilePositionSet } from "../position"
 
 export enum ActionStatus {
     ACTION_NOT_STARTED,
@@ -10,7 +10,7 @@ export enum ActionStatus {
 
 export interface ActionResult {
     status: ActionStatus
-    footprint: TilePosition[]
+    footprint: TilePositionSet
 }
 
 export type ActionCallback<T> = (entity: Entity, actionData: T) => ActionResult

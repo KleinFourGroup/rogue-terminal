@@ -40,3 +40,36 @@ export function toFlatArrayOffsets(tileOffset: TilePosition, cols: number) {
 export function tileToPixel(row: number, col: number, width: number, height: number) {
     return [col * TILE_SIZE + width * TILE_SIZE / 2, row * TILE_SIZE + height * TILE_SIZE / 2]
 }
+
+export class TilePositionSet implements Iterable<TilePosition> {
+    positions: Map<string, TilePosition>
+
+    static hash(tile: TilePosition) {
+        return `${tile.row},${tile.col}`
+    }
+
+    constructor(...tileSets: Iterable<TilePosition>[]) {
+        this.positions = new Map<string, TilePosition>()
+        for (const tileSet of tileSets) {
+            for (const tile of tileSet) {
+                this.add(tile)
+            }
+        }
+    }
+
+    add(tile: TilePosition) {
+        this.positions.set(TilePositionSet.hash(tile), tile)
+    }
+
+    delete(tile: TilePosition) {
+        this.positions.delete(TilePositionSet.hash(tile))
+    }
+
+    has(tile: TilePosition) {
+        return this.positions.has(TilePositionSet.hash(tile))
+    }
+
+    [Symbol.iterator](): Iterator<TilePosition, any, any> {
+        return this.positions.values()
+    }
+}

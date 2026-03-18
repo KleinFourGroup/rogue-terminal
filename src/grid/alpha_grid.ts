@@ -1,7 +1,7 @@
 import { Entity } from "../entity"
 import { EntityGridSignals } from "../entity_grid"
 import { MemoryEntity } from "../visibility/memory_entity"
-import { TileVisibility, TileVisibilitySignals } from "../visibility/visibility_manager"
+import { TileVisibilitySignals, VISIBILITIES } from "../visibility/visibility_manager"
 
 
 export class AlphaGrid {
@@ -29,6 +29,12 @@ export class AlphaGrid {
             this.unregister(entity)
         }
 
+        const moveCallback = (entity: Entity) => {
+            this.unregister(entity)
+            entity.cacheOverlaps(this.cols)
+            this.register(entity)
+        }
+
         const forgetCallback = (memory: MemoryEntity) => {
             for (let row = memory.row; row < memory.row + memory.height; row++) {
                 for (let col = memory.col; col < memory.col + memory.width; col++) {
@@ -45,9 +51,11 @@ export class AlphaGrid {
 
         entitySignals.onAdd.subscribe(addCallback)
         entitySignals.onDelete.subscribe(removeCallback)
+        entitySignals.onMove.subscribe(moveCallback)
         memorySignals.onDelete.subscribe(forgetCallback)
-        tileSignals[TileVisibility.VISIBLE].subscribe(visibilityCallback)
-        tileSignals[TileVisibility.HIDDEN].subscribe(visibilityCallback)
+        for (const visibility of VISIBILITIES) {
+            tileSignals[visibility].subscribe(visibilityCallback)
+        }
     }
 
     register(entity: Entity) {

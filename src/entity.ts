@@ -2,7 +2,7 @@ import { Actor } from "./actor"
 import { AnimationManager } from "./animation_manager"
 import { CacheManager } from "./cache_manager"
 import { ClassConstructor, Component } from "./component"
-import { TilePosition, tileToPixel } from "./position"
+import { TilePositionSet, tileToPixel } from "./position"
 import { SignalEmitter } from "./signal"
 import { DEFAULT_STYLE, TILE_SIZE } from "./text/canvas_style"
 import { IEntitySprite } from "./text/entity_sprite"
@@ -69,11 +69,11 @@ export class Entity implements IEntitySprite {
     }
 
     footprint() {
-        let result = new Array<TilePosition>(0)
+        let result = new TilePositionSet()
         
         for (let row = this.row; row < this.row + this.height; row++) {
             for (let col = this.col; col < this.col + this.width; col++) {
-                result.push({row: row, col: col})
+                result.add({row: row, col: col})
             }
         }
 

@@ -3,7 +3,7 @@ import { Entity } from "./entity"
 import { Component } from "./component"
 import { SignalEmitter } from "./signal"
 import { TileVisibility, VisibilityManager } from "./visibility/visibility_manager"
-import { TilePosition } from "./position"
+import { TilePositionSet } from "./position"
 import { AnimatorSignal } from "./animation_manager"
 
 export enum ActorSignal {
@@ -96,7 +96,7 @@ export class Actor extends Component {
     advanceAction() {
         console.assert(this.status !== ActorStatus.IDLE)
 
-        function checkVisibility(footprint: TilePosition[], visibilityManager: VisibilityManager) {
+        function checkVisibility(footprint: TilePositionSet, visibilityManager: VisibilityManager) {
             let visible = false
 
             for (const tile of footprint) {
