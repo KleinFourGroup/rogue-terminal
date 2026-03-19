@@ -81,7 +81,7 @@ export class Actor extends Component {
 
     doAction(action: IAction<any>) {
         this.setAction(action)
-        if (this.status = ActorStatus.NOT_STARTED) {
+        if (this.status === ActorStatus.NOT_STARTED) {
             this.advanceAction()
         }
     }

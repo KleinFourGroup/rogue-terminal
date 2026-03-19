@@ -4,6 +4,8 @@ import { AILogic } from "./behaviors/behavior"
 import { EntityGrid } from "./entity_grid"
 import { Observer } from "./visibility/observer"
 import { ClassConstructor, Component } from "./component"
+import { AnimationManager } from "./animation_manager"
+import { Actor } from "./actor"
 
 export class ECS extends EntityGrid<Entity> {
     world: World | null
@@ -80,7 +82,7 @@ export class ECS extends EntityGrid<Entity> {
     }
 
     getActive() {
-        return this.entities.filter((entity: Entity) => entity.animationManager.isActive())
+        return [...this.getComponentList(AnimationManager)].filter((entity: Entity) => entity.getComponent(AnimationManager)!.isActive())
     }
 
     getObservers() {
@@ -91,7 +93,7 @@ export class ECS extends EntityGrid<Entity> {
         const hasAI = this.getComponentList(AILogic)
 
         if (hasAI.size > 0) {
-            return hasAI.values().reduce((currMin: Entity, entity: Entity) => entity.actor.actionCoolDown < currMin.actor.actionCoolDown ? entity : currMin, hasAI.values().next().value!)
+            return hasAI.values().reduce((currMin: Entity, entity: Entity) => entity.getComponent(Actor)!.actionCoolDown < currMin.getComponent(Actor)!.actionCoolDown ? entity : currMin, hasAI.values().next().value!)
         }
 
         return null
@@ -99,8 +101,8 @@ export class ECS extends EntityGrid<Entity> {
 
     advanceTicks(ticks: number) {
         console.log(`Skipping ahead ${ticks} ticks`)
-        for (const entity of this.entities) {
-            entity.actor.advanceTicks(ticks)
+        for (const entity of this.getComponentList(Actor)) {
+            entity.getComponent(Actor)!.advanceTicks(ticks)
         }
     }
 }

@@ -3,6 +3,7 @@ import { RandomMoveTargetAI } from "../behaviors/random_move_target"
 import { RandomWalkAI } from "../behaviors/random_walk"
 import { CacheManager } from "../cache_manager"
 import { Entity } from "../entity"
+import { makeActor } from "../make_actor"
 import { TextSprite } from "../text/text_sprite"
 import { FogMemory } from "../visibility/fog_memory"
 import { Observer } from "../visibility/observer"
@@ -45,6 +46,7 @@ function placeOrcs(level: World, caches: CacheManager, ROOM_ROW: number, ROOM_CO
         for (let dcol = -1; dcol <= 1; dcol += 2) {
             for (let count = 1; count <= 3; count++) {
                 const newEntity = new Entity("O", caches, BASE_ROW + MIDPOINT + count * drow, BASE_COL + MIDPOINT + count * dcol)
+                makeActor(newEntity, level.visibilityManager)
                 setupAI(newEntity, new RandomWalkAI(newEntity, level, false))
                 level.addEntity(newEntity)
             }
@@ -60,6 +62,7 @@ function placeGiants(level: World, caches: CacheManager, ROOM_ROW: number, ROOM_
     for (let sign = -1; sign <= 1; sign += 2) {
         for (let flip = 0; flip <= 1; flip++) {
             const newEntity = new Entity("G", caches, BASE_ROW + MIDPOINT + 3 * sign * flip - 1, BASE_COL + MIDPOINT + 3 * sign * (1 - flip) - 1, 3, 3)
+            makeActor(newEntity, level.visibilityManager)
             setupAI(newEntity, new RandomWalkAI(newEntity, level, false, 2400))
             level.addEntity(newEntity)
         }
@@ -80,6 +83,7 @@ function placeDogs(level: World, caches: CacheManager, ROOM_ROW: number, ROOM_CO
             const colSub = col === cols[1] ? 0 : -1
 
             const newEntity = new Entity("D", caches, row + rowSub, col + colSub, 2, 2)
+            makeActor(newEntity, level.visibilityManager)
             level.addEntity(newEntity)
             setupAI(newEntity, new RandomMoveTargetAI(newEntity, level, false, caches.navNodePool, 600)) // Still probably don't want this being called directly
         }
@@ -92,6 +96,7 @@ export function buildLevel(ROOM_ROWS: number, ROOM_COLS: number, ROOM_SIZE: numb
     const level = new World(ROWS, COLS)
 
     const player = new Entity("@", caches, Math.floor(ROWS / 2), Math.floor(COLS / 2))
+    makeActor(player, level.visibilityManager)
     player.addComponent(new Observer(FOV_DISTANCE))
 
     level.addEntity(player)

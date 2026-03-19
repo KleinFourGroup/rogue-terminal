@@ -1,5 +1,3 @@
-import { Actor } from "./actor"
-import { AnimationManager } from "./animation_manager"
 import { CacheManager } from "./cache_manager"
 import { ClassConstructor, Component } from "./component"
 import { TilePositionSet, tileToPixel } from "./position"
@@ -26,8 +24,6 @@ export class Entity implements IEntitySprite {
     width: number
     height: number
 
-    actor: Actor
-    animationManager: AnimationManager
     overlapCache: Map<number, number>
 
     components: Map<ClassConstructor<any>, Component>
@@ -42,8 +38,6 @@ export class Entity implements IEntitySprite {
         this.width = width
         this.height = height
 
-        this.actor = new Actor(this)
-        this.animationManager = new AnimationManager(this)
         this.overlapCache = new Map<number, number>()
 
         this.components = new Map()
@@ -51,11 +45,6 @@ export class Entity implements IEntitySprite {
             onAdd: new SignalEmitter<Component>,
             onRemove: new SignalEmitter<Component>
         }
-
-        this.actor.setupListener(this.animationManager.onStep)
-        this.animationManager.setupListener(this.actor.onAct)
-        this.addComponent(this.actor)
-        this.addComponent(this.animationManager)
         
         this.sprite.anchor.set(0.5)
         this.sprite.position.set(...tileToPixel(this.row, this.col, this.width, this.height))

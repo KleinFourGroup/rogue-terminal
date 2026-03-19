@@ -9,6 +9,8 @@ import { AILogic } from "./behaviors/behavior"
 import { TILE_SIZE } from "./text/canvas_style"
 import { Observer } from "./visibility/observer"
 import { buildLevel } from "./test_level/level_builder"
+import { AnimationManager } from "./animation_manager"
+import { Actor } from "./actor"
 
 const ROOM_ROWS = 3
 const ROOM_COLS = 3
@@ -54,8 +56,8 @@ export class GameScene extends Container implements IScene {
         console.log("Running AI:", this.turnManager.currentTurn!.id)
         const [action, animation] = this.turnManager.currentTurn!.getComponent(AILogic)!.getAction()
         console.assert(action !== null && animation !== null)
-        this.turnManager.currentTurn!.actor.setAction(action!)
-        this.turnManager.currentTurn!.animationManager.setActiveAnimation(animation!)
+        this.turnManager.currentTurn!.getComponent(Actor)!.setAction(action!)
+        this.turnManager.currentTurn!.getComponent(AnimationManager)!.setActiveAnimation(animation!)
         // console.log(this.player.row, this.player.col)
     }
 
@@ -63,7 +65,7 @@ export class GameScene extends Container implements IScene {
         if (this.turnManager.status === TurnStatus.NO_TURN) {
             console.log("TurnManager in state", TurnStatus[this.turnManager.status])
             const nextTurn = this.level.nextAI()
-            const toSkip = nextTurn!.actor.actionCoolDown
+            const toSkip = nextTurn!.getComponent(Actor)!.actionCoolDown
             this.level.advanceTicks(toSkip)
             this.turnManager.startTurn(nextTurn!)
         }
@@ -95,7 +97,7 @@ export class GameScene extends Container implements IScene {
 
         if (this.turnManager.status === TurnStatus.ACTION_INIT) {
             console.log("TurnManager in state", TurnStatus[this.turnManager.status])
-            const actionStatus = this.turnManager.currentTurn!.actor.advanceAction().status
+            const actionStatus = this.turnManager.currentTurn!.getComponent(Actor)!.advanceAction().status
             this.turnManager.initActionProgress(actionStatus)
         }
 
@@ -109,7 +111,7 @@ export class GameScene extends Container implements IScene {
 
         if (this.turnManager.status === TurnStatus.ACTION_PROGRESS) {
             console.log("TurnManager in state", TurnStatus[this.turnManager.status])
-            this.turnManager.updateActionProgress(this.turnManager.currentTurn!.actor.status)
+            this.turnManager.updateActionProgress(this.turnManager.currentTurn!.getComponent(Actor)!.status)
         }
 
         if (this.turnManager.status === TurnStatus.FINISH_TURN) {

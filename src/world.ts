@@ -9,6 +9,7 @@ import { MemoryGrid } from "./visibility/memory_grid"
 import { MemoryEntity } from "./visibility/memory_entity"
 import { MemoryManager } from "./visibility/memory_manager"
 import { VisibilitydGrid } from "./visibility/visibility_grid"
+import { AnimationManager } from "./animation_manager"
 
 export class World extends Container {
     rows: number
@@ -79,8 +80,6 @@ export class World extends Container {
     }
 
     addEntity(entity: Entity) {
-        // Eww
-        entity.actor.setVisibilityManager(this.visibilityManager)
         this.entities.addEntity(entity)
     }
 
@@ -104,8 +103,8 @@ export class World extends Container {
         const activeEntities = this.entities.getActive()
         let unfinished = 0
         for (const entity of activeEntities) {
-            entity.animationManager.animate(deltaMS)
-            if (entity.animationManager.isActive()) {
+            entity.getComponent(AnimationManager)!.animate(deltaMS)
+            if (entity.getComponent(AnimationManager)!.isActive()) {
                 unfinished++
             }
         }

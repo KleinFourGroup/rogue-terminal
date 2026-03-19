@@ -1,5 +1,6 @@
 import { ActionStatus } from "./action/action"
-import { ActorStatus } from "./actor"
+import { Actor, ActorStatus } from "./actor"
+import { AnimationManager } from "./animation_manager"
 import { Entity } from "./entity"
 
 export enum TurnStatus {
@@ -37,7 +38,7 @@ export class TurnManager {
 
     checkLastAnimation() {
         console.assert(this.status === TurnStatus.START_TURN || this.status === TurnStatus.WAIT_FOR_LAST_ANIMATION)
-        if (this.currentTurn!.animationManager.isActive()) {
+        if (this.currentTurn!.getComponent(AnimationManager)!.isActive()) {
             this.status = TurnStatus.WAIT_FOR_LAST_ANIMATION
         } else {
             this.status = TurnStatus.RUN_AI
@@ -46,9 +47,9 @@ export class TurnManager {
 
     finishedAI() {
         console.assert(this.status === TurnStatus.RUN_AI)
-        console.assert(!this.currentTurn!.actor.isIdle())
+        console.assert(!this.currentTurn!.getComponent(Actor)!.isIdle())
 
-        if (this.currentTurn!.actor.isBlocking()) {
+        if (this.currentTurn!.getComponent(Actor)!.isBlocking()) {
             this.status = TurnStatus.START_BLOCK
             this.blockingEntity = this.currentTurn
         } else {
