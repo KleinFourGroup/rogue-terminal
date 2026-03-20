@@ -2,14 +2,17 @@ import { ActionStatus, IAction } from "./action/action"
 import { Entity } from "./entity"
 import { Component } from "./component"
 import { SignalEmitter } from "./signal"
-import { TileVisibility, VisibilityManager } from "./visibility/visibility_manager"
 import { TilePositionSet } from "./position"
 import { AnimatorSignal } from "./animation_manager"
 
-export enum ActorSignal {
+export enum ActorMessage {
     ANIMATION_START,
     ANIMATION_CONTINUE,
-    ANIMATION_SKIP
+}
+
+export interface ActorSignal {
+    message: ActorMessage
+    footprint: TilePositionSet
 }
 
 export enum ActorStatus {
@@ -25,7 +28,6 @@ export class Actor extends Component {
     actionCoolDown: number
     status: ActorStatus
 
-    visibilityManager: VisibilityManager | null
     onAct: SignalEmitter<ActorSignal>
 
     constructor(entity: Entity) {
@@ -33,13 +35,8 @@ export class Actor extends Component {
         this.setEntity(entity)
         this.currAction = null
         this.status = ActorStatus.IDLE
-        this.visibilityManager = null
         this.onAct = new SignalEmitter<ActorSignal>
         this.actionCoolDown = 0
-    }
-
-    setVisibilityManager(visibilityManager: VisibilityManager) {
-        this.visibilityManager = visibilityManager
     }
 
     setupListener(onStep: SignalEmitter<AnimatorSignal>) {
@@ -96,23 +93,10 @@ export class Actor extends Component {
     advanceAction() {
         console.assert(this.status !== ActorStatus.IDLE)
 
-        function checkVisibility(footprint: TilePositionSet, visibilityManager: VisibilityManager) {
-            let visible = false
-
-            for (const tile of footprint) {
-                if (visibilityManager.getVisibility(tile.row, tile.col) === TileVisibility.VISIBLE) {
-                    visible = true
-                    break
-                }
-            }
-
-            return visible
-        }
-
         const result = this.currAction!.advance()
 
         if (this.status === ActorStatus.NOT_STARTED) {
-            this.onAct.emit(ActorSignal.ANIMATION_START)
+            this.onAct.emit({message: ActorMessage.ANIMATION_START, footprint: new TilePositionSet()})
         }
 
         switch (result.status) {
@@ -120,11 +104,11 @@ export class Actor extends Component {
                 this.actionCoolDown = this.currAction!.tickLength
                 this.currAction = null
                 this.status = ActorStatus.AWAIT_FINISH
-                this.onAct.emit(checkVisibility(result.footprint, this.visibilityManager!) ? ActorSignal.ANIMATION_CONTINUE : ActorSignal.ANIMATION_SKIP)
+                this.onAct.emit({message: ActorMessage.ANIMATION_CONTINUE, footprint: result.footprint})
                 break
             case ActionStatus.ACTION_PROCEED:
                 this.status = ActorStatus.AWAIT_ANIMATION
-                this.onAct.emit(checkVisibility(result.footprint, this.visibilityManager!) ? ActorSignal.ANIMATION_CONTINUE : ActorSignal.ANIMATION_SKIP)
+                this.onAct.emit({message: ActorMessage.ANIMATION_CONTINUE, footprint: result.footprint})
                 break
             default:
                 throw new Error(`(Actor.advanceAction) Unexpected ActionStatus: ${result.status}`)

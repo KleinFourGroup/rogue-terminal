@@ -7,7 +7,7 @@ export function makeActor(entity: Entity, visibilityManager: VisibilityManager) 
     const actor = new Actor(entity)
     const animationManager = new AnimationManager(entity)
 
-    actor.setVisibilityManager(visibilityManager)
+    animationManager.setVisibilityManager(visibilityManager)
     
     actor.setupListener(animationManager.onStep)
     animationManager.setupListener(actor.onAct)

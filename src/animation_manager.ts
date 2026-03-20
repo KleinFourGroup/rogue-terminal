@@ -2,7 +2,9 @@ import { AnimationResult, AnimationStatus, IAnimation } from "./animation/animat
 import { Entity } from "./entity"
 import { Component } from "./component"
 import { SignalEmitter } from "./signal"
-import { ActorSignal } from "./actor"
+import { ActorMessage, ActorSignal } from "./actor"
+import { TileVisibility, VisibilityManager } from "./visibility/visibility_manager"
+import { TilePositionSet } from "./position"
 
 export enum AnimatorSignal {
     STEP,
@@ -15,8 +17,23 @@ export enum AnimatorStatus {
     ACTIVE
 }
 
+function checkVisibility(footprint: TilePositionSet, visibilityManager: VisibilityManager) {
+    let visible = false
+
+    for (const tile of footprint) {
+        if (visibilityManager.getVisibility(tile.row, tile.col) === TileVisibility.VISIBLE) {
+            visible = true
+            break
+        }
+    }
+
+    return visible
+}
+
 export class AnimationManager extends Component {
     declare entity: Entity
+
+    visibilityManager: VisibilityManager | null
 
     status: AnimatorStatus
     activeAnimation: IAnimation | null
@@ -25,27 +42,33 @@ export class AnimationManager extends Component {
     constructor(entity: Entity) {
         super()
         this.setEntity(entity)
+        this.visibilityManager = null
         this.status = AnimatorStatus.IDLE
         this.activeAnimation = null
         this.onStep = new SignalEmitter<AnimatorSignal>()
     }
 
+    setVisibilityManager(visibilityManager: VisibilityManager) {
+        this.visibilityManager = visibilityManager
+    }
+
     setupListener(onAct: SignalEmitter<ActorSignal>) {
         const actorCallback = (message: ActorSignal) => {
-            console.log("Animator", this.entity!.id, "recieved message:", ActorSignal[message])
-            switch (message) {
-                case ActorSignal.ANIMATION_START:
+            console.log("Animator", this.entity!.id, "recieved message:", ActorMessage[message.message])
+            switch (message.message) {
+                case ActorMessage.ANIMATION_START:
                     this.initAnimation()
                     break
-                case ActorSignal.ANIMATION_CONTINUE:
-                    let overflow = this.activeAnimation!.currentStatus().overflow
-                    this.animate(overflow)
-                    break
-                case ActorSignal.ANIMATION_SKIP:
-                    this.advance()
+                case ActorMessage.ANIMATION_CONTINUE:
+                    if (checkVisibility(message.footprint, this.visibilityManager!)) {
+                        let overflow = this.activeAnimation!.currentStatus().overflow
+                        this.animate(overflow)
+                    } else {
+                        this.advance()
+                    }
                     break
                 default:
-                    throw new Error(`(AnimationManager.actorCallback) Unexpected ActorSignal: ${ActorSignal[message]}`)
+                    throw new Error(`(AnimationManager.actorCallback) Unexpected ActorSignal: ${ActorMessage[message.message]}`)
             }
         }
 
