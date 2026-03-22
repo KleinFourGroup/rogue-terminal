@@ -1,11 +1,20 @@
-import { Entity } from "./entity";
-import { TilePosition } from "./position";
+import { Entity } from "./entity"
+import { TilePosition } from "./position"
 
 export enum TurnTypes {
     IDLE,
     MOVE
 }
 
-export type TurnDescription = 
-    {type: TurnTypes.IDLE, entity: Entity} |
-    {type: TurnTypes.MOVE, entity: Entity, to: TilePosition, from: TilePosition}
+// TS dark magic
+
+type TurnTypesCompletenessEnforcer<T extends Record<TurnTypes, unknown>> = T
+
+type TurnTypeList = TurnTypesCompletenessEnforcer<{
+    [TurnTypes.IDLE]: {entity: Entity}
+    [TurnTypes.MOVE]: {entity: Entity, to: TilePosition, from: TilePosition}
+}>
+
+export type TurnDescription = {
+    [K in keyof TurnTypeList]: {turnType: K, turnData: TurnTypeList[K]}
+}[keyof TurnTypeList]
