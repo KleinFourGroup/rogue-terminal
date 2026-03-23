@@ -1,18 +1,23 @@
 import { Entity } from "./entity"
-import { TilePosition } from "./position"
+import { TilePosition, TilePositionSet } from "./position"
 
 export enum TurnTypes {
     IDLE,
     MOVE
 }
 
+export interface ITurnData {
+    actorEntity: Entity
+    footprint: TilePositionSet
+}
+
 // TS dark magic
 
-type TurnTypesCompletenessEnforcer<T extends Record<TurnTypes, unknown>> = T
+type TurnTypesCompletenessEnforcer<T extends Record<TurnTypes, ITurnData>> = T
 
 type TurnTypeList = TurnTypesCompletenessEnforcer<{
-    [TurnTypes.IDLE]: {entity: Entity}
-    [TurnTypes.MOVE]: {entity: Entity, to: TilePosition, from: TilePosition}
+    [TurnTypes.IDLE]: {actorEntity: Entity, footprint: TilePositionSet}
+    [TurnTypes.MOVE]: {actorEntity: Entity, footprint: TilePositionSet, destination: TilePosition, source: TilePosition}
 }>
 
 export type TurnDescription = {
