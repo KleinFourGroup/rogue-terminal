@@ -1,5 +1,5 @@
-import { Entity } from "./entity"
-import { TilePosition, TilePositionSet } from "./position"
+import { Entity } from "../entity"
+import { TilePosition, TilePositionSet } from "../position"
 
 export enum BasicActions {
     IDLE,

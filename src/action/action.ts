@@ -31,4 +31,3 @@ export interface IAction<T> {
 
     currentStatus(): ActionResult
 }
-
