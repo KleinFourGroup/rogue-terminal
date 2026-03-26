@@ -1,7 +1,7 @@
 import { Entity } from "../entity"
 import { TilePosition, TilePositionSet } from "../position"
 
-export enum BasicActions {
+export enum BasicAction {
     IDLE,
     MOVE
 }
@@ -13,11 +13,11 @@ export interface IBasicActionData {
 
 // TS dark magic
 
-type BasicActionsCompletenessEnforcer<T extends Record<BasicActions, IBasicActionData>> = T
+type BasicActionsCompletenessEnforcer<T extends Record<BasicAction, IBasicActionData>> = T
 
 type BasicActionList = BasicActionsCompletenessEnforcer<{
-    [BasicActions.IDLE]: {actorEntity: Entity, footprint: TilePositionSet}
-    [BasicActions.MOVE]: {actorEntity: Entity, footprint: TilePositionSet, destination: TilePosition, source: TilePosition}
+    [BasicAction.IDLE]: {actorEntity: Entity, footprint: TilePositionSet}
+    [BasicAction.MOVE]: {actorEntity: Entity, footprint: TilePositionSet, destination: TilePosition, source: TilePosition}
 }>
 
 export type BasicActionDescription = {

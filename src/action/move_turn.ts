@@ -2,7 +2,7 @@ import { ECS } from "../ecs"
 import { Entity } from "../entity"
 import { TilePosition, TilePositionSet } from "../position"
 import { ActionDescription, TurnAction } from "./turn_action"
-import { BasicActions } from "./basic_action"
+import { BasicAction } from "./basic_action"
 
 export interface MoveOptions {
     cooldown: number
@@ -16,7 +16,7 @@ function moveCallback(entity: Entity, data: {ecs: ECS, destination: TilePosition
     const oldFootprint = entity.footprint()
     let result = data.ecs.moveEntity(entity, data.destination.row, data.destination.col)
     return result ? [{
-        turnType: BasicActions.MOVE,
+        turnType: BasicAction.MOVE,
         turnData: {
             actorEntity: entity,
             footprint: new TilePositionSet(oldFootprint, entity.footprint()),

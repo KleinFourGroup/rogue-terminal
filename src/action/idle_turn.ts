@@ -1,6 +1,6 @@
 import { Entity } from "../entity"
 import { ActionDescription, TurnAction } from "./turn_action"
-import { BasicActions } from "./basic_action"
+import { BasicAction } from "./basic_action"
 
 export interface IdleOptions {
     cooldown: number
@@ -12,7 +12,7 @@ const DEFAULT_OPTIONS: IdleOptions = {
 
 function idleCallback(entity: Entity, _data: null): ActionDescription {
     return [{
-        turnType: BasicActions.IDLE,
+        turnType: BasicAction.IDLE,
         turnData: {
             actorEntity: entity,
             footprint: entity.footprint()
