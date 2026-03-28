@@ -1,6 +1,6 @@
+import { IdleAction } from "../action/idle_action"
+import { MoveAction } from "../action/move_action"
 import { Entity } from "../entity"
-import { getIdle } from "../action/idle_action"
-import { getSmoothMove } from "../action/move_action"
 import { WorldNavigator } from "../navigation/navigator"
 import { NodePool } from "../navigation/node_pool"
 import { TilePosition } from "../position"
@@ -82,10 +82,10 @@ export class RandomMoveTargetAI implements IBehaviorLogic {
             this.clearAlert()
             this.target = null
             this.clearMomentum()
-            return getIdle(this.entity, this.block)
+            return new IdleAction(this.entity)
         }
 
-        const action = getSmoothMove(this.entity, this.navigator.world.entities, nextPosition.row, nextPosition.col, {blocking: this.block, cooldown: this.cooldown})
+        const action = new MoveAction(this.entity, this.navigator.world.entities, nextPosition, {row: this.entity.row, col: this.entity.col})
         this.setMomentum(nextPosition.row - this.entity.row, nextPosition.col - this.entity.col)
 
         return action

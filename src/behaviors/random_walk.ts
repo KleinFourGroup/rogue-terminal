@@ -1,6 +1,6 @@
+import { IdleAction } from "../action/idle_action"
+import { MoveAction } from "../action/move_action"
 import { Entity } from "../entity"
-import { getIdle } from "../action/idle_action"
-import { getSmoothMove } from "../action/move_action"
 import { DIRS, TILE_OFFSETS, TilePosition } from "../position"
 import { World } from "../world"
 import { IBehaviorLogic } from "./behavior"
@@ -29,11 +29,14 @@ export class RandomWalkAI implements IBehaviorLogic {
         }
 
         if (validMoves.length === 0) {
-            return getIdle(this.entity, this.block)
+            return new IdleAction(this.entity)
         }
 
         const index = Math.floor(Math.random() * validMoves.length)
-        const action = getSmoothMove(this.entity, this.world.entities, this.entity.row + validMoves[index].row, this.entity.col + validMoves[index].col, {blocking: this.block, cooldown: this.cooldown})
+        const action = new MoveAction(this.entity, this.world.entities, {
+            row: this.entity.row + validMoves[index].row,
+            col: this.entity.col + validMoves[index].col
+        }, {row: this.entity.row, col: this.entity.col}, {cooldown: this.cooldown})
 
         return action
     }

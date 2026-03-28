@@ -1,40 +1,30 @@
-import { ActionStatus } from "./action"
-import { AnimationFrame, AnimationInterval, IAnimation } from "../animation/animation"
-import { KeyframeAnimation, KeyframeAnimationData } from "../animation/keyframe_animation"
 import { Entity } from "../entity"
-import { Scene } from "../scene"
-import { InstantAction } from "./instant_action"
-import { AnimationSequence, EmptyAnimation } from "../animation/animation_transform"
+import { ActionDescription, TurnAction } from "./action"
+import { BasicAction } from "./basic_action"
 
-const IDLE_LENGTH = 500
+export interface IdleOptions {
+    cooldown: number
+}
 
-export function getIdle(entity: Entity, blocking: boolean = false) {
-    function startFrame(_target: Entity, _scene: Scene | null) {}
+const DEFAULT_OPTIONS: IdleOptions = {
+    cooldown: 1200
+}
 
-    function endFrame(_target: Entity, _scene: Scene | null) {}
+function idleCallback(entity: Entity, _data: null): ActionDescription {
+    return [{
+        turnType: BasicAction.IDLE,
+        turnData: {
+            actorEntity: entity,
+            footprint: entity.footprint()
+        }
+    }]
 
-    function betweenFrame(_time: number, _target: Entity, _scene: Scene | null) {}
+}
 
-    let keyframes: number[] = [0, IDLE_LENGTH]
-    let frameAnimations: AnimationFrame<Scene | null>[] = [startFrame, endFrame]
-    let betweenAnimations: AnimationInterval<Scene | null>[] = [betweenFrame]
+export class IdleAction extends TurnAction<null> {
+    constructor(entity: Entity, options: Partial<IdleOptions> = {}) {
+        const fullOptions: IdleOptions = { ...DEFAULT_OPTIONS, ...options}
 
-    let animationData: KeyframeAnimationData<Scene | null> = {
-        keyframes: keyframes,
-        frameAnimations: frameAnimations,
-        betweenAnimations: betweenAnimations
+        super(entity, null, fullOptions.cooldown, idleCallback)
     }
-
-    let animation: IAnimation = new KeyframeAnimation<Scene | null>(entity, null, animationData)
-    if (blocking) {
-        animation = new AnimationSequence(animation, new EmptyAnimation())
-    }
-
-    function idleCallback(_entity: Entity, _scene: Scene | null) {
-        return {status: ActionStatus.ACTION_FINISHED, footprint: entity.footprint()}
-    }
-
-    const action = new InstantAction<Scene | null>(entity, null, 1200, idleCallback, {blocking: blocking})
-
-    return [action, animation] as const
 }

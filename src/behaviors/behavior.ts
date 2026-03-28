@@ -1,13 +1,12 @@
 import { IAction } from "../action/action"
-import { IAnimation } from "../animation/animation"
+import { IdleAction } from "../action/idle_action"
 import { Component } from "../component"
 import { Entity } from "../entity"
-import { getIdle } from "../action/idle_action"
 
 export interface IBehaviorLogic {
     entity: Entity
 
-    getAction(): readonly [IAction<any> | null, IAnimation | null]
+    getAction(): IAction
 }
 
 export class AILogic extends Component {
@@ -24,13 +23,13 @@ export class AILogic extends Component {
     }
 
     getAction() {
-        const [action, animation] = this.behaviorLogic.getAction()
+        const action = this.behaviorLogic.getAction()
 
-        if (action === null || animation === null) {
-            return getIdle(this.behaviorLogic.entity, true) // Something went wrong; be cautious
+        if (action === null) {
+            return new IdleAction(this.behaviorLogic.entity)
         }
 
-        return [action!, animation!] as const
+        return action
     }
 }
 

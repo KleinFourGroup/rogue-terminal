@@ -1,5 +1,8 @@
-import { AnimationFrame, AnimationInterval, AnimationResult, AnimationStatus, IAnimation } from "./animation"
 import { Entity } from "../entity"
+import { IAnimation } from "./animation"
+
+export type AnimationInterval<T> = (time: number, target: Entity, data: T) => void
+export type AnimationFrame<T> = (target: Entity, data: T) => void
 
 export type KeyframeAnimationData<T> = {
     keyframes: number[]
@@ -8,105 +11,77 @@ export type KeyframeAnimationData<T> = {
 }
 
 export class KeyframeAnimation<T> implements IAnimation {
+    animation: KeyframeAnimationData<T>
     target: Entity
     animationData: T
-    animation: KeyframeAnimationData<T>
-
     elapsed: number
-    result: AnimationResult
+    loopNum: number
+    lastKeyframe: number
 
-    keyframe: number
-
-    constructor( target: Entity, animationData: T, animation: KeyframeAnimationData<T>) {
+    constructor(animation: KeyframeAnimationData<T>, target: Entity, animationData: T) {
         console.assert(animation.keyframes.length === animation.frameAnimations.length)
         console.assert(animation.keyframes.length === animation.betweenAnimations.length + 1)
         console.assert(animation.keyframes[0] === 0)
+        this.animation = animation
         this.target = target
         this.animationData = animationData
-        this.animation = animation
-
         this.elapsed = 0.0
-
-        this.result = {
-            status: AnimationStatus.ANIMATION_NOT_STARTED,
-            overflow: 0
-        }
-        this.keyframe = 0
+        this.loopNum = 0
+        this.lastKeyframe = -1
     }
 
     get duration() {
         return this.animation.keyframes[this.animation.keyframes.length - 1]
     }
 
+    isFinished() {
+        return this.elapsed > this.duration
+    }
+
     init(deltaMS: number = 0) {
-        if (this.result.status !== AnimationStatus.ANIMATION_NOT_STARTED) {
-            return this.result
-        }
-
-        return this.animate(deltaMS)
-    }
-
-    animate(deltaMS: number) {
-        const elapsedTarget = this.elapsed + deltaMS
-
-        if (this.result.status === AnimationStatus.ANIMATION_FINISHED || this.result.status === AnimationStatus.ANIMATION_ERROR) {
-            return this.result
-        }
-
-        console.assert(this.keyframe < this.animation.keyframes.length)
-
-        if (this.animation.keyframes[this.keyframe] <= elapsedTarget) {
-            this.animation.frameAnimations[this.keyframe](this.target, this.animationData)
-            this.elapsed = this.animation.keyframes[this.keyframe]
-            this.result = {
-                status: (this.keyframe === this.animation.keyframes.length - 1) ? AnimationStatus.ANIMATION_FINISHED : AnimationStatus.ANIMATION_STEP,
-                overflow: elapsedTarget - this.elapsed
-            }
-            this.keyframe++
-            return this.result
-        }
-
-        if (this.elapsed < elapsedTarget) {
-            console.assert(this.keyframe > 0)
-            this.elapsed = elapsedTarget
-            this.animation.betweenAnimations[this.keyframe - 1](this.elapsed - this.animation.keyframes[this.keyframe - 1], this.target, this.animationData)
-        }
-
-        this.result = {
-            status: AnimationStatus.ANIMATION_PROGRESS,
-            overflow: 0
-        }
-
-        return this.result
-    }
-
-
-    advance() {
-        if (this.result.status === AnimationStatus.ANIMATION_FINISHED || this.result.status === AnimationStatus.ANIMATION_ERROR) {
-            return this.result
-        }
-
-        console.assert(this.keyframe < this.animation.keyframes.length)
-
-        this.animation.frameAnimations[this.keyframe](this.target, this.animationData)
-        this.elapsed = this.animation.keyframes[this.keyframe]
-        this.result = {
-            status: (this.keyframe === this.animation.keyframes.length - 1) ? AnimationStatus.ANIMATION_FINISHED : AnimationStatus.ANIMATION_STEP,
-            overflow: 0
-        }
-        this.keyframe++
-        return this.result
+        this.animate(deltaMS)
     }
 
     finish() {
-        while (this.result.status !== AnimationStatus.ANIMATION_FINISHED && this.result.status !== AnimationStatus.ANIMATION_ERROR) {
-            this.advance()
-        }
+        this.lastKeyframe++
 
-        return this.result
+        while (this.lastKeyframe < this.animation.keyframes.length) {
+            // console.log(`Processing frame ${frameInd}`)
+            if (this.animation.frameAnimations[this.lastKeyframe] !== null) {
+                this.animation.frameAnimations[this.lastKeyframe]!(this.target, this.animationData)
+            }
+            this.elapsed = this.duration
+            this.lastKeyframe++
+        }
     }
 
-    currentStatus() {
-        return this.result
+    animate(deltaMS: number) {
+        let processedTime = this.elapsed
+        this.elapsed += deltaMS
+
+        let frameInd = this.lastKeyframe + 1
+
+        // Walk through keyframes from next one until either end or we go past elapsed
+        while (frameInd < this.animation.keyframes.length && this.animation.keyframes[frameInd] <= this.elapsed) {
+            // console.log(`Processing frame ${frameInd}`)
+            if (this.animation.frameAnimations[frameInd] !== null) {
+                this.animation.frameAnimations[frameInd]!(this.target, this.animationData)
+            }
+            processedTime = this.animation.keyframes[frameInd]
+            this.lastKeyframe = frameInd
+            frameInd++
+        }
+
+        // We aren't done and we had more frames left
+        if (processedTime < this.elapsed && this.lastKeyframe < this.animation.keyframes.length - 1) {
+            // console.log(`Processing between frames ${this.lastKeyframe}-${this.lastKeyframe + 1}`)
+            let overflow = this.elapsed - this.animation.keyframes[this.lastKeyframe]
+            processedTime = this.elapsed
+            if (this.animation.betweenAnimations[this.lastKeyframe] !== null) {
+                this.animation.betweenAnimations[this.lastKeyframe]!(overflow, this.target, this.animationData)
+            }
+        }
+
+        // console.log(`${processedTime} / ${this.elapsed}`)
     }
 }

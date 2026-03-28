@@ -1,4 +1,4 @@
-import { BasicAction, BasicActionDescription } from "../action/basic_action"
+import { BasicAction, BasicActionDescription } from "../../action/basic_action"
 
 export function basicActionAnimator(action: BasicActionDescription): number {
     switch(action.turnType) {
