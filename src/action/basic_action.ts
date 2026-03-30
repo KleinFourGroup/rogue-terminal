@@ -15,7 +15,7 @@ export interface IBasicActionData {
 
 type BasicActionsCompletenessEnforcer<T extends Record<BasicAction, IBasicActionData>> = T
 
-type BasicActionList = BasicActionsCompletenessEnforcer<{
+export type BasicActionList = BasicActionsCompletenessEnforcer<{
     [BasicAction.IDLE]: {actorEntity: Entity, footprint: TilePositionSet}
     [BasicAction.MOVE]: {actorEntity: Entity, footprint: TilePositionSet, destination: TilePosition, source: TilePosition}
 }>
