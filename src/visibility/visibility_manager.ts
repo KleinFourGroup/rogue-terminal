@@ -129,6 +129,10 @@ export class VisibilityManager {
             this.visibilitySets[TileVisibility.HIDDEN].add(index)
         }
         this.visibilitySets[TileVisibility.VISIBLE].clear()
+        // this.clearVisibleMask()
+    }
+
+    clearVisibleMask() {
         this.visibilityMasks[TileVisibility.VISIBLE].clear()
     }
 

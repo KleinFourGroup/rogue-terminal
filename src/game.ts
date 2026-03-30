@@ -37,14 +37,14 @@ export class GameScene extends Container implements IScene {
         this.player = player
 
         this.turnLogic = new TurnLogic(this.level)
-        this.turnDisplay = new TurnDisplay()
-        this.turnDisplay.setVisibility(this.level.visibilityManager)
+        this.turnDisplay = new TurnDisplay(this.level)
 
         this.elapsed = 0
 
         this.addChild(this.level)
 
         this.level.calculateView()
+        this.level.drawView()
         const updated = this.level.ground.updateTileAlphas(new Set<Entity>(this.level.entities.entities), this.level.visibilityManager, this.level.memories)
         this.app.debugOverlay.setAlphaUpdates(updated)
         this.camera.setPosition(this.player.sprite.x, this.player.sprite.y)

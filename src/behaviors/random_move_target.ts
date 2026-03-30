@@ -82,10 +82,10 @@ export class RandomMoveTargetAI implements IBehaviorLogic {
             this.clearAlert()
             this.target = null
             this.clearMomentum()
-            return new IdleAction(this.entity)
+            return new IdleAction(this.entity, {cooldown: this.cooldown})
         }
 
-        const action = new MoveAction(this.entity, this.navigator.world.entities, nextPosition, {row: this.entity.row, col: this.entity.col})
+        const action = new MoveAction(this.entity, this.navigator.world.entities, nextPosition, {row: this.entity.row, col: this.entity.col}, {cooldown: this.cooldown})
         this.setMomentum(nextPosition.row - this.entity.row, nextPosition.col - this.entity.col)
 
         return action

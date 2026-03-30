@@ -105,13 +105,19 @@ export abstract class EntityGrid<EntityType extends IEntitySprite> {
     }
 
     moveEntity(entity: EntityType, row: number, col: number) {
+        const oldRow = entity.row
+        const oldCol = entity.col
+
         this.deleteFromGrid(entity)
         entity.setPosition(row, col)
         const success = this.addToGrid(entity)
 
         if (!success) {
-            // Should revert instead, maybe?
-            this.removeEntity(entity)
+            entity.setPosition(oldRow, oldCol)
+            const reverted = this.addToGrid(entity)
+            if (!reverted) {
+                throw new Error("(moveEntity) Couldn't revert failed move")
+            }
         } else {
             this.signals.onMove.emit(entity)
         }

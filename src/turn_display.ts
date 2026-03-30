@@ -3,7 +3,9 @@ import { BasicActionDescription } from "./action/basic_action"
 import { IAnimation } from "./animation/animation"
 import { basicActionAnimator, basicActionBlocker } from "./animation/basic_animator"
 import { Entity } from "./entity"
+import { Observer } from "./visibility/observer"
 import { TileVisibility, VisibilityManager } from "./visibility/visibility_manager"
+import { World } from "./world"
 
 function turnBlocks(turn: ActionDescription) {
     for (const basicAction of turn) {
@@ -37,20 +39,16 @@ export class TurnDisplay {
     pending: {entity: Entity | null, turn: ActionDescription | null}
     blocking: {entity: Entity | null, turn: ActionDescription | null}
 
-    visibilityManager: VisibilityManager | null
+    world: World
 
-    constructor() {
+    constructor(world: World) {
         this.activeMap = new Map<Entity, IAnimation>()
         this.queueMap = new Map<Entity, ActionDescription>()
 
         this.pending = {entity: null, turn: null}
         this.blocking = {entity: null, turn: null}
 
-        this.visibilityManager = null
-    }
-
-    setVisibility(visibilityManager: VisibilityManager) {
-        this.visibilityManager = visibilityManager
+        this.world = world
     }
 
     isPending() {
@@ -109,12 +107,14 @@ export class TurnDisplay {
         const skipped = new Set<Entity>()
         const finished = new Set<Entity>()
 
+        let redraw = false
+
         for (const [entity, turn] of this.queueMap) {
             if (!this.activeMap.has(entity)) {
                 while (turn.length > 0) {
                     const basicAction = turn.shift()!
                     const animation = basicActionAnimator(basicAction)
-                    if (showAction(basicAction, this.visibilityManager)) {
+                    if (showAction(basicAction, this.world.visibilityManager)) {
                         this.activeMap.set(entity, animation)
                         break
                     } else {
@@ -124,7 +124,13 @@ export class TurnDisplay {
                 }
 
                 if (turn.length === 0) {
-                    if (!this.activeMap.has(entity)) {finished.add(entity)}
+                    if (!this.activeMap.has(entity)) {
+                        finished.add(entity)
+
+                        if (entity.hasComponent(Observer)) {
+                            redraw = true
+                        }
+                    }
                 }
             }
         }
@@ -136,6 +142,10 @@ export class TurnDisplay {
         if (this.isBlocking() && finished.has(this.blocking.entity!)) {
             this.blocking.entity = null
             this.blocking.turn = null
+        }
+
+        if (redraw) {
+            this.world.drawView()
         }
 
         return skipped

@@ -120,6 +120,10 @@ export class World extends Container {
             this.visibilityManager.calculateFOV(entity)
         }
         this.visibilityManager.emitDifferences()
+    }
+
+    drawView() {
+        this.visibilityManager.clearVisibleMask()
         this.visibilityManager.drawMasks()
         this.visibilityLayer.draw(this.visibilityManager)
     }

@@ -31,6 +31,10 @@ export class Actor extends Component {
     }
 
     act() {
+        if (this.currAction === null) {
+            throw new Error("(act) entity has no action to do")
+        }
+        
         const result = this.currAction!.act()
 
         if (result !== null) {

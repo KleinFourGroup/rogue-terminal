@@ -92,8 +92,19 @@ export class ECS extends EntityGrid<Entity> {
     nextAI() {
         const hasAI = this.getComponentList(AILogic)
 
+        const getActor = (entity: Entity) => {
+            const actor = entity.getComponent(Actor)
+            if (actor !== null) {
+                return actor
+            } else {
+                throw new Error("(nextAI) entity has AI but no Actor")
+            }
+        }
+        
+        const minAI = (currMin: Entity, entity: Entity) => getActor(entity).actionCoolDown < getActor(currMin).actionCoolDown ? entity : currMin
+
         if (hasAI.size > 0) {
-            return hasAI.values().reduce((currMin: Entity, entity: Entity) => entity.getComponent(Actor)!.actionCoolDown < currMin.getComponent(Actor)!.actionCoolDown ? entity : currMin, hasAI.values().next().value!)
+            return hasAI.values().reduce(minAI, hasAI.values().next().value!)
         }
 
         return null
