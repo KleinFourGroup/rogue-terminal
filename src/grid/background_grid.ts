@@ -125,8 +125,8 @@ export class BackgroundGrid extends Container {
         }
     }
 
-    updateTileAlphas(activeEntities: Entity[], visibilityManager: VisibilityManager, memories: MemoryGrid) {
-        for (const entity of activeEntities) {
+    updateTileAlphas(updatedEntities: Set<Entity>, visibilityManager: VisibilityManager, memories: MemoryGrid) {
+        for (const entity of updatedEntities) {
             this.alphaManager.unregister(entity)
             entity.cacheOverlaps(this.cols)
             this.alphaManager.register(entity)

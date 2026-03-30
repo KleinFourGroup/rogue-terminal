@@ -45,13 +45,13 @@ export class GameScene extends Container implements IScene {
         this.addChild(this.level)
 
         this.level.calculateView()
-        const updated = this.level.ground.updateTileAlphas(this.level.entities.entities, this.level.visibilityManager, this.level.memories)
+        const updated = this.level.ground.updateTileAlphas(new Set<Entity>(this.level.entities.entities), this.level.visibilityManager, this.level.memories)
         this.app.debugOverlay.setAlphaUpdates(updated)
         this.camera.setPosition(this.player.sprite.x, this.player.sprite.y)
     }
 
     update(deltaMS: number): void {
-        this.turnDisplay.updateQueue()
+        let updatedEntities = this.turnDisplay.updateQueue()
 
         while (this.turnDisplay.isReady()) {
             // TODO: more robust null handling
@@ -59,12 +59,14 @@ export class GameScene extends Container implements IScene {
             const description = this.turnLogic.resolve()!
 
             this.turnDisplay.enqueue(entity, description)
-            this.turnDisplay.updateQueue()
+            const skipped = this.turnDisplay.updateQueue()
+            updatedEntities = updatedEntities.union(skipped)
         }
 
         const actives = this.turnDisplay.animateActive(deltaMS)
+        updatedEntities = updatedEntities.union(actives)
 
-        const updated = this.level.ground.updateTileAlphas(actives, this.level.visibilityManager, this.level.memories)
+        const updated = this.level.ground.updateTileAlphas(updatedEntities, this.level.visibilityManager, this.level.memories)
         this.app.debugOverlay.setAlphaUpdates(updated)
         this.camera.setPosition(this.player.sprite.x, this.player.sprite.y)
     }

@@ -66,7 +66,7 @@ export class TurnDisplay {
     }
 
     getActive() {
-        return [...this.activeMap.keys()]
+        return new Set<Entity>(this.activeMap.keys())
     }
     
     enqueue(entity: Entity, turn: ActionDescription) {
@@ -106,6 +106,7 @@ export class TurnDisplay {
             this.handleBlock()
         }
 
+        const skipped = new Set<Entity>()
         const finished = new Set<Entity>()
 
         for (const [entity, turn] of this.queueMap) {
@@ -118,6 +119,7 @@ export class TurnDisplay {
                         break
                     } else {
                         animation.finish()
+                        skipped.add(entity)
                     }
                 }
 
@@ -135,6 +137,8 @@ export class TurnDisplay {
             this.blocking.entity = null
             this.blocking.turn = null
         }
+
+        return skipped
     }
 
     animateActive(deltaMS: number) {
