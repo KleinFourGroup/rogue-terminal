@@ -5,13 +5,13 @@ import { VisibilityManager } from "./visibility/visibility_manager"
 
 export function makeActor(entity: Entity, visibilityManager: VisibilityManager) {
     const actor = new Actor(entity)
-    const animationManager = new AnimationManager(entity)
+    // const animationManager = new AnimationManager(entity)
 
-    animationManager.setVisibilityManager(visibilityManager)
+    // animationManager.setVisibilityManager(visibilityManager)
     
-    actor.setupListener(animationManager.onStep)
-    animationManager.setupListener(actor.onAct)
+    // actor.setupListener(animationManager.onStep)
+    // animationManager.setupListener(actor.onAct)
 
     entity.addComponent(actor)
-    entity.addComponent(animationManager)
+    // entity.addComponent(animationManager)
 }

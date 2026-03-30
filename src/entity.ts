@@ -50,11 +50,13 @@ export class Entity implements IEntitySprite {
         this.sprite.position.set(...tileToPixel(this.row, this.col, this.width, this.height))
     }
 
-    setPosition(row: number, col: number) {
+    setPosition(row: number, col: number, forceDraw: boolean = false) {
         this.row = row
         this.col = col
 
-        this.sprite.position.set(...tileToPixel(this.row, this.col, this.width, this.height))
+        if (forceDraw) {
+            this.sprite.position.set(...tileToPixel(this.row, this.col, this.width, this.height))
+        }
     }
 
     footprint() {

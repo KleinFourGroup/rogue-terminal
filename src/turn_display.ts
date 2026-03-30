@@ -54,11 +54,11 @@ export class TurnDisplay {
     }
 
     isPending() {
-        return this.pending.entity === null || this.pending.turn == null
+        return this.pending.entity !== null || this.pending.turn !== null
     }
 
     isBlocking() {
-        return this.blocking.entity === null || this.blocking.turn == null
+        return this.blocking.entity !== null || this.blocking.turn !== null
     }
 
     isReady() {
@@ -106,7 +106,7 @@ export class TurnDisplay {
             this.handleBlock()
         }
 
-        const toDelete = []
+        const finished = new Set<Entity>()
 
         for (const [entity, turn] of this.queueMap) {
             if (!this.activeMap.has(entity)) {
@@ -122,13 +122,18 @@ export class TurnDisplay {
                 }
 
                 if (turn.length === 0) {
-                    if (!this.activeMap.has(entity)) {toDelete.push(entity)}
+                    if (!this.activeMap.has(entity)) {finished.add(entity)}
                 }
             }
         }
 
-        for (const entity of toDelete) {
+        for (const entity of finished) {
             this.queueMap.delete(entity)
+        }
+
+        if (this.isBlocking() && finished.has(this.blocking.entity!)) {
+            this.blocking.entity = null
+            this.blocking.turn = null
         }
     }
 
