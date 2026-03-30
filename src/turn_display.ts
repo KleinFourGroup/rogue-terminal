@@ -109,16 +109,26 @@ export class TurnDisplay {
         const toDelete = []
 
         for (const [entity, turn] of this.queueMap) {
-            while (turn.length > 0) {
-                const basicAction = turn.shift()!
-                const animation = basicActionAnimator(basicAction)
-                if (showAction(basicAction, this.visibilityManager)) {
-                    this.activeMap.set(entity, animation)
-                    break
-                } else {
-                    animation.finish()
+            if (!this.activeMap.has(entity)) {
+                while (turn.length > 0) {
+                    const basicAction = turn.shift()!
+                    const animation = basicActionAnimator(basicAction)
+                    if (showAction(basicAction, this.visibilityManager)) {
+                        this.activeMap.set(entity, animation)
+                        break
+                    } else {
+                        animation.finish()
+                    }
+                }
+
+                if (turn.length === 0) {
+                    if (!this.activeMap.has(entity)) {toDelete.push(entity)}
                 }
             }
+        }
+
+        for (const entity of toDelete) {
+            this.queueMap.delete(entity)
         }
     }
 
