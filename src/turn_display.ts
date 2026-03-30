@@ -1,6 +1,34 @@
 import { ActionDescription } from "./action/action"
+import { BasicActionDescription } from "./action/basic_action"
 import { IAnimation } from "./animation/animation"
+import { basicActionAnimator, basicActionBlocker } from "./animation/basic_animator"
 import { Entity } from "./entity"
+import { TileVisibility, VisibilityManager } from "./visibility/visibility_manager"
+
+function turnBlocks(turn: ActionDescription) {
+    for (const basicAction of turn) {
+        if (basicActionBlocker(basicAction)) {
+            return true
+        }
+    }
+
+    return false
+}
+
+function showAction(action: BasicActionDescription, visibilityManager: VisibilityManager | null) {
+    if (visibilityManager !== null) {
+        for (const tile of action.turnData.footprint) {
+            if (visibilityManager.getVisibility(tile.row, tile.col) === TileVisibility.VISIBLE) {
+                return true
+            }
+        }
+
+        return false
+    } else {
+        // Be safe; just show everything
+        return true
+    }
+}
 
 export class TurnDisplay {
     activeMap: Map<Entity, IAnimation>
@@ -9,12 +37,20 @@ export class TurnDisplay {
     pending: {entity: Entity | null, turn: ActionDescription | null}
     blocking: {entity: Entity | null, turn: ActionDescription | null}
 
+    visibilityManager: VisibilityManager | null
+
     constructor() {
         this.activeMap = new Map<Entity, IAnimation>()
         this.queueMap = new Map<Entity, ActionDescription>()
 
         this.pending = {entity: null, turn: null}
         this.blocking = {entity: null, turn: null}
+
+        this.visibilityManager = null
+    }
+
+    setVisibility(visibilityManager: VisibilityManager) {
+        this.visibilityManager = visibilityManager
     }
 
     isPending() {
@@ -42,16 +78,47 @@ export class TurnDisplay {
 
     handlePend() {
         if (!this.queueMap.has(this.pending.entity!)) {
-            this.queueMap.set(this.pending.entity!, this.pending.turn!)
-            // if ()
-            this.pending.entity = null
-            this.pending.turn = null
+            if (!this.isBlocking()) {
+                if (turnBlocks(this.pending.turn!)) {
+                    this.blocking.entity = this.pending.entity
+                    this.blocking.turn = this.pending.turn
+                } else {
+                    this.queueMap.set(this.pending.entity!, this.pending.turn!)
+                }
+                this.pending.entity = null
+                this.pending.turn = null
+            }
+        }
+    }
+
+    handleBlock() {
+        if (!this.queueMap.has(this.blocking.entity!) && this.queueMap.size === 0) {
+            this.queueMap.set(this.blocking.entity!, this.blocking.turn!)
         }
     }
     
     updateQueue() {
         if (this.isPending()) {
             this.handlePend()
+        }
+
+        if (this.isBlocking()) {
+            this.handleBlock()
+        }
+
+        const toDelete = []
+
+        for (const [entity, turn] of this.queueMap) {
+            while (turn.length > 0) {
+                const basicAction = turn.shift()!
+                const animation = basicActionAnimator(basicAction)
+                if (showAction(basicAction, this.visibilityManager)) {
+                    this.activeMap.set(entity, animation)
+                    break
+                } else {
+                    animation.finish()
+                }
+            }
         }
     }
 
