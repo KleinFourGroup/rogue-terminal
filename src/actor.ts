@@ -21,7 +21,7 @@ export class Actor extends Component {
 
     doAction(action: IAction) {
         this.setAction(action)
-        this.advanceAction()
+        return this.act()
     }
 
     setAction(action: IAction) {
@@ -30,7 +30,7 @@ export class Actor extends Component {
         }
     }
 
-    advanceAction() {
+    act() {
         const result = this.currAction!.act()
 
         if (result !== null) {

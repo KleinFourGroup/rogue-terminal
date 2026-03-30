@@ -8,7 +8,8 @@ export interface IAction {
     act(): ActionDescription
 }
 
-export type ActionDescription = BasicActionDescription[] | null
+// Probably will expand
+export type ActionDescription = BasicActionDescription[]
 
 export type ActionCallback<T> = (entity: Entity, actionData: T) => ActionDescription
 
