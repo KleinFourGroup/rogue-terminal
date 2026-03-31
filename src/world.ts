@@ -115,6 +115,7 @@ export class World extends Container {
     }
 
     calculateView() {
+        this.visibilityManager.cacheDrawnArray()
         this.visibilityManager.reset()
         for (const entity of this.entities.getObservers()) {
             this.visibilityManager.calculateFOV(entity)
@@ -123,6 +124,7 @@ export class World extends Container {
     }
 
     drawView() {
+        this.visibilityManager.updateDrawnArray()
         this.visibilityManager.clearVisibleMask()
         this.visibilityManager.drawMasks()
         this.visibilityLayer.draw(this.visibilityManager)

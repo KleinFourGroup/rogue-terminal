@@ -137,7 +137,7 @@ export class BackgroundGrid extends Container {
             if (textSprite !== null) {
                 textSprite.alpha = 1
 
-                if (visibilityManager.visibilityArray[index] === TileVisibility.VISIBLE) {
+                if (visibilityManager.visibilityDrawn[index] === TileVisibility.VISIBLE) {
                     for (const entity of this.alphaManager.ownership[index]) {
                         textSprite.alpha = Math.min(textSprite.alpha, entity.overlapCache.get(index)!)
                     }

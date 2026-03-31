@@ -26,6 +26,8 @@ export class VisibilityManager {
 
     visibilityMasks: Record<TileVisibility, Graphics>
     
+    visibilityDrawn: TileVisibility[]
+    
     signals: TileVisibilitySignals
 
     constructor(rows: number, cols: number) {
@@ -50,6 +52,8 @@ export class VisibilityManager {
             [TileVisibility.HIDDEN]: new Graphics(),
             [TileVisibility.VISIBLE]: new Graphics()
         }
+
+        this.visibilityDrawn = this.visibilityArray
         
         this.signals = {
             [TileVisibility.UNEXPLORED]: new SignalEmitter<Set<number>>(),
@@ -112,6 +116,14 @@ export class VisibilityManager {
         for (const visibility of VISIBILITIES) {
             this.visibilitySets[visibility].clear()
         }
+    }
+
+    cacheDrawnArray() {
+        this.visibilityDrawn = [...this.visibilityArray]
+    }
+
+    updateDrawnArray() {
+        this.visibilityDrawn = this.visibilityArray
     }
 
     resetAll() {
