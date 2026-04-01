@@ -11,6 +11,7 @@ import { MemoryManager } from "./visibility/memory_manager"
 import { VisibilitydGrid } from "./visibility/visibility_grid"
 import { AnimationManager } from "./animation_manager"
 import { TileVisibility } from "./visibility/tile_visibility"
+import { VisibilityDisplay } from "./visibility/visibility_display"
 
 export class World extends Container {
     rows: number
@@ -26,6 +27,7 @@ export class World extends Container {
     visibleEntityTracker: EntityVisibilityTracker<Entity>
     visibleMemoryTracker: EntityVisibilityTracker<MemoryEntity>
 
+    visibilityDisplay: VisibilityDisplay
     animatedActives: Entity[]
 
     constructor(rows: number, cols: number) {
@@ -44,7 +46,9 @@ export class World extends Container {
         this.visibleEntityTracker = new EntityVisibilityTracker<Entity>(this.entities, this.visibilityManager)
         this.visibleMemoryTracker = new EntityVisibilityTracker<MemoryEntity>(this.memories, this.visibilityManager)
 
-        this.ground.setupListeners(this.entities.signals, this.memories.signals, this.visibilityManager.signals)
+        this.visibilityDisplay = new VisibilityDisplay(this.visibilityManager)
+
+        this.ground.setupListeners(this.entities.signals, this.memories.signals, this.visibilityDisplay.signals)
 
         this.visibleEntityTracker.setupListeners(this.visibilityManager.signals, this.entities.signals)
         this.visibleMemoryTracker.setupListeners(this.visibilityManager.signals, this.memories.signals)
@@ -63,9 +67,9 @@ export class World extends Container {
     }
 
     setVisibilityMasks() {
-        this.entities.setVisibilityMask(this.visibilityManager.visibilityMasks[TileVisibility.VISIBLE])
-        this.memories.setVisibilityMask(this.visibilityManager.visibilityMasks[TileVisibility.HIDDEN])
-        this.ground.alertLayer.setVisibilityMask(this.visibilityManager.visibilityMasks[TileVisibility.VISIBLE])
+        this.entities.setVisibilityMask(this.visibilityDisplay.visibilityMasks[TileVisibility.VISIBLE])
+        this.memories.setVisibilityMask(this.visibilityDisplay.visibilityMasks[TileVisibility.HIDDEN])
+        this.ground.alertLayer.setVisibilityMask(this.visibilityDisplay.visibilityMasks[TileVisibility.VISIBLE])
     }
 
     isNavigable(row: number, col: number, ignoreList: Entity[] = [], width: number = 1, height: number = 1) {
@@ -120,7 +124,6 @@ export class World extends Container {
     }
 
     calculateView() {
-        this.visibilityManager.cacheDrawnArray()
         this.visibilityManager.reset()
         for (const entity of this.entities.getObservers()) {
             this.visibilityManager.calculateFOV(entity)
@@ -129,9 +132,12 @@ export class World extends Container {
     }
 
     drawView() {
-        this.visibilityManager.updateDrawnArray()
-        this.visibilityManager.clearVisibleMask()
-        this.visibilityManager.drawMasks()
-        this.visibilityLayer.draw(this.visibilityManager)
+        this.visibilityDisplay.cacheVisibilitySets()
+        this.visibilityDisplay.updateVisibility()
+        this.visibilityDisplay.emitDifferences()
+
+        this.visibilityDisplay.clearVisibleMask()
+        this.visibilityDisplay.drawMasks()
+        this.visibilityLayer.draw(this.visibilityDisplay)
     }
 }

@@ -1,8 +1,6 @@
 import { Graphics } from "pixi.js"
-import { Entity } from "../entity"
 import { TILE_SIZE } from "../text/canvas_style"
 import { COLORS } from "../colors"
-import { Observer } from "./observer"
 import { TileVisibility, VISIBILITIES } from "./tile_visibility"
 import { VisibilityEmitter } from "./visibility_emitter"
 import { VisibilityManager } from "./visibility_manager"

@@ -4,12 +4,12 @@ import { TILE_SIZE } from "../text/canvas_style"
 import { Entity } from "../entity"
 import { AlphaGrid } from "./alpha_grid"
 import { AlertGrid } from "./alert_grid"
-import { VisibilityManager } from "../visibility/visibility_manager"
 import { MemoryGrid } from "../visibility/memory_grid"
 import { EntityGridSignals } from "../entity_grid"
 import { MemoryEntity } from "../visibility/memory_entity"
 import { COLORS } from "../colors"
 import { TileVisibilitySignals, TileVisibility } from "../visibility/tile_visibility"
+import { VisibilityDisplay } from "../visibility/visibility_display"
 
 export class BackgroundGrid extends Container {
     rows: number
@@ -127,7 +127,7 @@ export class BackgroundGrid extends Container {
         }
     }
 
-    updateTileAlphas(updatedEntities: Set<Entity>, visibilityManager: VisibilityManager, memories: MemoryGrid) {
+    updateTileAlphas(updatedEntities: Set<Entity>, visibilityDisplay: VisibilityDisplay, memories: MemoryGrid) {
         for (const entity of updatedEntities) {
             this.alphaManager.unregister(entity)
             entity.cacheOverlaps(this.cols)
@@ -150,7 +150,7 @@ export class BackgroundGrid extends Container {
 
                 this.setColor(row, col, COLORS.DARK_NEON_RED)
 
-                if (visibilityManager.visibilityDrawn[index] === TileVisibility.VISIBLE) {
+                if (visibilityDisplay.visibilityArray[index] === TileVisibility.VISIBLE) {
                     for (const entity of this.alphaManager.ownership[index]) {
                         textSprite.alpha = Math.min(textSprite.alpha, entity.overlapCache.get(index)!)
                     }
