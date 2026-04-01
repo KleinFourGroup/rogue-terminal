@@ -4,7 +4,8 @@ import { IAnimation } from "./animation/animation"
 import { basicActionAnimator, basicActionBlocker } from "./animation/basic_animator"
 import { Entity } from "./entity"
 import { Observer } from "./visibility/observer"
-import { TileVisibility, VisibilityManager } from "./visibility/visibility_manager"
+import { TileVisibility } from "./visibility/tile_visibility"
+import { VisibilityManager } from "./visibility/visibility_manager"
 import { World } from "./world"
 
 function turnBlocks(turn: ActionDescription) {

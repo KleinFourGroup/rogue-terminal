@@ -1,7 +1,8 @@
 import { Container, Graphics } from "pixi.js"
 import { TILE_SIZE } from "../text/canvas_style"
-import { TileVisibility, VisibilityManager } from "./visibility_manager"
+import { VisibilityManager } from "./visibility_manager"
 import { COLORS } from "../colors"
+import { TileVisibility } from "./tile_visibility"
 
 export class VisibilitydGrid extends Container {
     rows: number

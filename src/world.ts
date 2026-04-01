@@ -3,13 +3,14 @@ import { ECS } from "./ecs"
 import { BackgroundGrid } from "./grid/background_grid"
 import { Entity } from "./entity"
 import { TextSprite } from "./text/text_sprite"
-import { TileVisibility, VisibilityManager } from "./visibility/visibility_manager"
+import { VisibilityManager } from "./visibility/visibility_manager"
 import { EntityVisibilityTracker } from "./visibility/entity_visibility_tracker"
 import { MemoryGrid } from "./visibility/memory_grid"
 import { MemoryEntity } from "./visibility/memory_entity"
 import { MemoryManager } from "./visibility/memory_manager"
 import { VisibilitydGrid } from "./visibility/visibility_grid"
 import { AnimationManager } from "./animation_manager"
+import { TileVisibility } from "./visibility/tile_visibility"
 
 export class World extends Container {
     rows: number
@@ -89,6 +90,10 @@ export class World extends Container {
 
     setGroundText(row: number, col: number, sprite: TextSprite) {
         this.ground.setText(row, col, sprite)
+    }
+
+    setGroundColor(row: number, col: number, color: string) {
+        this.ground.setColor(row, col, color)
     }
 
     nextAI() {

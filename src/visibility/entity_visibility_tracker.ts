@@ -1,7 +1,8 @@
 import { EntityGrid, EntityGridSignals } from "../entity_grid"
 import { SignalEmitter } from "../signal"
 import { IEntitySprite } from "../text/entity_sprite"
-import { TileVisibility, TileVisibilitySignals, VisibilityManager } from "./visibility_manager"
+import { TileVisibility, TileVisibilitySignals } from "./tile_visibility"
+import { VisibilityManager } from "./visibility_manager"
 
 export interface EntityVisibilitySignals<EntityType extends IEntitySprite> {
     onReveal: SignalEmitter<EntityType>

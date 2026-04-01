@@ -5,16 +5,7 @@ import { COLORS } from "../colors"
 import { SignalEmitter } from "../signal"
 import { Observer } from "./observer"
 import { IEntitySprite } from "../text/entity_sprite"
-
-export enum TileVisibility {
-    UNEXPLORED,
-    HIDDEN,
-    VISIBLE
-}
-
-export const VISIBILITIES = Object.values(TileVisibility).filter((val) => typeof val === "number")
-
-export type TileVisibilitySignals = Record<TileVisibility, SignalEmitter<Set<number>>>
+import { TileVisibility, TileVisibilitySignals, VISIBILITIES } from "./tile_visibility"
 
 export class VisibilityManager {
     rows: number

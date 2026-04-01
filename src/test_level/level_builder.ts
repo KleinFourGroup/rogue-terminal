@@ -3,6 +3,7 @@ import { setupAI } from "../behaviors/behavior"
 import { RandomMoveTargetAI } from "../behaviors/random_move_target"
 import { RandomWalkAI } from "../behaviors/random_walk"
 import { CacheManager } from "../cache_manager"
+import { COLORS } from "../colors"
 import { Entity } from "../entity"
 import { TextSprite } from "../text/text_sprite"
 import { FogMemory } from "../visibility/fog_memory"
@@ -13,6 +14,12 @@ function buildRoom(level: World, caches: CacheManager, ROOM_ROW: number, ROOM_CO
     const BASE_ROW = ROOM_ROW * (ROOM_SIZE + 1)
     const BASE_COL = ROOM_COL * (ROOM_SIZE + 1)
     const MIDPOINT = 1 + Math.floor(ROOM_SIZE / 2)
+
+    for (let row = BASE_ROW; row <= BASE_ROW + ROOM_SIZE + 1; row++) {
+        for (let col = BASE_COL; col <= BASE_COL + ROOM_SIZE + 1; col++) {
+            level.setGroundColor(row, col, COLORS.DARK_TERMINAL_AMBER)
+        }
+    }
 
     for (let row = BASE_ROW; row <= BASE_ROW + ROOM_SIZE + 1; row++) {
         for (let col = BASE_COL; col <= BASE_COL + ROOM_SIZE + 1; col += (row === BASE_ROW || row === BASE_ROW + ROOM_SIZE + 1) ? 1 : ROOM_SIZE + 1) {
