@@ -17,7 +17,7 @@ function buildRoom(level: World, caches: CacheManager, ROOM_ROW: number, ROOM_CO
 
     for (let row = BASE_ROW; row <= BASE_ROW + ROOM_SIZE + 1; row++) {
         for (let col = BASE_COL; col <= BASE_COL + ROOM_SIZE + 1; col++) {
-            level.setGroundColor(row, col, COLORS.DARK_TERMINAL_AMBER)
+            level.setGroundColor(row, col, COLORS.DARK_TERMINAL_GREEN)
         }
     }
 

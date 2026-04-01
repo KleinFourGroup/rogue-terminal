@@ -1,16 +1,9 @@
-import { Graphics } from "pixi.js"
 import { Entity } from "../entity"
-import { TILE_SIZE } from "../text/canvas_style"
-import { COLORS } from "../colors"
 import { Observer } from "./observer"
 import { TileVisibility, VISIBILITIES } from "./tile_visibility"
 import { VisibilityEmitter } from "./visibility_emitter"
 
 export class VisibilityManager extends VisibilityEmitter{
-    visibilityMasks: Record<TileVisibility, Graphics>
-    
-    visibilityDrawn: TileVisibility[]
-    
     constructor(rows: number, cols: number) {
         const visibilityArray = new Array<TileVisibility>(rows * cols).fill(TileVisibility.UNEXPLORED)
         
@@ -21,14 +14,6 @@ export class VisibilityManager extends VisibilityEmitter{
         }
         
         super(rows, cols, visibilityArray, visibilitySets)
-
-        this.visibilityMasks = {
-            [TileVisibility.UNEXPLORED]: new Graphics(),
-            [TileVisibility.HIDDEN]: new Graphics(),
-            [TileVisibility.VISIBLE]: new Graphics()
-        }
-
-        this.visibilityDrawn = this.visibilityArray
 
         this.flood(TileVisibility.UNEXPLORED)
     }
@@ -57,20 +42,11 @@ export class VisibilityManager extends VisibilityEmitter{
         }
     }
 
-    cacheDrawnArray() {
-        this.visibilityDrawn = [...this.visibilityArray]
-    }
-
-    updateDrawnArray() {
-        this.visibilityDrawn = this.visibilityArray
-    }
-
     resetAll() {
         this.cacheVisibilitySets()
         this.clearVisibilitySets()
         this.visibilityArray.fill(TileVisibility.UNEXPLORED)
         this.flood(TileVisibility.UNEXPLORED)
-        this.visibilityMasks[TileVisibility.VISIBLE].clear()
     }
 
     reset() {
@@ -80,22 +56,6 @@ export class VisibilityManager extends VisibilityEmitter{
             this.visibilitySets[TileVisibility.HIDDEN].add(index)
         }
         this.visibilitySets[TileVisibility.VISIBLE].clear()
-        // this.clearVisibleMask()
-    }
-
-    clearVisibleMask() {
-        this.visibilityMasks[TileVisibility.VISIBLE].clear()
-    }
-
-    drawMasks() {
-        for (const visibility of VISIBILITIES) {
-            this.visibilityMasks[visibility].clear()
-            for (const index of this.visibilitySets[visibility]) {
-                const col = index % this.cols
-                const row = (index - col) / this.cols
-                this.visibilityMasks[visibility].rect(col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE).fill(COLORS.TERMINAL_BLACK)
-            }
-        }
     }
 
     calculateFOV(entity: Entity) {

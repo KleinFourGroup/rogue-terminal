@@ -7,7 +7,6 @@ import { AlertGrid } from "./alert_grid"
 import { MemoryGrid } from "../visibility/memory_grid"
 import { EntityGridSignals } from "../entity_grid"
 import { MemoryEntity } from "../visibility/memory_entity"
-import { COLORS } from "../colors"
 import { TileVisibilitySignals, TileVisibility } from "../visibility/tile_visibility"
 import { VisibilityDisplay } from "../visibility/visibility_display"
 
@@ -134,12 +133,6 @@ export class BackgroundGrid extends Container {
             this.alphaManager.register(entity)
         }
 
-        for (let row = 0; row < this.rows; row++) {
-            for (let col = 0; col < this.cols; col++) {
-                this.setColor(row, col, COLORS.DARK_TERMINAL_AMBER)
-            }
-        }
-
         for (const index of this.alphaManager.dirty) {
             const textSprite = this.textArray[index]
             const col = index % this.cols
@@ -147,8 +140,6 @@ export class BackgroundGrid extends Container {
 
             if (textSprite !== null) {
                 textSprite.alpha = 1
-
-                this.setColor(row, col, COLORS.DARK_NEON_RED)
 
                 if (visibilityDisplay.visibilityArray[index] === TileVisibility.VISIBLE) {
                     for (const entity of this.alphaManager.ownership[index]) {
