@@ -2,41 +2,25 @@ import { Graphics } from "pixi.js"
 import { Entity } from "../entity"
 import { TILE_SIZE } from "../text/canvas_style"
 import { COLORS } from "../colors"
-import { SignalEmitter } from "../signal"
 import { Observer } from "./observer"
-import { IEntitySprite } from "../text/entity_sprite"
-import { TileVisibility, TileVisibilitySignals, VISIBILITIES } from "./tile_visibility"
+import { TileVisibility, VISIBILITIES } from "./tile_visibility"
+import { VisibilityEmitter } from "./visibility_emitter"
 
-export class VisibilityManager {
-    rows: number
-    cols: number
-
-    visibilityArray: TileVisibility[]
-    visibilitySets: Record<TileVisibility, Set<number>>
-    visibilityCaches: Record<TileVisibility, Set<number>>
-
+export class VisibilityManager extends VisibilityEmitter{
     visibilityMasks: Record<TileVisibility, Graphics>
     
     visibilityDrawn: TileVisibility[]
     
-    signals: TileVisibilitySignals
-
     constructor(rows: number, cols: number) {
-        this.rows = rows
-        this.cols = cols
-
-        this.visibilityArray = new Array<TileVisibility>(this.rows * this.cols).fill(TileVisibility.UNEXPLORED)
+        const visibilityArray = new Array<TileVisibility>(rows * cols).fill(TileVisibility.UNEXPLORED)
         
-        this.visibilitySets = {
+        const visibilitySets = {
             [TileVisibility.UNEXPLORED]: new Set<number>(),
             [TileVisibility.HIDDEN]: new Set<number>(),
             [TileVisibility.VISIBLE]: new Set<number>()
         }
-        this.visibilityCaches = {
-            [TileVisibility.UNEXPLORED]: new Set<number>(),
-            [TileVisibility.HIDDEN]: new Set<number>(),
-            [TileVisibility.VISIBLE]: new Set<number>()
-        }
+        
+        super(rows, cols, visibilityArray, visibilitySets)
 
         this.visibilityMasks = {
             [TileVisibility.UNEXPLORED]: new Graphics(),
@@ -45,26 +29,8 @@ export class VisibilityManager {
         }
 
         this.visibilityDrawn = this.visibilityArray
-        
-        this.signals = {
-            [TileVisibility.UNEXPLORED]: new SignalEmitter<Set<number>>(),
-            [TileVisibility.HIDDEN]: new SignalEmitter<Set<number>>(),
-            [TileVisibility.VISIBLE]: new SignalEmitter<Set<number>>()
-        }
 
         this.flood(TileVisibility.UNEXPLORED)
-    }
-
-    isInBounds(row: number, col: number) {
-        return row >= 0 && row < this.rows && col >= 0 && col < this.cols
-    }
-
-    getVisibility(row: number, col: number) {
-        if (this.isInBounds(row, col)) {
-            return this.visibilityArray[row * this.cols + col]
-        }
-
-        return TileVisibility.UNEXPLORED
     }
 
     flood(visibility: TileVisibility) {
@@ -82,24 +48,6 @@ export class VisibilityManager {
                 this.visibilitySets[oldVisibility].delete(index)
             }
             this.visibilitySets[visibility].add(index)
-        }
-    }
-
-    isEntityVisible(entity: IEntitySprite) {
-        for (let row = entity.row; row < entity.row + entity.height; row++) {
-            for (let col = entity.col; col < entity.col + entity.width; col++) {
-                if (this.isInBounds(row, col) && this.visibilityArray[row * this.cols + col] === TileVisibility.VISIBLE) {
-                    return true
-                }
-            }
-        }
-
-        return false
-    }
-
-    cacheVisibilitySets() {
-        for (const visibility of VISIBILITIES) {
-            this.visibilityCaches[visibility] = new Set<number>(this.visibilitySets[visibility])
         }
     }
 
@@ -156,12 +104,6 @@ export class VisibilityManager {
             for (let col = entity.col - observer.viewDistance; col < entity.col + entity.width + observer.viewDistance; col++) {
                 this.setVisibility(row, col, TileVisibility.VISIBLE)
             }
-        }
-    }
-
-    emitDifferences() {
-        for (const visibility of VISIBILITIES) {
-            this.signals[visibility].emit(this.visibilitySets[visibility].difference(this.visibilityCaches[visibility]))
         }
     }
 }
