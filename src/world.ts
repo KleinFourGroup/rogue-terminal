@@ -1,4 +1,4 @@
-import { Container, Graphics } from "pixi.js"
+import { Container } from "pixi.js"
 import { ECS } from "./ecs"
 import { BackgroundGrid } from "./grid/background_grid"
 import { Entity } from "./entity"

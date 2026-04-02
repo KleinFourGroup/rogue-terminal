@@ -20,6 +20,7 @@ const FOV_DISTANCE = 5
 export class GameScene extends Container implements IScene {
     app: GameApp
     camera: Camera
+    inputContainer: Container
     player: Entity
     level: World
     elapsed: number
@@ -30,18 +31,21 @@ export class GameScene extends Container implements IScene {
     constructor(app: GameApp) {
         super()
         this.app = app
-        this.camera = new Camera(this.app, this)
+        this.inputContainer = new Container()
 
         const [level, player] = buildLevel(ROOM_ROWS, ROOM_COLS, ROOM_SIZE, FOV_DISTANCE, app.caches)
         this.level = level
         this.player = player
+
+        this.camera = new Camera(this.app, this.level)
 
         this.turnLogic = new TurnLogic(this.level)
         this.turnDisplay = new TurnDisplay(this.level)
 
         this.elapsed = 0
 
-        this.addChild(this.level)
+        this.inputContainer.addChild(this.level)
+        this.addChild(this.inputContainer)
 
         this.level.calculateView()
         this.level.drawView()
@@ -49,15 +53,22 @@ export class GameScene extends Container implements IScene {
         this.app.debugOverlay.setAlphaUpdates(updated)
         this.camera.setPosition(this.player.sprite.x, this.player.sprite.y)
 
-        this.eventMode = "dynamic"
-        this.on("pointermove", (event: FederatedPointerEvent) => {this.handlePointer(event)})
+        this.inputContainer.eventMode = "dynamic"
+        this.inputContainer.hitArea = app.screen
+        this.inputContainer.on("pointermove", (event: FederatedPointerEvent) => {this.handlePointerIn(event)})
+        this.inputContainer.on("pointerenter", (event: FederatedPointerEvent) => {this.handlePointerIn(event)})
+        this.inputContainer.on("pointerleave", (event: FederatedPointerEvent) => {this.handlePointerOut(event)})
     }
 
-    handlePointer(event: FederatedPointerEvent) {
+    handlePointerIn(event: FederatedPointerEvent) {
         const pointer = event.getLocalPosition(this.level)
         const row = Math.floor(pointer.y / TILE_SIZE)
         const col = Math.floor(pointer.x / TILE_SIZE)
         this.level.setHighlight(row, col)
+    }
+
+    handlePointerOut(event: FederatedPointerEvent) {
+        this.level.setHighlight(-1, -1)
     }
 
     update(deltaMS: number): void {
