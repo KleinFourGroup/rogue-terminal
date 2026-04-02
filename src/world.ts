@@ -12,14 +12,7 @@ import { VisibilitydGrid } from "./visibility/visibility_grid"
 import { AnimationManager } from "./animation_manager"
 import { TileVisibility } from "./visibility/tile_visibility"
 import { VisibilityDisplay } from "./visibility/visibility_display"
-
-import { TILE_SIZE } from "./text/canvas_style"
-import { COLORS } from "./colors"
-
-function drawRoundedBox(graphics: Graphics, color: string) {
-    const STROKE_WIDTH = 5
-    return graphics.roundRect(STROKE_WIDTH / 2, STROKE_WIDTH / 2, TILE_SIZE - STROKE_WIDTH, TILE_SIZE - STROKE_WIDTH, TILE_SIZE / 4).stroke({ width: STROKE_WIDTH, color: color })
-}
+import { HighlighterDisplay } from "./highlighter"
 
 export class World extends Container {
     rows: number
@@ -36,9 +29,9 @@ export class World extends Container {
     visibleMemoryTracker: EntityVisibilityTracker<MemoryEntity>
 
     visibilityDisplay: VisibilityDisplay
-    animatedActives: Entity[]
+    highlighter: HighlighterDisplay
 
-    highlighter: Graphics
+    animatedActives: Entity[]
 
     constructor(rows: number, cols: number) {
         super()
@@ -58,6 +51,8 @@ export class World extends Container {
 
         this.visibilityDisplay = new VisibilityDisplay(this.visibilityManager)
 
+        this.highlighter = new HighlighterDisplay()
+
         this.ground.setupListeners(this.entities.signals, this.memories.signals, this.visibilityDisplay.signals)
 
         this.visibleEntityTracker.setupListeners(this.visibilityManager.signals, this.entities.signals)
@@ -66,17 +61,13 @@ export class World extends Container {
 
         this.animatedActives = []
 
-        this.highlighter = new Graphics()
-        drawRoundedBox(this.highlighter, COLORS.TERMINAL_GREEN)
-        this.highlighter.visible = false
-
         this.entities.setWorld(this)
 
         this.addChild(this.ground)
         this.addChild(this.memories.stage)
         this.addChild(this.entities.stage)
         this.addChild(this.visibilityLayer)
-        this.addChild(this.highlighter)
+        this.addChild(this.highlighter.highlight)
 
         this.setVisibilityMasks()
     }
@@ -116,12 +107,7 @@ export class World extends Container {
     }
 
     setHighlight(row: number, col: number) {
-        if (this.ground.isValid(row, col)) {
-            this.highlighter.visible = true
-            this.highlighter.position.set(col * TILE_SIZE, row * TILE_SIZE)
-        } else {
-            this.highlighter.visible = false
-        }
+        this.highlighter.setTarget(this.ground.isValid(row, col) ? {row: row, col: col} : null)
     }
 
     nextAI() {
