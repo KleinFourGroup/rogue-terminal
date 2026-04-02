@@ -1,4 +1,4 @@
-import { Container } from "pixi.js"
+import { Container, FederatedPointerEvent } from "pixi.js"
 import { IScene } from "./scene"
 import { GameApp } from "./app"
 import { Camera } from "./camera"
@@ -48,6 +48,16 @@ export class GameScene extends Container implements IScene {
         const updated = this.level.ground.updateTileAlphas(new Set<Entity>(this.level.entities.entities), this.level.visibilityDisplay, this.level.memories)
         this.app.debugOverlay.setAlphaUpdates(updated)
         this.camera.setPosition(this.player.sprite.x, this.player.sprite.y)
+
+        this.eventMode = "dynamic"
+        this.on("pointermove", (event: FederatedPointerEvent) => {this.handlePointer(event)})
+    }
+
+    handlePointer(event: FederatedPointerEvent) {
+        const pointer = event.getLocalPosition(this.level)
+        const row = Math.floor(pointer.y / TILE_SIZE)
+        const col = Math.floor(pointer.x / TILE_SIZE)
+        this.level.setHighlight(row, col)
     }
 
     update(deltaMS: number): void {
