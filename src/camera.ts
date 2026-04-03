@@ -2,13 +2,13 @@ import { Container } from "pixi.js"
 import { GameApp } from "./app"
 import { SignalEmitter } from "./signal"
 
-interface CameraState {
+export interface CameraState {
     x: number,
     y: number,
     zoom: number
 }
 
-interface CameraSignals {
+export interface CameraSignals {
     onMove: SignalEmitter<CameraState>
     onZoom: SignalEmitter<CameraState>
 }

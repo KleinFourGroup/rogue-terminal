@@ -111,7 +111,7 @@ export class ECS extends EntityGrid<Entity> {
     }
 
     advanceTicks(ticks: number) {
-        console.log(`Skipping ahead ${ticks} ticks`)
+        // console.log(`Skipping ahead ${ticks} ticks`)
         for (const entity of this.getComponentList(Actor)) {
             entity.getComponent(Actor)!.advanceTicks(ticks)
         }

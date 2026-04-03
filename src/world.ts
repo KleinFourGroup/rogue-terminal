@@ -1,4 +1,4 @@
-import { Container } from "pixi.js"
+import { Container, Point } from "pixi.js"
 import { ECS } from "./ecs"
 import { BackgroundGrid } from "./grid/background_grid"
 import { Entity } from "./entity"
@@ -13,6 +13,7 @@ import { AnimationManager } from "./animation_manager"
 import { TileVisibility } from "./visibility/tile_visibility"
 import { VisibilityDisplay } from "./visibility/visibility_display"
 import { HighlighterDisplay } from "./highlighter"
+import { TILE_SIZE } from "./text/canvas_style"
 
 export class World extends Container {
     rows: number
@@ -90,6 +91,17 @@ export class World extends Container {
         return true
     }
 
+    getTarget(pointer: Point | null) {
+        if (pointer === null) {
+            return null
+        }
+
+        const row = Math.floor(pointer.y / TILE_SIZE)
+        const col = Math.floor(pointer.x / TILE_SIZE)
+        
+        return this.ground.isValid(row, col) ? {row: row, col: col} : null
+    }
+
     addEntity(entity: Entity) {
         this.entities.addEntity(entity)
     }
@@ -104,10 +116,6 @@ export class World extends Container {
 
     setGroundColor(row: number, col: number, color: string) {
         this.ground.setColor(row, col, color)
-    }
-
-    setHighlight(row: number, col: number) {
-        this.highlighter.setTarget(this.ground.isValid(row, col) ? {row: row, col: col} : null)
     }
 
     nextAI() {

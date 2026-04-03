@@ -1,0 +1,55 @@
+import { Container, FederatedPointerEvent, Point } from "pixi.js"
+import { GameApp } from "./app"
+import { SignalEmitter } from "./signal"
+import { Camera, CameraSignals, CameraState } from "./camera"
+
+export class PointerInput {
+    app: GameApp
+    inputContainer: Container
+    camera: Camera
+
+    pointer: Point | null
+
+    onUpdate: SignalEmitter<Point | null>
+
+    constructor(app: GameApp, camera: Camera) {
+        this.app = app
+        this.inputContainer = new Container()
+        this.camera = camera
+
+        this.pointer = null
+
+        this.onUpdate = new SignalEmitter<Point | null>()
+
+        this.inputContainer.eventMode = "dynamic"
+        this.inputContainer.hitArea = this.app.screen
+
+        this.inputContainer.on("pointermove", (event: FederatedPointerEvent) => {this.setPointer(event.getLocalPosition(this.inputContainer))})
+        this.inputContainer.on("pointerenter", (event: FederatedPointerEvent) => {this.setPointer(event.getLocalPosition(this.inputContainer))})
+        this.inputContainer.on("pointerleave", (_event: FederatedPointerEvent) => {this.setPointer(null)})
+
+        this.setListeners(this.camera.signals)
+    }
+
+    private setListeners(signals: CameraSignals) {
+        // Spoofing updates, because this will change the local coordinates
+        signals.onMove.subscribe((_state: CameraState) => {this.onUpdate.emit(this.cameraCoordinates())})
+        signals.onZoom.subscribe((_state: CameraState) => {this.onUpdate.emit(this.cameraCoordinates())})
+    }
+
+    private cameraCoordinates() {
+        return this.pointer !== null ? this.camera.stage.toLocal(this.pointer) : null
+    }
+
+    private setPointer(pointer: Point | null) {
+        if (this.pointer !== null) {
+            if (pointer === null || pointer.x !== this.pointer.x || pointer.y !== this.pointer.y) {
+                this.pointer = pointer
+                this.onUpdate.emit(this.cameraCoordinates())
+            }
+        } else if (pointer !== null) {
+            this.pointer = pointer
+            this.onUpdate.emit(this.cameraCoordinates())
+        }
+    }
+}

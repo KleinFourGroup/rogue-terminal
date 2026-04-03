@@ -8,6 +8,7 @@ import { TILE_SIZE } from "./text/canvas_style"
 import { buildLevel } from "./test_level/level_builder"
 import { TurnLogic } from "./turn_logic"
 import { TurnDisplay } from "./turn_display"
+import { PointerInput } from "./pointer_input"
 
 const ROOM_ROWS = 3
 const ROOM_COLS = 3
@@ -19,10 +20,13 @@ const FOV_DISTANCE = 5
 
 export class GameScene extends Container implements IScene {
     app: GameApp
-    camera: Camera
-    inputContainer: Container
+
     player: Entity
     level: World
+    
+    camera: Camera
+    pointerInput: PointerInput
+
     elapsed: number
 
     turnLogic: TurnLogic
@@ -31,44 +35,33 @@ export class GameScene extends Container implements IScene {
     constructor(app: GameApp) {
         super()
         this.app = app
-        this.inputContainer = new Container()
 
         const [level, player] = buildLevel(ROOM_ROWS, ROOM_COLS, ROOM_SIZE, FOV_DISTANCE, app.caches)
         this.level = level
         this.player = player
 
         this.camera = new Camera(this.app, this.level)
+        this.pointerInput = new PointerInput(this.app, this.camera)
 
         this.turnLogic = new TurnLogic(this.level)
         this.turnDisplay = new TurnDisplay(this.level)
 
         this.elapsed = 0
 
-        this.inputContainer.addChild(this.level)
-        this.addChild(this.inputContainer)
+        this.addChild(this.pointerInput.inputContainer)
+        this.pointerInput.inputContainer.addChild(this.level)
+
+        this.pointerInput.onUpdate.subscribe((pointer) => {
+            // console.log(pointer)
+            const target = this.level.getTarget(pointer)
+            this.level.highlighter.setTarget(target)
+        })
 
         this.level.calculateView()
         this.level.drawView()
         const updated = this.level.ground.updateTileAlphas(new Set<Entity>(this.level.entities.entities), this.level.visibilityDisplay, this.level.memories)
         this.app.debugOverlay.setAlphaUpdates(updated)
         this.camera.setPosition(this.player.sprite.x, this.player.sprite.y)
-
-        this.inputContainer.eventMode = "dynamic"
-        this.inputContainer.hitArea = app.screen
-        this.inputContainer.on("pointermove", (event: FederatedPointerEvent) => {this.handlePointerIn(event)})
-        this.inputContainer.on("pointerenter", (event: FederatedPointerEvent) => {this.handlePointerIn(event)})
-        this.inputContainer.on("pointerleave", (event: FederatedPointerEvent) => {this.handlePointerOut(event)})
-    }
-
-    handlePointerIn(event: FederatedPointerEvent) {
-        const pointer = event.getLocalPosition(this.level)
-        const row = Math.floor(pointer.y / TILE_SIZE)
-        const col = Math.floor(pointer.x / TILE_SIZE)
-        this.level.setHighlight(row, col)
-    }
-
-    handlePointerOut(event: FederatedPointerEvent) {
-        this.level.setHighlight(-1, -1)
     }
 
     update(deltaMS: number): void {
