@@ -1,5 +1,6 @@
 import { Actor } from "../actor"
 import { setupAI } from "../behaviors/behavior"
+import { PlayerMoveTargetAI } from "../behaviors/player_move_target"
 import { RandomMoveTargetAI } from "../behaviors/random_move_target"
 import { RandomWalkAI } from "../behaviors/random_walk"
 import { CacheManager } from "../cache_manager"
@@ -107,7 +108,7 @@ export function buildLevel(ROOM_ROWS: number, ROOM_COLS: number, ROOM_SIZE: numb
     player.addComponent(new Observer(FOV_DISTANCE))
 
     level.addEntity(player)
-    setupAI(player, new RandomMoveTargetAI(player, level, true, caches.navNodePool)) // Still probably don't want this being called directly
+    setupAI(player, new PlayerMoveTargetAI(player, level, true, caches.navNodePool)) // Still probably don't want this being called directly
 
     for (let row = 0; row < ROWS; row++) {
         for (let col = 0; col < COLS; col++) {

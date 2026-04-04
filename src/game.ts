@@ -9,6 +9,8 @@ import { buildLevel } from "./test_level/level_builder"
 import { TurnLogic } from "./turn_logic"
 import { TurnDisplay } from "./turn_display"
 import { PointerInput } from "./pointer_input"
+import { PlayerMoveTargetAI } from "./behaviors/player_move_target"
+import { AILogic } from "./behaviors/behavior"
 
 const ROOM_ROWS = 3
 const ROOM_COLS = 3
@@ -59,7 +61,8 @@ export class GameScene extends Container implements IScene {
 
         this.pointerInput.onClick.subscribe((pointer) => {
             const target = this.level.getTarget(pointer)
-            console.log(`Click! ${JSON.stringify(target)}`)
+            const playerLogic = this.player.getComponent(AILogic)!.behaviorLogic as PlayerMoveTargetAI // EW!
+            playerLogic.setTarget(target)
         })
 
         this.level.calculateView()
@@ -75,7 +78,11 @@ export class GameScene extends Container implements IScene {
         while (this.turnDisplay.isReady()) {
             // TODO: more robust null handling
             const entity = this.turnLogic.advanceTurn()!
-            const description = this.turnLogic.resolve()!
+            const description = this.turnLogic.resolve()
+
+            if (description === null) {
+                break
+            }
 
             this.turnDisplay.enqueue(entity, description)
             const skipped = this.turnDisplay.updateQueue()

@@ -6,7 +6,7 @@ import { Entity } from "../entity"
 export interface IBehaviorLogic {
     entity: Entity
 
-    getAction(): IAction
+    getAction(): IAction | null
 }
 
 export class AILogic extends Component {
@@ -24,10 +24,6 @@ export class AILogic extends Component {
 
     getAction() {
         const action = this.behaviorLogic.getAction()
-
-        if (action === null) {
-            return new IdleAction(this.behaviorLogic.entity)
-        }
 
         return action
     }

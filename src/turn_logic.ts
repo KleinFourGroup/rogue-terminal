@@ -26,6 +26,11 @@ export class TurnLogic {
     resolve() {
         if (this.currEntity !== null) {
                 const action = this.currEntity.getComponent(AILogic)!.getAction()
+
+                if (action === null) {
+                    return null
+                }
+                
                 const description = this.currEntity.getComponent(Actor)!.doAction(action)
 
                 if (this.currEntity.hasComponent(Observer)) {
