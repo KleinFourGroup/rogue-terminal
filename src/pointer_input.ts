@@ -11,6 +11,7 @@ export class PointerInput {
     pointer: Point | null
 
     onUpdate: SignalEmitter<Point | null>
+    onClick: SignalEmitter<Point>
 
     constructor(app: GameApp, camera: Camera) {
         this.app = app
@@ -20,6 +21,7 @@ export class PointerInput {
         this.pointer = null
 
         this.onUpdate = new SignalEmitter<Point | null>()
+        this.onClick = new SignalEmitter<Point>()
 
         this.inputContainer.eventMode = "dynamic"
         this.inputContainer.hitArea = this.app.screen
@@ -27,6 +29,8 @@ export class PointerInput {
         this.inputContainer.on("pointermove", (event: FederatedPointerEvent) => {this.setPointer(event.getLocalPosition(this.inputContainer))})
         this.inputContainer.on("pointerenter", (event: FederatedPointerEvent) => {this.setPointer(event.getLocalPosition(this.inputContainer))})
         this.inputContainer.on("pointerleave", (_event: FederatedPointerEvent) => {this.setPointer(null)})
+
+        this.inputContainer.on("pointerdown", (event: FederatedPointerEvent) => {this.onClick.emit(event.getLocalPosition(this.camera.stage))})
 
         this.setListeners(this.camera.signals)
     }

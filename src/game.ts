@@ -1,4 +1,4 @@
-import { Container, FederatedPointerEvent } from "pixi.js"
+import { Container } from "pixi.js"
 import { IScene } from "./scene"
 import { GameApp } from "./app"
 import { Camera } from "./camera"
@@ -55,6 +55,11 @@ export class GameScene extends Container implements IScene {
             // console.log(pointer)
             const target = this.level.getTarget(pointer)
             this.level.highlighter.setTarget(target)
+        })
+
+        this.pointerInput.onClick.subscribe((pointer) => {
+            const target = this.level.getTarget(pointer)
+            console.log(`Click! ${JSON.stringify(target)}`)
         })
 
         this.level.calculateView()
