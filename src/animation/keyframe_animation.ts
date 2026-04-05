@@ -81,7 +81,5 @@ export class KeyframeAnimation<T> implements IAnimation {
                 this.animation.betweenAnimations[this.lastKeyframe]!(overflow, this.target, this.animationData)
             }
         }
-
-        // console.log(`${processedTime} / ${this.elapsed}`)
     }
 }
