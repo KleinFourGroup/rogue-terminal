@@ -5,7 +5,7 @@ import { WorldNavigator } from "../navigation/navigator"
 import { NodePool } from "../navigation/node_pool"
 import { TilePosition } from "../position"
 import { World } from "../world"
-import { IBehaviorLogic } from "./behavior"
+import { IBehaviorLogic, InputTarget } from "./behavior"
 
 export class PlayerMoveTargetAI implements IBehaviorLogic {
     entity: Entity
@@ -63,6 +63,10 @@ export class PlayerMoveTargetAI implements IBehaviorLogic {
         if (this.target !== null) {
             this.setAlert()
         }
+    }
+    
+    passInput(target: InputTarget): void {
+        this.setTarget(target)
     }
 
     getAction() {

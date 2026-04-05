@@ -3,7 +3,7 @@ import { MoveAction } from "../action/move_action"
 import { Entity } from "../entity"
 import { DIRS, TILE_OFFSETS, TilePosition } from "../position"
 import { World } from "../world"
-import { IBehaviorLogic } from "./behavior"
+import { IBehaviorLogic, InputTarget } from "./behavior"
 
 export class RandomWalkAI implements IBehaviorLogic {
     entity: Entity
@@ -17,6 +17,8 @@ export class RandomWalkAI implements IBehaviorLogic {
         this.block = block
         this.cooldown = cooldown
     }
+
+    passInput(_target: InputTarget) {}
 
     getAction() {
         let validMoves: TilePosition[] = []

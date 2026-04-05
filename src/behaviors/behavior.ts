@@ -1,12 +1,16 @@
 import { IAction } from "../action/action"
-import { IdleAction } from "../action/idle_action"
 import { Component } from "../component"
 import { Entity } from "../entity"
+import { TilePosition } from "../position"
+
+// This will get expanded
+export type InputTarget = TilePosition | null
 
 export interface IBehaviorLogic {
     entity: Entity
 
     getAction(): IAction | null
+    passInput(target: InputTarget): void
 }
 
 export class AILogic extends Component {

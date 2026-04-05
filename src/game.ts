@@ -9,7 +9,6 @@ import { buildLevel } from "./test_level/level_builder"
 import { TurnLogic } from "./turn_logic"
 import { TurnDisplay } from "./turn_display"
 import { PointerInput } from "./pointer_input"
-import { PlayerMoveTargetAI } from "./behaviors/player_move_target"
 import { AILogic } from "./behaviors/behavior"
 
 const ROOM_ROWS = 3
@@ -61,8 +60,8 @@ export class GameScene extends Container implements IScene {
 
         this.pointerInput.onClick.subscribe((pointer) => {
             const target = this.level.getTarget(pointer)
-            const playerLogic = this.player.getComponent(AILogic)!.behaviorLogic as PlayerMoveTargetAI // EW!
-            playerLogic.setTarget(target)
+            const playerLogic = this.player.getComponent(AILogic)!
+            playerLogic.behaviorLogic.passInput(target)
         })
 
         this.level.calculateView()
