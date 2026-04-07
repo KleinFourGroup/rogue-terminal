@@ -3,6 +3,7 @@ import { BasicActionDescription } from "./action/basic_action"
 import { IAnimation } from "./animation/animation"
 import { basicActionAnimator, basicActionBlocker } from "./animation/basic_animator"
 import { Entity } from "./entity"
+import { SignalEmitter } from "./signal"
 import { Observer } from "./visibility/observer"
 import { TileVisibility } from "./visibility/tile_visibility"
 import { VisibilityManager } from "./visibility/visibility_manager"
@@ -33,6 +34,11 @@ function showAction(action: BasicActionDescription, visibilityManager: Visibilit
     }
 }
 
+export interface TurnDisplaySignals {
+    onActivate: SignalEmitter<Entity>
+    onIdle: SignalEmitter<Entity>
+}
+
 export class TurnDisplay {
     activeMap: Map<Entity, IAnimation>
     queueMap: Map<Entity, ActionDescription>
@@ -42,6 +48,8 @@ export class TurnDisplay {
 
     world: World
 
+    signals: TurnDisplaySignals
+
     constructor(world: World) {
         this.activeMap = new Map<Entity, IAnimation>()
         this.queueMap = new Map<Entity, ActionDescription>()
@@ -50,6 +58,11 @@ export class TurnDisplay {
         this.blocking = {entity: null, turn: null}
 
         this.world = world
+
+        this.signals = {
+            onActivate: new SignalEmitter<Entity>(),
+            onIdle: new SignalEmitter<Entity>()
+        }
     }
 
     isPending() {
@@ -115,12 +128,16 @@ export class TurnDisplay {
                 while (turn.length > 0) {
                     const basicAction = turn.shift()!
                     const animation = basicActionAnimator(basicAction)
+                    
+                    this.signals.onActivate.emit(entity)
                     if (showAction(basicAction, this.world.visibilityManager)) {
                         this.activeMap.set(entity, animation)
                         break
                     } else {
                         animation.finish()
                         skipped.add(entity)
+
+                        this.signals.onIdle.emit(entity)
                     }
                 }
 
@@ -165,6 +182,8 @@ export class TurnDisplay {
 
         for (const entity of finished) {
             this.activeMap.delete(entity)
+
+            this.signals.onIdle.emit(entity)
         }
 
         return animated
