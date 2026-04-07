@@ -5,22 +5,22 @@ import { IBackgroundAnimation } from "./animation"
 import { AnimationFrame, AnimationInterval, KeyframeAnimationData } from "./keyframe_animation"
 import { KeyframeBackgroundAnimation } from "./keyframe_background_animation"
 
-const HOVER_LENGTH = 5000
-const HOVER_AMPLITUDE = 0.1
+const HOVER_LENGTH = 2000
+const HOVER_AMPLITUDE = 0.2
 
 export enum BackgroundAnimation {
     HOVER
 }
 
 export function makeHover(entity: Entity) {
+    const [baseX, baseY] = tileToPixel(0, 0, entity.width, entity.height)
+
     function startFrame(target: Entity, _data: null) {
-        const [baseX, baseY] = tileToPixel(entity.row, entity.col, entity.width, entity.height)
         target.sprite.x = baseX
         target.sprite.y = baseY
     }
 
     function betweenFrame(time: number, target: Entity, _data: null) {
-        const [baseX, baseY] = tileToPixel(entity.row, entity.col, entity.width, entity.height)
         const amplitude = (1 - Math.cos((time / HOVER_LENGTH) * 2 * Math.PI)) * HOVER_AMPLITUDE / 2
         target.sprite.x = baseX
         target.sprite.y = baseY - amplitude * TILE_SIZE
