@@ -26,7 +26,7 @@ export class IdleDisplay {
 
     setEntity(entity: Entity, state: BackgroundAnimation) {
         this.stateMap.set(entity, state)
-        
+
         const animation = backgroundAnimator(entity, state)
         this.animations.set(entity, animation)
     }

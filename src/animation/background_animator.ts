@@ -13,14 +13,14 @@ export enum BackgroundAnimation {
 }
 
 export function makeHover(entity: Entity) {
-    const [baseX, baseY] = tileToPixel(entity.row, entity.col, entity.width, entity.height)
-    
     function startFrame(target: Entity, _data: null) {
+        const [baseX, baseY] = tileToPixel(entity.row, entity.col, entity.width, entity.height)
         target.sprite.x = baseX
         target.sprite.y = baseY
     }
 
     function betweenFrame(time: number, target: Entity, _data: null) {
+        const [baseX, baseY] = tileToPixel(entity.row, entity.col, entity.width, entity.height)
         const amplitude = (1 - Math.cos((time / HOVER_LENGTH) * 2 * Math.PI)) * HOVER_AMPLITUDE / 2
         target.sprite.x = baseX
         target.sprite.y = baseY - amplitude * TILE_SIZE

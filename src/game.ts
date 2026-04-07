@@ -10,6 +10,9 @@ import { TurnLogic } from "./turn_logic"
 import { TurnDisplay } from "./turn_display"
 import { PointerInput } from "./pointer_input"
 import { AILogic } from "./behaviors/behavior"
+import { IdleDisplay } from "./idle_display"
+import { Actor } from "./actor"
+import { BackgroundAnimation } from "./animation/background_animator"
 
 const ROOM_ROWS = 3
 const ROOM_COLS = 3
@@ -33,6 +36,8 @@ export class GameScene extends Container implements IScene {
     turnLogic: TurnLogic
     turnDisplay: TurnDisplay
 
+    idleDisplay: IdleDisplay
+
     constructor(app: GameApp) {
         super()
         this.app = app
@@ -46,6 +51,9 @@ export class GameScene extends Container implements IScene {
 
         this.turnLogic = new TurnLogic(this.level)
         this.turnDisplay = new TurnDisplay(this.level)
+
+        this.idleDisplay = new IdleDisplay(this.level)
+        this.idleDisplay.setupListeners(this.turnDisplay.signals)
 
         this.elapsed = 0
 
@@ -63,6 +71,11 @@ export class GameScene extends Container implements IScene {
             const playerLogic = this.player.getComponent(AILogic)!
             playerLogic.behaviorLogic.passInput(target)
         })
+
+        // Not a fan of how this looks
+        for (const entity of this.level.entities.getComponentList(Actor)) {
+            this.idleDisplay.setEntity(entity, BackgroundAnimation.HOVER)
+        }
 
         this.level.calculateView()
         this.level.drawView()
@@ -90,6 +103,9 @@ export class GameScene extends Container implements IScene {
 
         const actives = this.turnDisplay.animateActive(deltaMS)
         updatedEntities = updatedEntities.union(actives)
+
+        const backgrounds = this.idleDisplay.animateBackground(deltaMS)
+        updatedEntities = updatedEntities.union(backgrounds)
 
         const updated = this.level.ground.updateTileAlphas(updatedEntities, this.level.visibilityDisplay, this.level.memories)
         this.app.debugOverlay.setAlphaUpdates(updated)
