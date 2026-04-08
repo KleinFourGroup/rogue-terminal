@@ -1,6 +1,5 @@
 import { BasicAction, BasicActionDescription, BasicActionList } from "../action/basic_action"
 import { Entity } from "../entity"
-import { tileToPixel } from "../position"
 import { TILE_SIZE } from "../text/canvas_style"
 import { Observer } from "../visibility/observer"
 import { IAnimation } from "./animation"
