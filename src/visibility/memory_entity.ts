@@ -1,4 +1,3 @@
-import { Container } from "pixi.js";
 import { Entity } from "../entity";
 import { tileToPixel } from "../position";
 import { IEntitySprite } from "../text/entity_sprite"

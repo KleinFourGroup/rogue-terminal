@@ -4,9 +4,11 @@ import { AnimationLayer } from "./layers"
 
 const FADE_LENGTH = 200
 
-export function makeFadeIn(entity: Entity) {
+export function makeFadeOut(entity: Entity) {
+    const startWeight = entity.compositor.get(AnimationLayer.HOVER).weight
+
     function startFrame(target: Entity, _data: null) {
-        target.compositor.setWeight(AnimationLayer.HOVER, 1)
+        target.compositor.setWeight(AnimationLayer.HOVER, startWeight)
     }
 
     function endFrame(target: Entity, _data: null) {
@@ -14,7 +16,7 @@ export function makeFadeIn(entity: Entity) {
     }
 
     function betweenFrame(time: number, target: Entity, _data: null) {
-        target.compositor.setWeight(AnimationLayer.HOVER, 1 - time / FADE_LENGTH)
+        target.compositor.setWeight(AnimationLayer.HOVER, startWeight * (1 - time / FADE_LENGTH))
     }
 
     const keyframes: number[] = [0, FADE_LENGTH]
@@ -30,9 +32,11 @@ export function makeFadeIn(entity: Entity) {
     return new KeyframeAnimation(animationData, entity, null)
 }
 
-export function makeFadeOut(entity: Entity) {
+export function makeFadeIn(entity: Entity) {
+    const startWeight = entity.compositor.get(AnimationLayer.HOVER).weight
+
     function startFrame(target: Entity, _data: null) {
-        target.compositor.setWeight(AnimationLayer.HOVER, 0)
+        target.compositor.setWeight(AnimationLayer.HOVER, startWeight)
     }
 
     function endFrame(target: Entity, _data: null) {
@@ -40,7 +44,7 @@ export function makeFadeOut(entity: Entity) {
     }
 
     function betweenFrame(time: number, target: Entity, _data: null) {
-        target.compositor.setWeight(AnimationLayer.HOVER, time / FADE_LENGTH)
+        target.compositor.setWeight(AnimationLayer.HOVER, startWeight * (1 - time / FADE_LENGTH) + time / FADE_LENGTH)
     }
 
     const keyframes: number[] = [0, FADE_LENGTH]

@@ -79,9 +79,13 @@ export class GameScene extends Container implements IScene {
 
         this.level.calculateView()
         this.level.drawView()
+        // Replace with a proper dirty list
+        for (const entity of this.level.entities.entities) {
+            entity.compose()
+        }
         const updated = this.level.ground.updateTileAlphas(new Set<Entity>(this.level.entities.entities), this.level.visibilityDisplay, this.level.memories)
         this.app.debugOverlay.setAlphaUpdates(updated)
-        this.camera.setPosition(this.player.graphics.x + this.player.sprite.x, this.player.graphics.y + this.player.sprite.y)
+        this.camera.setPosition(this.player.sprite.x, this.player.sprite.y)
     }
 
     update(deltaMS: number): void {
@@ -107,9 +111,13 @@ export class GameScene extends Container implements IScene {
         const backgrounds = this.idleDisplay.animateBackground(deltaMS)
         updatedEntities = updatedEntities.union(backgrounds)
 
+        // Replace with a proper dirty list
+        for (const entity of this.level.entities.entities) {
+            entity.compose()
+        }
         const updated = this.level.ground.updateTileAlphas(updatedEntities, this.level.visibilityDisplay, this.level.memories)
         this.app.debugOverlay.setAlphaUpdates(updated)
-        this.camera.setPosition(this.player.graphics.x + this.player.sprite.x, this.player.graphics.y + this.player.sprite.y)
+        this.camera.setPosition(this.player.sprite.x, this.player.sprite.y)
     }
     
     updateResolution(): void {

@@ -1,5 +1,4 @@
 import { Entity } from "../entity"
-import { tileToPixel } from "../position"
 import { TILE_SIZE } from "../text/canvas_style"
 import { IBackgroundAnimation } from "./animation"
 import { AnimationFrame, AnimationInterval, KeyframeAnimationData } from "./keyframe_animation"
