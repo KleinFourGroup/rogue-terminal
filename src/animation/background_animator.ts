@@ -4,6 +4,7 @@ import { TILE_SIZE } from "../text/canvas_style"
 import { IBackgroundAnimation } from "./animation"
 import { AnimationFrame, AnimationInterval, KeyframeAnimationData } from "./keyframe_animation"
 import { KeyframeBackgroundAnimation } from "./keyframe_background_animation"
+import { AnimationLayer } from "./layers"
 
 const HOVER_LENGTH = 2000
 const HOVER_AMPLITUDE = 0.2
@@ -13,17 +14,13 @@ export enum BackgroundAnimation {
 }
 
 export function makeHover(entity: Entity) {
-    const [baseX, baseY] = tileToPixel(0, 0, entity.width, entity.height)
-
     function startFrame(target: Entity, _data: null) {
-        target.sprite.x = baseX
-        target.sprite.y = baseY
+        target.compositor.setVector(AnimationLayer.HOVER, 0, 0)
     }
 
     function betweenFrame(time: number, target: Entity, _data: null) {
         const amplitude = (1 - Math.cos((time / HOVER_LENGTH) * 2 * Math.PI)) * HOVER_AMPLITUDE / 2
-        target.sprite.x = baseX
-        target.sprite.y = baseY - amplitude * TILE_SIZE
+        target.compositor.setVector(AnimationLayer.HOVER, 0, -amplitude * TILE_SIZE)
     }
 
     const keyframes: number[] = [0, HOVER_LENGTH]

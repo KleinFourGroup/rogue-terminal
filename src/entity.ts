@@ -1,4 +1,3 @@
-import { Container } from "pixi.js"
 import { CacheManager } from "./cache_manager"
 import { ClassConstructor, Component } from "./component"
 import { TilePositionSet, tileToPixel } from "./position"
@@ -6,6 +5,7 @@ import { SignalEmitter } from "./signal"
 import { DEFAULT_STYLE, TILE_SIZE } from "./text/canvas_style"
 import { IEntitySprite } from "./text/entity_sprite"
 import { TextSprite } from "./text/text_sprite"
+import { AnimationLayer, LayerCompositor } from "./animation/layers"
 
 let ID_NUM = 0
 
@@ -18,7 +18,7 @@ export class Entity implements IEntitySprite {
     id: string
 
     sprite: TextSprite
-    graphics: Container
+    compositor: LayerCompositor
 
     row: number
     col: number
@@ -35,7 +35,7 @@ export class Entity implements IEntitySprite {
         this.id = `${text}#${ID_NUM++}`
         const size = Math.min(width, height)
         this.sprite = new TextSprite(text, {cache: caches.canvasCache, style: caches.styleCache.getStyle(size * TILE_SIZE, size * TILE_SIZE, DEFAULT_STYLE.color)}) // CACHE!
-        this.graphics = new Container()
+        this.compositor = new LayerCompositor()
         this.row = row
         this.col = col
         this.width = width
@@ -50,10 +50,15 @@ export class Entity implements IEntitySprite {
         }
         
         this.sprite.anchor.set(0.5)
-        this.sprite.position.set(...tileToPixel(0, 0, this.width, this.height))
+        const [x, y] = tileToPixel(0, 0, this.width, this.height)
+        this.compositor.setVector(AnimationLayer.BASE, x, y)
+        this.compositor.setVector(AnimationLayer.LOCATION, this.col * TILE_SIZE, this.row * TILE_SIZE)
+        this.compose()
+    }
 
-        this.graphics.addChild(this.sprite)
-        this.graphics.position.set(this.col * TILE_SIZE, this.row * TILE_SIZE)
+    compose() {
+        const position = this.compositor.compose()
+        this.sprite.position.set(position.x, position.y)
     }
 
     setPosition(row: number, col: number, forceDraw: boolean = false) {
@@ -61,8 +66,8 @@ export class Entity implements IEntitySprite {
         this.col = col
 
         if (forceDraw) {
-            this.sprite.position.set(...tileToPixel(0, 0, this.width, this.height))
-            this.graphics.position.set(this.col * TILE_SIZE, this.row * TILE_SIZE)
+            this.compositor.setVector(AnimationLayer.LOCATION, this.col * TILE_SIZE, this.row * TILE_SIZE)
+            this.compose()
         }
     }
 
@@ -111,10 +116,10 @@ export class Entity implements IEntitySprite {
     cacheOverlaps(cols: number) {
         this.overlapCache.clear()
 
-        const minX = this.graphics.x + this.sprite.position.x - this.sprite.width / 2
-        const minY = this.graphics.y + this.sprite.position.y - this.sprite.height / 2
-        const maxX = this.graphics.x + this.sprite.position.x + this.sprite.width / 2
-        const maxY = this.graphics.y + this.sprite.position.y + this.sprite.height / 2
+        const minX = this.sprite.position.x - this.sprite.width / 2
+        const minY = this.sprite.position.y - this.sprite.height / 2
+        const maxX = this.sprite.position.x + this.sprite.width / 2
+        const maxY = this.sprite.position.y + this.sprite.height / 2
 
         const minRow = Math.floor(minY / TILE_SIZE)
         const minCol = Math.floor(minX / TILE_SIZE)

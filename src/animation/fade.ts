@@ -1,31 +1,50 @@
 import { Entity } from "../entity"
-import { tileToPixel } from "../position"
 import { AnimationFrame, AnimationInterval, KeyframeAnimation, KeyframeAnimationData } from "./keyframe_animation"
+import { AnimationLayer } from "./layers"
 
 const FADE_LENGTH = 200
 
-export function makeFade(entity: Entity) {
-    const startX = entity.sprite.x
-    const startY = entity.sprite.y
-    const [endX, endY] = tileToPixel(0, 0, entity.width, entity.height)
-
+export function makeFadeIn(entity: Entity) {
     function startFrame(target: Entity, _data: null) {
-        target.sprite.x = startX
-        target.sprite.y = startY
+        target.compositor.setWeight(AnimationLayer.HOVER, 1)
     }
 
     function endFrame(target: Entity, _data: null) {
-        target.sprite.x = endX
-        target.sprite.y = endY
+        target.compositor.setWeight(AnimationLayer.HOVER, 0)
     }
 
     function betweenFrame(time: number, target: Entity, _data: null) {
-        target.sprite.x = startX * (1 - time / FADE_LENGTH) + endX * time / FADE_LENGTH
-        target.sprite.y = startY * (1 - time / FADE_LENGTH) + endY * time / FADE_LENGTH
+        target.compositor.setWeight(AnimationLayer.HOVER, 1 - time / FADE_LENGTH)
     }
 
     const keyframes: number[] = [0, FADE_LENGTH]
-    const frameAnimations: AnimationFrame<null>[] = [startFrame, endFrame] // EWWW; refactor needed
+    const frameAnimations: AnimationFrame<null>[] = [startFrame, endFrame]
+    const betweenAnimations: AnimationInterval<null>[] = [betweenFrame]
+
+    const animationData: KeyframeAnimationData<null> = {
+        keyframes: keyframes,
+        frameAnimations: frameAnimations,
+        betweenAnimations: betweenAnimations
+    }
+
+    return new KeyframeAnimation(animationData, entity, null)
+}
+
+export function makeFadeOut(entity: Entity) {
+    function startFrame(target: Entity, _data: null) {
+        target.compositor.setWeight(AnimationLayer.HOVER, 0)
+    }
+
+    function endFrame(target: Entity, _data: null) {
+        target.compositor.setWeight(AnimationLayer.HOVER, 1)
+    }
+
+    function betweenFrame(time: number, target: Entity, _data: null) {
+        target.compositor.setWeight(AnimationLayer.HOVER, time / FADE_LENGTH)
+    }
+
+    const keyframes: number[] = [0, FADE_LENGTH]
+    const frameAnimations: AnimationFrame<null>[] = [startFrame, endFrame]
     const betweenAnimations: AnimationInterval<null>[] = [betweenFrame]
 
     const animationData: KeyframeAnimationData<null> = {

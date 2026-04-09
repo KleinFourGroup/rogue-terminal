@@ -4,6 +4,7 @@ import { TILE_SIZE } from "../text/canvas_style"
 import { Observer } from "../visibility/observer"
 import { IAnimation } from "./animation"
 import { AnimationFrame, AnimationInterval, KeyframeAnimation, KeyframeAnimationData } from "./keyframe_animation"
+import { AnimationLayer } from "./layers"
 
 const IDLE_LENGTH = 500
 const MOVE_LENGTH = 500
@@ -33,19 +34,20 @@ function makeMove(turnData: BasicActionList[BasicAction.MOVE]) {
     const [newX, newY] = [turnData.destination.col * TILE_SIZE, turnData.destination.row * TILE_SIZE]
     
     function startFrame(target: Entity, _data: null) {
-        target.graphics.x = oldX
-        target.graphics.y = oldY
+        target.compositor.setVector(AnimationLayer.LOCATION, oldX, oldY)
     }
 
     function endFrame(target: Entity, _data: null) {
-        target.graphics.x = newX
-        target.graphics.y = newY
+        target.compositor.setVector(AnimationLayer.LOCATION, newX, newY)
     }
 
     function betweenFrame(time: number, target: Entity, _data: null) {
         const progress = (1 - Math.cos(Math.min(time / MOVE_LENGTH, 1) * Math.PI)) / 2
-        target.graphics.x = oldX * (1 - progress) + newX * progress
-        target.graphics.y = oldY * (1 - progress) + newY * progress
+        target.compositor.setVector(
+            AnimationLayer.LOCATION,
+            oldX * (1 - progress) + newX * progress,
+            oldY * (1 - progress) + newY * progress
+        )
     }
 
     const keyframes: number[] = [0, MOVE_LENGTH]

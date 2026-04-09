@@ -84,7 +84,7 @@ export abstract class EntityGrid<EntityType extends IEntitySprite> {
             if (success) {
                 this.entities.push(entity)
                 this.addHook(entity)
-                this.stage.addChild(entity.graphics)
+                this.stage.addChild(entity.sprite)
                 this.signals.onAdd.emit(entity)
             } else {
                 this.deleteFromGrid(entity)
@@ -98,7 +98,7 @@ export abstract class EntityGrid<EntityType extends IEntitySprite> {
             this.removeHook(entity)
             this.entities.splice(index, 1)
             this.deleteFromGrid(entity)
-            this.stage.removeChild(entity.graphics)
+            this.stage.removeChild(entity.sprite)
 
             this.signals.onDelete.emit(entity)
         }

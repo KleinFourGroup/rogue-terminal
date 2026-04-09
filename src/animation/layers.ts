@@ -58,5 +58,7 @@ export class LayerCompositor {
             this.value.x += data.vector.x * data.weight
             this.value.y += data.vector.y * data.weight
         }
+
+        return this.value
     }
 }
