@@ -9,6 +9,7 @@ export class IdleDisplay {
     stateMap: Map<Entity, BackgroundAnimation>
     idleMap: Map<Entity, IBackgroundAnimation>
     fadeMap: Map<Entity, IAnimation>
+    suspended: Set<Entity>
 
     world: World
 
@@ -16,6 +17,7 @@ export class IdleDisplay {
         this.stateMap = new Map<Entity, BackgroundAnimation>()
         this.idleMap = new Map<Entity, IBackgroundAnimation>()
         this.fadeMap = new Map<Entity, IAnimation>()
+        this.suspended = new Set<Entity>()
 
         this.world = world
     }
@@ -37,6 +39,7 @@ export class IdleDisplay {
             const animation = makeFadeOut(entity)
             animation.init(0)
             this.fadeMap.set(entity, animation)
+            this.suspended.add(entity)
         }
     }
 
@@ -45,7 +48,12 @@ export class IdleDisplay {
             const animation = makeFadeIn(entity)
             animation.init(0)
             this.fadeMap.set(entity, animation)
+            this.suspended.delete(entity)
         }
+    }
+
+    isFaded(entity: Entity) {
+        return this.suspended.has(entity) && !this.fadeMap.has(entity)
     }
 
     animateBackground(deltaMS: number) {
@@ -53,7 +61,7 @@ export class IdleDisplay {
         const finished = new Set<Entity>()
 
         for (const [entity, animation] of this.idleMap) {
-            if (this.world.visibilityDisplay.isEntityVisible(entity)) {
+            if (this.world.visibilityDisplay.isEntityVisible(entity) && !this.isFaded(entity)) {
                 animation.animate(deltaMS)
                 animated.add(entity)
             }
