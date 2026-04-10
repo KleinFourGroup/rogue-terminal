@@ -85,7 +85,7 @@ export class GameScene extends Container implements IScene {
         }
         const updated = this.level.ground.updateTileAlphas(new Set<Entity>(this.level.entities.entities), this.level.visibilityDisplay, this.level.memories)
         this.app.debugOverlay.setAlphaUpdates(updated)
-        this.camera.setPosition(this.player.sprite.x, this.player.sprite.y)
+        this.camera.setPosition(...this.player.cameraCoordinates())
     }
 
     update(deltaMS: number): void {
@@ -117,7 +117,7 @@ export class GameScene extends Container implements IScene {
         }
         const updated = this.level.ground.updateTileAlphas(updatedEntities, this.level.visibilityDisplay, this.level.memories)
         this.app.debugOverlay.setAlphaUpdates(updated)
-        this.camera.setPosition(this.player.sprite.x, this.player.sprite.y)
+        this.camera.setPosition(...this.player.cameraCoordinates())
     }
     
     updateResolution(): void {

@@ -144,4 +144,11 @@ export class Entity implements IEntitySprite {
             }
         }
     }
+
+    cameraCoordinates() {
+        const base = this.compositor.get(AnimationLayer.BASE).vector
+        const position = this.compositor.get(AnimationLayer.LOCATION).vector
+
+        return [base.x + position.x, base.y + position.y] as const
+    }
 }
