@@ -1,28 +1,44 @@
 import { Entity } from "../entity"
-import { IBackgroundAnimation } from "./animation"
-import { KeyframeAnimationData } from "./keyframe_animation"
+import { IAnimation } from "./animation"
 
-export class KeyframeBackgroundAnimation<T> implements IBackgroundAnimation {
+export type AnimationInterval<T> = (time: number, target: Entity, data: T) => void
+export type AnimationFrame<T> = (target: Entity, data: T) => void
+
+export type KeyframeAnimationData<T> = {
+    keyframes: number[]
+    frameAnimations: AnimationFrame<T>[]
+    betweenAnimations: AnimationInterval<T>[]
+}
+
+export class StaticKeyframeAnimation<T> implements IAnimation {
     animation: KeyframeAnimationData<T>
     target: Entity
     animationData: T
+    loop: boolean
     elapsed: number
     lastKeyframe: number
 
-    constructor(animation: KeyframeAnimationData<T>, target: Entity, animationData: T) {
+    constructor(animation: KeyframeAnimationData<T>, target: Entity, animationData: T, loop: boolean) {
         console.assert(animation.keyframes.length === animation.frameAnimations.length)
         console.assert(animation.keyframes.length === animation.betweenAnimations.length + 1)
         console.assert(animation.keyframes[0] === 0)
-        console.assert(animation.frameAnimations[0] === null || animation.frameAnimations[animation.frameAnimations.length - 1] === null)
+        if (loop) {
+            console.assert(animation.frameAnimations[0] === null || animation.frameAnimations[animation.frameAnimations.length - 1] === null)
+        }
         this.animation = animation
         this.target = target
         this.animationData = animationData
+        this.loop = loop
         this.elapsed = 0.0
         this.lastKeyframe = -1
     }
 
     get duration() {
         return this.animation.keyframes[this.animation.keyframes.length - 1]
+    }
+
+    isFinished() {
+        return this.elapsed > this.duration && !this.loop
     }
 
     init(deltaMS: number = 0) {
@@ -33,6 +49,23 @@ export class KeyframeBackgroundAnimation<T> implements IBackgroundAnimation {
         this.elapsed = 0.0
         this.lastKeyframe = -1
         this.animate(deltaMS)
+    }
+
+    finish() {
+        if (this.loop) {
+            return
+        }
+
+        this.lastKeyframe++
+
+        while (this.lastKeyframe < this.animation.keyframes.length) {
+            // console.log(`Processing frame ${frameInd}`)
+            if (this.animation.frameAnimations[this.lastKeyframe] !== null) {
+                this.animation.frameAnimations[this.lastKeyframe]!(this.target, this.animationData)
+            }
+            this.elapsed = this.duration
+            this.lastKeyframe++
+        }
     }
 
     animate(deltaMS: number) {
@@ -64,7 +97,7 @@ export class KeyframeBackgroundAnimation<T> implements IBackgroundAnimation {
             }
 
             // We ran out of keyframes and we're looping
-            if (this.lastKeyframe === this.animation.keyframes.length - 1) {
+            if (this.loop && this.lastKeyframe === this.animation.keyframes.length - 1) {
                 console.assert(this.elapsed >= this.duration)
                 this.elapsed -= this.duration
                 processedTime = 0
@@ -75,6 +108,6 @@ export class KeyframeBackgroundAnimation<T> implements IBackgroundAnimation {
             }
 
             // console.log(`${processedTime} / ${this.elapsed}`)
-        } while (processedTime !== this.elapsed)
+        } while (this.loop && processedTime !== this.elapsed)
     }
 }

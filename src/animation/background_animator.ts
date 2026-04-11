@@ -1,8 +1,7 @@
 import { Entity } from "../entity"
 import { TILE_SIZE } from "../text/canvas_style"
-import { IBackgroundAnimation } from "./animation"
-import { AnimationFrame, AnimationInterval, KeyframeAnimationData } from "./keyframe_animation"
-import { KeyframeBackgroundAnimation } from "./keyframe_background_animation"
+import { IAnimation } from "./animation"
+import { AnimationFrame, AnimationInterval, KeyframeAnimationData, StaticKeyframeAnimation } from "./static_keyframe_animation"
 import { AnimationLayer } from "./layers"
 
 const HOVER_LENGTH = 2000
@@ -32,10 +31,10 @@ export function makeHover(entity: Entity) {
         betweenAnimations: betweenAnimations
     }
 
-    return new KeyframeBackgroundAnimation(animationData, entity, null)
+    return new StaticKeyframeAnimation(animationData, entity, null, true)
 }
 
-export function backgroundAnimator(entity: Entity, background: BackgroundAnimation): IBackgroundAnimation {
+export function backgroundAnimator(entity: Entity, background: BackgroundAnimation): IAnimation {
     switch (background) {
         case BackgroundAnimation.HOVER:
             return makeHover(entity)

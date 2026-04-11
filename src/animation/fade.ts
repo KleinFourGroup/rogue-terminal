@@ -1,5 +1,5 @@
 import { Entity } from "../entity"
-import { AnimationFrame, AnimationInterval, KeyframeAnimation, KeyframeAnimationData } from "./keyframe_animation"
+import { AnimationFrame, AnimationInterval, StaticKeyframeAnimation, KeyframeAnimationData } from "./static_keyframe_animation"
 import { AnimationLayer } from "./layers"
 
 const FADE_LENGTH = 200
@@ -30,7 +30,7 @@ export function makeFadeOut(entity: Entity) {
         betweenAnimations: betweenAnimations
     }
 
-    return new KeyframeAnimation(animationData, entity, null)
+    return new StaticKeyframeAnimation(animationData, entity, null, false)
 }
 
 export function makeFadeIn(entity: Entity) {
@@ -59,5 +59,5 @@ export function makeFadeIn(entity: Entity) {
         betweenAnimations: betweenAnimations
     }
 
-    return new KeyframeAnimation(animationData, entity, null)
+    return new StaticKeyframeAnimation(animationData, entity, null, false)
 }

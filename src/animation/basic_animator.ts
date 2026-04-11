@@ -3,7 +3,7 @@ import { Entity } from "../entity"
 import { TILE_SIZE } from "../text/canvas_style"
 import { Observer } from "../visibility/observer"
 import { IAnimation } from "./animation"
-import { AnimationFrame, AnimationInterval, KeyframeAnimation, KeyframeAnimationData } from "./keyframe_animation"
+import { AnimationFrame, AnimationInterval, StaticKeyframeAnimation, KeyframeAnimationData } from "./static_keyframe_animation"
 import { AnimationLayer } from "./layers"
 
 const IDLE_LENGTH = 500
@@ -26,7 +26,7 @@ function makeIdle(turnData: BasicActionList[BasicAction.IDLE]) {
         betweenAnimations: betweenAnimations
     }
 
-    return new KeyframeAnimation<null>(animationData, turnData.actorEntity, null)
+    return new StaticKeyframeAnimation<null>(animationData, turnData.actorEntity, null, false)
 }
 
 function makeMove(turnData: BasicActionList[BasicAction.MOVE]) {
@@ -60,7 +60,7 @@ function makeMove(turnData: BasicActionList[BasicAction.MOVE]) {
         betweenAnimations: betweenAnimations
     }
 
-    return new KeyframeAnimation(animationData, turnData.actorEntity, null)
+    return new StaticKeyframeAnimation(animationData, turnData.actorEntity, null, false)
 }
 
 export function basicActionAnimator(action: BasicActionDescription): IAnimation {

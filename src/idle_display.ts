@@ -1,4 +1,4 @@
-import { IAnimation, IBackgroundAnimation } from "./animation/animation"
+import { IAnimation } from "./animation/animation"
 import { BackgroundAnimation, backgroundAnimator } from "./animation/background_animator"
 import { makeFadeIn, makeFadeOut } from "./animation/fade"
 import { Entity } from "./entity"
@@ -7,7 +7,7 @@ import { World } from "./world"
 
 export class IdleDisplay {
     stateMap: Map<Entity, BackgroundAnimation>
-    idleMap: Map<Entity, IBackgroundAnimation>
+    idleMap: Map<Entity, IAnimation>
     fadeMap: Map<Entity, IAnimation>
     suspended: Set<Entity>
 
@@ -15,7 +15,7 @@ export class IdleDisplay {
 
     constructor(world: World) {
         this.stateMap = new Map<Entity, BackgroundAnimation>()
-        this.idleMap = new Map<Entity, IBackgroundAnimation>()
+        this.idleMap = new Map<Entity, IAnimation>()
         this.fadeMap = new Map<Entity, IAnimation>()
         this.suspended = new Set<Entity>()
 
