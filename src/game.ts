@@ -74,7 +74,7 @@ export class GameScene extends Container implements IScene {
 
         // Not a fan of how this looks
         for (const entity of this.level.entities.getComponentList(Actor)) {
-            this.idleDisplay.setEntity(entity, BackgroundAnimation.HOVER)
+            this.idleDisplay.setEntity(entity, BackgroundAnimation.HOVER, true)
         }
 
         this.level.calculateView()
@@ -111,8 +111,8 @@ export class GameScene extends Container implements IScene {
         const backgrounds = this.idleDisplay.animateBackground(deltaMS)
         updatedEntities = updatedEntities.union(backgrounds)
 
-        // Replace with a proper dirty list
-        for (const entity of this.level.entities.entities) {
+        // Every entity with a skipped animation, an animated animation, or an idle animation
+        for (const entity of updatedEntities) {
             entity.compose()
         }
         const updated = this.level.ground.updateTileAlphas(updatedEntities, this.level.visibilityDisplay, this.level.memories)

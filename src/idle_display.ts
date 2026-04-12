@@ -27,10 +27,13 @@ export class IdleDisplay {
         signals.onIdle.subscribe((entity: Entity) => {this.resume(entity)})
     }
 
-    setEntity(entity: Entity, state: BackgroundAnimation) {
+    setEntity(entity: Entity, state: BackgroundAnimation, randomize: boolean) {
         this.stateMap.set(entity, state)
 
         const animation = backgroundAnimator(entity, state)
+        if (randomize) {
+            animation.init(Math.random() * 1000)
+        }
         this.idleMap.set(entity, animation)
     }
 

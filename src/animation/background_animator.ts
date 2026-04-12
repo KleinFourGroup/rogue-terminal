@@ -22,7 +22,7 @@ export function makeHover(entity: Entity) {
     }
 
     const keyframes: number[] = [0, HOVER_LENGTH]
-    const frameAnimations: AnimationFrame<null>[] = [startFrame, null!] // EWWW; refactor needed
+    const frameAnimations: (AnimationFrame<null> | null)[] = [startFrame, null]
     const betweenAnimations: AnimationInterval<null>[] = [betweenFrame]
 
     const animationData: KeyframeAnimationData<null> = {

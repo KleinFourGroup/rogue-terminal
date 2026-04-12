@@ -6,7 +6,7 @@ export type AnimationFrame<T> = (target: Entity, data: T) => void
 
 export type KeyframeAnimationData<T> = {
     keyframes: number[]
-    frameAnimations: AnimationFrame<T>[]
+    frameAnimations: (AnimationFrame<T> | null)[]
     betweenAnimations: AnimationInterval<T>[]
 }
 
