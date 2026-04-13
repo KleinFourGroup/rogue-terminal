@@ -1,11 +1,13 @@
 import { Actor } from "../actor"
 import { setupAI } from "../behaviors/behavior"
+import { PatrolAI } from "../behaviors/patrol"
 import { PlayerMoveTargetAI } from "../behaviors/player_move_target"
 import { RandomMoveTargetAI } from "../behaviors/random_move_target"
 import { RandomWalkAI } from "../behaviors/random_walk"
 import { CacheManager } from "../cache_manager"
 import { COLORS } from "../colors"
 import { Entity } from "../entity"
+import { TilePosition } from "../position"
 import { TextSprite } from "../text/text_sprite"
 import { FogMemory } from "../visibility/fog_memory"
 import { Observer } from "../visibility/observer"
@@ -98,6 +100,32 @@ function placeDogs(level: World, caches: CacheManager, ROOM_ROW: number, ROOM_CO
     }
 }
 
+function placePatrol(level: World, caches: CacheManager, ROOM_ROW: number, ROOM_COL: number, ROOM_SIZE: number) {
+    const BASE_ROW = ROOM_ROW * (ROOM_SIZE + 1)
+    const BASE_COL = ROOM_COL * (ROOM_SIZE + 1)
+
+    const offset = 3
+    const tiles: TilePosition[] = [
+        {row: BASE_ROW + offset, col: BASE_COL + offset},
+        {row: BASE_ROW + offset, col: BASE_COL + ROOM_SIZE - offset + 1},
+        {row: BASE_ROW + ROOM_SIZE - offset + 1, col: BASE_COL + ROOM_SIZE - offset + 1},
+        {row: BASE_ROW + ROOM_SIZE - offset + 1, col: BASE_COL + offset},
+    ]
+
+    for (const tile of tiles) {
+        const start = tiles.indexOf(tile)
+        const targets = [
+            ...tiles.slice(start),
+            ...tiles.slice(0, start)
+        ]
+
+        const newEntity = new Entity("P", caches, tile.row, tile.col, 1, 1)
+        newEntity.addComponent(new Actor(newEntity))
+        level.addEntity(newEntity)
+        setupAI(newEntity, new PatrolAI(newEntity, level, targets, caches.navNodePool, 1200)) // Still probably don't want this being called directly
+    }
+}
+
 export function buildLevel(ROOM_ROWS: number, ROOM_COLS: number, ROOM_SIZE: number, FOV_DISTANCE: number, caches: CacheManager) {
     const ROWS = ROOM_ROWS * (ROOM_SIZE + 1) + 1
     const COLS = ROOM_COLS * (ROOM_SIZE + 1) + 1
@@ -131,12 +159,13 @@ export function buildLevel(ROOM_ROWS: number, ROOM_COLS: number, ROOM_SIZE: numb
         }
     }
 
-    placeGiants(level, caches, 1, 1, ROOM_SIZE)
+    placePatrol(level, caches, 1, 1, ROOM_SIZE)
 
     placeOrcs(level, caches, 0, 1, ROOM_SIZE)
     placeOrcs(level, caches, 2, 1, ROOM_SIZE)
-    placeOrcs(level, caches, 1, 0, ROOM_SIZE)
-    placeOrcs(level, caches, 1, 2, ROOM_SIZE)
+
+    placeGiants(level, caches, 1, 0, ROOM_SIZE)
+    placeGiants(level, caches, 1, 2, ROOM_SIZE)
 
     placeDogs(level, caches, 0, 0, ROOM_SIZE)
     placeDogs(level, caches, 0, 2, ROOM_SIZE)
