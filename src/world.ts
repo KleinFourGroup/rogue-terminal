@@ -125,6 +125,20 @@ export class World extends Container {
     advanceTicks(ticks: number) {
         this.entities.advanceTicks(ticks)
     }
+
+    stepTextSequences() {
+        for (const entity of this.entities.entities) {
+            if (entity.characters.length > 1) {
+                entity.step()
+            }
+        }
+
+        for (const entity of this.memories.entities) {
+            if (entity.characters.length > 1) {
+                entity.step()
+            }
+        }
+    }
     
     animateActive(deltaMS: number) {
         const activeEntities = this.entities.getActive()

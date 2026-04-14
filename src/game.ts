@@ -32,6 +32,7 @@ export class GameScene extends Container implements IScene {
     pointerInput: PointerInput
 
     elapsed: number
+    sequenceStep: number
 
     turnLogic: TurnLogic
     turnDisplay: TurnDisplay
@@ -56,6 +57,7 @@ export class GameScene extends Container implements IScene {
         this.idleDisplay.setupListeners(this.turnDisplay.signals)
 
         this.elapsed = 0
+        this.sequenceStep = 0
 
         this.addChild(this.pointerInput.inputContainer)
         this.pointerInput.inputContainer.addChild(this.level)
@@ -116,6 +118,13 @@ export class GameScene extends Container implements IScene {
             entity.compose()
         }
         const updated = this.level.ground.updateTileAlphas(updatedEntities, this.level.visibilityDisplay, this.level.memories)
+
+        this.sequenceStep += deltaMS
+        while (this.sequenceStep >= 250) {
+            this.sequenceStep -= 250
+            this.level.stepTextSequences()
+        }
+
         this.app.debugOverlay.setAlphaUpdates(updated)
         this.camera.setPosition(...this.player.cameraCoordinates())
     }

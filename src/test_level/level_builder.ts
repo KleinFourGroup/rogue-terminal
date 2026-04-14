@@ -55,7 +55,7 @@ function placeOrcs(level: World, caches: CacheManager, ROOM_ROW: number, ROOM_CO
     for (let drow = -1; drow <= 1; drow += 2) {
         for (let dcol = -1; dcol <= 1; dcol += 2) {
             for (let count = 1; count <= 3; count++) {
-                const newEntity = new Entity("O", caches, BASE_ROW + MIDPOINT + count * drow, BASE_COL + MIDPOINT + count * dcol)
+                const newEntity = new Entity("ORC", caches, BASE_ROW + MIDPOINT + count * drow, BASE_COL + MIDPOINT + count * dcol)
                 newEntity.addComponent(new Actor(newEntity))
                 setupAI(newEntity, new RandomWalkAI(newEntity, level, false))
                 level.addEntity(newEntity)
@@ -71,7 +71,7 @@ function placeGiants(level: World, caches: CacheManager, ROOM_ROW: number, ROOM_
 
     for (let sign = -1; sign <= 1; sign += 2) {
         for (let flip = 0; flip <= 1; flip++) {
-            const newEntity = new Entity("G", caches, BASE_ROW + MIDPOINT + 3 * sign * flip - 1, BASE_COL + MIDPOINT + 3 * sign * (1 - flip) - 1, 3, 3)
+            const newEntity = new Entity("Giant", caches, BASE_ROW + MIDPOINT + 3 * sign * flip - 1, BASE_COL + MIDPOINT + 3 * sign * (1 - flip) - 1, 3, 3)
             newEntity.addComponent(new Actor(newEntity))
             setupAI(newEntity, new RandomWalkAI(newEntity, level, false, 2400))
             level.addEntity(newEntity)
@@ -92,7 +92,7 @@ function placeDogs(level: World, caches: CacheManager, ROOM_ROW: number, ROOM_CO
         for (const col of cols) {
             const colSub = col === cols[1] ? 0 : -1
 
-            const newEntity = new Entity("D", caches, row + rowSub, col + colSub, 2, 2)
+            const newEntity = new Entity("DOG", caches, row + rowSub, col + colSub, 2, 2)
             newEntity.addComponent(new Actor(newEntity))
             level.addEntity(newEntity)
             setupAI(newEntity, new RandomMoveTargetAI(newEntity, level, false, caches.navNodePool, 600)) // Still probably don't want this being called directly
@@ -119,7 +119,7 @@ function placePatrol(level: World, caches: CacheManager, ROOM_ROW: number, ROOM_
             ...tiles.slice(0, start)
         ]
 
-        const newEntity = new Entity("P", caches, tile.row, tile.col, 1, 1)
+        const newEntity = new Entity("PATROL", caches, tile.row, tile.col, 1, 1)
         newEntity.addComponent(new Actor(newEntity))
         level.addEntity(newEntity)
         setupAI(newEntity, new PatrolAI(newEntity, level, targets, caches.navNodePool, 1200)) // Still probably don't want this being called directly
