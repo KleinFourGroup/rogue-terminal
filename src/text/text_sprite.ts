@@ -34,4 +34,17 @@ export class TextSprite extends Sprite {
     clone() {
         return new TextSprite(this.character, this.options)
     }
+
+    setCharacter(character: string) {
+        this.character = character
+
+        if (this.options.cache === null) {
+            this.textCanvas.writeText(this.character)
+        } else {
+            const textCanvas = this.options.cache.getCanvas(this.options.style, this.character)
+            // TODO: Check if pixi caches this, or if I have to make another cache
+            this.texture = Texture.from(textCanvas.canvas)
+            this.textCanvas = textCanvas
+        }
+    }
 }
