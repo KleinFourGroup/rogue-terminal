@@ -25,6 +25,17 @@ export class TextSequence {
         this.index = (index + length) % length
     }
 
+    clone() {
+        const copy = new TextSequence([...this.characters])
+        copy.index = this.index
+        
+        return copy
+    }
+
+    getString() {
+        return this.characters.join("")
+    }
+
     static fromString(text: string) {
         const characters = [...text]
         return new TextSequence(characters)

@@ -4,8 +4,10 @@ import { IEntitySprite } from "../text/entity_sprite"
 import { TextSprite } from "../text/text_sprite";
 import { TILE_SIZE } from "../text/canvas_style";
 import { AnimationLayer, LayerCompositor } from "../animation/layers";
+import { TextSequence } from "../text/text_sequence";
 
 export class MemoryEntity implements IEntitySprite {
+    characters: TextSequence
     sprite: TextSprite
     compositor: LayerCompositor
     row: number
@@ -16,6 +18,7 @@ export class MemoryEntity implements IEntitySprite {
     original: Entity
 
     constructor(entity: Entity) {
+        this.characters = entity.characters.clone()
         this.sprite = entity.sprite.clone()
         this.compositor = new LayerCompositor()
         this.row = entity.row
@@ -45,6 +48,11 @@ export class MemoryEntity implements IEntitySprite {
             this.compositor.setVector(AnimationLayer.LOCATION, this.col * TILE_SIZE, this.row * TILE_SIZE)
             this.compose()
         }
+    }
+
+    step(count: number = 1) {
+        this.characters.step(count)
+        this.sprite.setCharacter(this.characters.getCurrent())
     }
 
     isUpToDate() {

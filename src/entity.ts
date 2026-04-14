@@ -6,6 +6,7 @@ import { DEFAULT_STYLE, TILE_SIZE } from "./text/canvas_style"
 import { IEntitySprite } from "./text/entity_sprite"
 import { TextSprite } from "./text/text_sprite"
 import { AnimationLayer, LayerCompositor } from "./animation/layers"
+import { TextSequence } from "./text/text_sequence"
 
 let ID_NUM = 0
 
@@ -17,6 +18,7 @@ interface EntitySignals {
 export class Entity implements IEntitySprite {
     id: string
 
+    characters: TextSequence
     sprite: TextSprite
     compositor: LayerCompositor
 
@@ -31,10 +33,12 @@ export class Entity implements IEntitySprite {
     components: Map<ClassConstructor<any>, Component>
     signals: EntitySignals
 
-    constructor(text: string, caches: CacheManager, row: number = 0, col: number = 0, width: number = 1, height: number = 1) {
-        this.id = `${text}#${ID_NUM++}`
+    constructor(text: string | string[] | TextSequence, caches: CacheManager, row: number = 0, col: number = 0, width: number = 1, height: number = 1) {
+        const characters = (typeof text === "string") ? TextSequence.fromString(text) : (Array.isArray(text)) ? new TextSequence(text) : text
+        this.id = `${characters.getString()}#${ID_NUM++}`
+        this.characters = characters
         const size = Math.min(width, height)
-        this.sprite = new TextSprite(text, {cache: caches.canvasCache, style: caches.styleCache.getStyle(size * TILE_SIZE, size * TILE_SIZE, DEFAULT_STYLE.color)}) // CACHE!
+        this.sprite = new TextSprite(this.characters.getCurrent(), {cache: caches.canvasCache, style: caches.styleCache.getStyle(size * TILE_SIZE, size * TILE_SIZE, DEFAULT_STYLE.color)}) // CACHE!
         this.compositor = new LayerCompositor()
         this.row = row
         this.col = col
@@ -69,6 +73,11 @@ export class Entity implements IEntitySprite {
             this.compositor.setVector(AnimationLayer.LOCATION, this.col * TILE_SIZE, this.row * TILE_SIZE)
             this.compose()
         }
+    }
+
+    step(count: number = 1) {
+        this.characters.step(count)
+        this.sprite.setCharacter(this.characters.getCurrent())
     }
 
     footprint() {
