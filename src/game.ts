@@ -13,6 +13,7 @@ import { AILogic } from "./behaviors/behavior"
 import { IdleDisplay } from "./idle_display"
 import { Actor } from "./actor"
 import { BackgroundAnimation } from "./animation/background_animator"
+import { GameplayUI } from "./gameplay_ui"
 
 const ROOM_ROWS = 3
 const ROOM_COLS = 3
@@ -39,6 +40,8 @@ export class GameScene extends Container implements IScene {
 
     idleDisplay: IdleDisplay
 
+    gameplayUI: GameplayUI
+
     constructor(app: GameApp) {
         super()
         this.app = app
@@ -59,8 +62,12 @@ export class GameScene extends Container implements IScene {
         this.elapsed = 0
         this.sequenceStep = 0
 
+        this.gameplayUI = new GameplayUI(app)
+
         this.addChild(this.pointerInput.inputContainer)
         this.pointerInput.inputContainer.addChild(this.level)
+
+        this.addChild(this.gameplayUI)
 
         this.pointerInput.onUpdate.subscribe((pointer) => {
             // console.log(pointer)
@@ -137,5 +144,7 @@ export class GameScene extends Container implements IScene {
         const zoom = screenDiagonal / TILES_DIAGONAL
         this.camera.setZoom(zoom)
         this.app.debugOverlay.setZoom(zoom) // TODO: make less ugly
+
+        this.gameplayUI.updateResolution()
     }
 }

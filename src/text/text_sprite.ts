@@ -40,10 +40,10 @@ export class TextSprite extends Sprite {
 
         if (this.options.cache === null) {
             this.textCanvas.writeText(this.character)
+            this.texture.source.update()
         } else {
             const textCanvas = this.options.cache.getCanvas(this.options.style, this.character)
-            // TODO: Check if pixi caches this, or if I have to make another cache
-            this.texture = Texture.from(textCanvas.canvas)
+            this.texture = Texture.from(textCanvas.canvas) // Turns out this is cached!
             this.textCanvas = textCanvas
         }
     }
