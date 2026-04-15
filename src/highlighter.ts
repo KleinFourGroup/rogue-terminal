@@ -22,13 +22,11 @@ export class HighlighterDisplay {
     }
 
     setTarget(target: HighlightTarget) {
-        if (target === null && this.target === null) {
+        if (target === null) {
             this.highlight.visible = false
         } else if (target !== null) {
             this.highlight.position.set(target.col * TILE_SIZE, target.row * TILE_SIZE)
-            if (this.target !== null) {
-                this.highlight.visible = true
-            }
+            this.highlight.visible = true
         }
 
         this.target = target

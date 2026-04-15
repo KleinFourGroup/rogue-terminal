@@ -1,4 +1,4 @@
-import { Container, FederatedPointerEvent, Point } from "pixi.js"
+import { Container, FederatedPointerEvent, Graphics, Point } from "pixi.js"
 import { GameApp } from "./app"
 import { SignalEmitter } from "./signal"
 import { Camera, CameraSignals, CameraState } from "./camera"
@@ -32,13 +32,15 @@ export class PointerInput {
 
         this.inputContainer.on("pointerdown", (event: FederatedPointerEvent) => {this.onClick.emit(event.getLocalPosition(this.camera.stage))})
 
-        this.setListeners(this.camera.signals)
+        // this.setListeners(this.camera.signals)
     }
 
-    private setListeners(signals: CameraSignals) {
+    setListeners(signals: CameraSignals, onHover: SignalEmitter<Graphics>) {
         // Spoofing updates, because this will change the local coordinates
         signals.onMove.subscribe((_state: CameraState) => {this.onUpdate.emit(this.cameraCoordinates())})
         signals.onZoom.subscribe((_state: CameraState) => {this.onUpdate.emit(this.cameraCoordinates())})
+
+        onHover.subscribe((_button: Graphics) => {this.setPointer(null)})
     }
 
     private cameraCoordinates() {

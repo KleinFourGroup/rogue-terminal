@@ -1,6 +1,7 @@
 import { Container, Graphics } from "pixi.js"
 import { GameApp } from "./app"
 import { COLORS } from "./colors"
+import { SignalEmitter } from "./signal"
 
 const WAIT_SIZE = 50
 const STROKE_SIZE = 5
@@ -9,9 +10,11 @@ const EDGE_MARGIN = 10
 export class GameplayUI extends Container {
     app: GameApp
     waitButton: Graphics
-    hoverRect: Graphics
 
+    hoverRect: Graphics
     currentHover: Graphics | null
+
+    onHover: SignalEmitter<Graphics>
 
     constructor(app: GameApp) {
         super()
@@ -23,6 +26,8 @@ export class GameplayUI extends Container {
         this.hoverRect = new Graphics()
         this.currentHover = null
 
+        this.onHover = new SignalEmitter<Graphics>()
+
         this.addChild(this.waitButton)
         this.addChild(this.hoverRect)
 
@@ -33,6 +38,8 @@ export class GameplayUI extends Container {
     }
     
     hoverOver(button: Graphics | null) {
+        const isNew = button === this.currentHover
+
         this.currentHover = button
         this.hoverRect.clear()
 
@@ -44,6 +51,10 @@ export class GameplayUI extends Container {
                 box.width - STROKE_SIZE,
                 box.height - STROKE_SIZE
             ).stroke({width: STROKE_SIZE, color: COLORS.TERMINAL_AMBER})
+
+            if (isNew) {
+                this.onHover.emit(button)
+            }
         }
     }
 
