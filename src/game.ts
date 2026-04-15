@@ -68,7 +68,7 @@ export class GameScene extends Container implements IScene {
         this.pointerInput.inputContainer.addChild(this.level)
         this.addChild(this.gameplayUI)
 
-        this.pointerInput.setListeners(this.camera.signals, this.gameplayUI.onHover)
+        this.pointerInput.setListeners(this.camera.signals, this.gameplayUI.onHoverStart)
 
         this.pointerInput.onUpdate.subscribe((pointer) => {
             // console.log(pointer)

@@ -14,7 +14,7 @@ export class GameplayUI extends Container {
     hoverRect: Graphics
     currentHover: Graphics | null
 
-    onHover: SignalEmitter<Graphics>
+    onHoverStart: SignalEmitter<Graphics>
 
     constructor(app: GameApp) {
         super()
@@ -26,19 +26,19 @@ export class GameplayUI extends Container {
         this.hoverRect = new Graphics()
         this.currentHover = null
 
-        this.onHover = new SignalEmitter<Graphics>()
+        this.onHoverStart = new SignalEmitter<Graphics>()
 
         this.addChild(this.waitButton)
         this.addChild(this.hoverRect)
 
         this.waitButton.eventMode = "dynamic"
 
-        this.waitButton.on("pointerover", (_event) => {this.hoverOver(this.waitButton)})
-        this.waitButton.on("pointerout", (_event) => {this.hoverOver(null)})
+        this.waitButton.on("pointerover", (_event) => {this.setHover(this.waitButton)})
+        this.waitButton.on("pointerout", (_event) => {this.setHover(null)})
     }
     
-    hoverOver(button: Graphics | null) {
-        const isNew = button === this.currentHover
+    setHover(button: Graphics | null) {
+        const isNew = button !== this.currentHover
 
         this.currentHover = button
         this.hoverRect.clear()
@@ -53,7 +53,7 @@ export class GameplayUI extends Container {
             ).stroke({width: STROKE_SIZE, color: COLORS.TERMINAL_AMBER})
 
             if (isNew) {
-                this.onHover.emit(button)
+                this.onHoverStart.emit(button)
             }
         }
     }
