@@ -7,6 +7,20 @@ const WAIT_SIZE = 50
 const STROKE_SIZE = 5
 const EDGE_MARGIN = 10
 
+class WaitButton extends Container {
+    background: Graphics
+
+    constructor() {
+        super()
+        this.background = new Graphics()
+        this.background.rect(0, 0, WAIT_SIZE, WAIT_SIZE).fill(COLORS.DARK_TERMINAL_AMBER)
+
+        this.addChild(this.background)
+
+        this.eventMode = "dynamic"
+    }
+}
+
 export class GameplayUI extends Container {
     app: GameApp
     waitButton: Graphics
