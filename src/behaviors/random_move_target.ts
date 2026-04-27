@@ -5,7 +5,8 @@ import { WorldNavigator } from "../navigation/navigator"
 import { NodePool } from "../navigation/node_pool"
 import { TilePosition } from "../position"
 import { World } from "../world"
-import { IBehaviorLogic, InputTarget } from "./behavior"
+import { IBehaviorLogic } from "./behavior"
+import { UserInputDescription } from "./user_input"
 
 export class RandomMoveTargetAI implements IBehaviorLogic {
     entity: Entity
@@ -53,7 +54,7 @@ export class RandomMoveTargetAI implements IBehaviorLogic {
         }
     }
 
-    passInput(_target: InputTarget) {}
+    passInput(_input: UserInputDescription) {}
 
     getAction() {
         if (this.target !== null && this.entity.row === this.target.row && this.entity.col === this.target.col) {

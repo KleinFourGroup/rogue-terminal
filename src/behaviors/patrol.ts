@@ -5,7 +5,8 @@ import { WorldNavigator } from "../navigation/navigator"
 import { NodePool } from "../navigation/node_pool"
 import { TilePosition } from "../position"
 import { World } from "../world"
-import { IBehaviorLogic, InputTarget } from "./behavior"
+import { IBehaviorLogic } from "./behavior"
+import { UserInputDescription } from "./user_input"
 
 export class PatrolAI implements IBehaviorLogic {
     entity: Entity
@@ -55,7 +56,7 @@ export class PatrolAI implements IBehaviorLogic {
         }
     }
 
-    passInput(_target: InputTarget) {}
+    passInput(_input: UserInputDescription) {}
 
     getAction() {
         let target = this.targets[this.targetIndex]

@@ -5,10 +5,12 @@ import { WorldNavigator } from "../navigation/navigator"
 import { NodePool } from "../navigation/node_pool"
 import { TilePosition } from "../position"
 import { World } from "../world"
-import { IBehaviorLogic, InputTarget } from "./behavior"
+import { IBehaviorLogic } from "./behavior"
+import { UserInput, UserInputDescription } from "./user_input"
 
 export class PlayerMoveTargetAI implements IBehaviorLogic {
     entity: Entity
+    shouldWait: boolean
     target: TilePosition | null
     momentum: TilePosition
     block: boolean
@@ -18,6 +20,7 @@ export class PlayerMoveTargetAI implements IBehaviorLogic {
 
     constructor(entity: Entity, world: World, block: boolean, pool: NodePool | null = null, cooldown: number = 1200) {
         this.entity = entity
+        this.shouldWait = false
         this.target = null
         this.momentum = {row: 0, col: 0}
         this.block = block
@@ -46,14 +49,18 @@ export class PlayerMoveTargetAI implements IBehaviorLogic {
     }
 
     clearAlert() {
-        for (let row = 0; row < this.entity.height; row++) {
-            for (let col = 0; col < this.entity.width; col++) {
-                this.navigator.world.ground.alertLayer.clearAlert(this.target!.row + row, this.target!.col + col, this.entity)
+        if (this.target !== null){
+            for (let row = 0; row < this.entity.height; row++) {
+                for (let col = 0; col < this.entity.width; col++) {
+                    this.navigator.world.ground.alertLayer.clearAlert(this.target.row + row, this.target.col + col, this.entity)
+                }
             }
         }
     }
 
     setTarget(target: TilePosition | null) {
+        this.clearAlert()
+
         if (this.target === null) {
             this.target = target
         } else if (target !== null) {
@@ -65,8 +72,19 @@ export class PlayerMoveTargetAI implements IBehaviorLogic {
         }
     }
     
-    passInput(target: InputTarget): void {
-        this.setTarget(target)
+    passInput(input: UserInputDescription) {
+        switch(input.inputType) {
+            case UserInput.IDLE:
+                this.setTarget(null)
+                this.shouldWait = true
+                break
+            case UserInput.MOVE:
+                this.setTarget(input.inputData.destination)
+                break
+            default:
+                const exhaustivenessCheck: never = input
+                throw new Error(`(passInput) ${JSON.stringify(exhaustivenessCheck)}`)
+        }
     }
 
     getAction() {
@@ -76,6 +94,10 @@ export class PlayerMoveTargetAI implements IBehaviorLogic {
         }
 
         if (this.target === null) {
+            if (this.shouldWait) {
+                this.shouldWait = false
+                return new IdleAction(this.entity, {cooldown: this.cooldown})
+            }
             return null
         }
 

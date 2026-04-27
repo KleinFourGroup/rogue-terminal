@@ -14,6 +14,7 @@ import { IdleDisplay } from "./idle_display"
 import { Actor } from "./actor"
 import { BackgroundAnimation } from "./animation/background_animator"
 import { GameplayUI } from "./gameplay_ui"
+import { UserInput, UserInputDescription } from "./behaviors/user_input"
 
 const ROOM_ROWS = 3
 const ROOM_COLS = 3
@@ -78,8 +79,15 @@ export class GameScene extends Container implements IScene {
 
         this.pointerInput.onClick.subscribe((pointer) => {
             const target = this.level.getTarget(pointer)
+            const input: UserInputDescription = {
+                inputType: UserInput.MOVE,
+                inputData: {
+                    player: this.player,
+                    destination: target
+                }
+            }
             const playerLogic = this.player.getComponent(AILogic)!
-            playerLogic.behaviorLogic.passInput(target)
+            playerLogic.behaviorLogic.passInput(input)
         })
 
         // Not a fan of how this looks
