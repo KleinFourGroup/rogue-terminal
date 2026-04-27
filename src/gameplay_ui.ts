@@ -2,16 +2,19 @@ import { Container, Graphics } from "pixi.js"
 import { GameApp } from "./app"
 import { COLORS } from "./colors"
 import { SignalEmitter } from "./signal"
+import { Button } from "./button"
 
 const WAIT_SIZE = 50
 const STROKE_SIZE = 5
 const EDGE_MARGIN = 10
 
-class WaitButton extends Container {
+class WaitButton extends Button {
+    parent: GameplayUI
     background: Graphics
 
-    constructor() {
+    constructor(parent: GameplayUI) {
         super()
+        this.parent = parent
         this.background = new Graphics()
         this.background.rect(0, 0, WAIT_SIZE, WAIT_SIZE).fill(COLORS.DARK_TERMINAL_AMBER)
 
@@ -19,39 +22,45 @@ class WaitButton extends Container {
 
         this.eventMode = "dynamic"
     }
+
+    onHoverOver() {
+        this.parent.setHover(this)
+    }
+
+    onHoverOut() {
+        this.parent.setHover(null)
+    }
+
+    onTap() {
+        console.log("Wait!")
+    }
 }
 
 export class GameplayUI extends Container {
     app: GameApp
-    waitButton: Graphics
+    waitButton: WaitButton
 
     hoverRect: Graphics
-    currentHover: Graphics | null
+    currentHover: Button | null
 
-    onHoverStart: SignalEmitter<Graphics>
+    onHoverStart: SignalEmitter<Button>
 
     constructor(app: GameApp) {
         super()
 
         this.app = app
-        this.waitButton = new Graphics()
-        this.waitButton.rect(0, 0, WAIT_SIZE, WAIT_SIZE).fill(COLORS.DARK_TERMINAL_AMBER)
+        this.waitButton = new WaitButton(this)
 
         this.hoverRect = new Graphics()
         this.currentHover = null
 
-        this.onHoverStart = new SignalEmitter<Graphics>()
+        this.onHoverStart = new SignalEmitter<Button>()
 
         this.addChild(this.waitButton)
         this.addChild(this.hoverRect)
-
-        this.waitButton.eventMode = "dynamic"
-
-        this.waitButton.on("pointerover", (_event) => {this.setHover(this.waitButton)})
-        this.waitButton.on("pointerout", (_event) => {this.setHover(null)})
     }
     
-    setHover(button: Graphics | null) {
+    setHover(button: Button | null) {
         const isNew = button !== this.currentHover
 
         this.currentHover = button
