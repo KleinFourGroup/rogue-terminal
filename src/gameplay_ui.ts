@@ -3,6 +3,7 @@ import { GameApp } from "./app"
 import { COLORS } from "./colors"
 import { SignalEmitter } from "./signal"
 import { Button } from "./button"
+import { UIType } from "./ui_type"
 
 const WAIT_SIZE = 50
 const STROKE_SIZE = 5
@@ -13,7 +14,7 @@ class WaitButton extends Button {
     background: Graphics
 
     constructor(parent: GameplayUI) {
-        super()
+        super(UIType.WAIT)
         this.parent = parent
         this.background = new Graphics()
         this.background.rect(0, 0, WAIT_SIZE, WAIT_SIZE).fill(COLORS.DARK_TERMINAL_AMBER)
@@ -44,6 +45,7 @@ export class GameplayUI extends Container {
     currentHover: Button | null
 
     onHoverStart: SignalEmitter<Button>
+    onButton: SignalEmitter<Button>
 
     constructor(app: GameApp) {
         super()
@@ -55,6 +57,7 @@ export class GameplayUI extends Container {
         this.currentHover = null
 
         this.onHoverStart = new SignalEmitter<Button>()
+        this.onButton = new SignalEmitter<Button>()
 
         this.addChild(this.waitButton)
         this.addChild(this.hoverRect)
@@ -79,6 +82,10 @@ export class GameplayUI extends Container {
                 this.onHoverStart.emit(button)
             }
         }
+    }
+
+    tapButton(button: Button) {
+        this.onButton.emit(button)
     }
 
     updateResolution() {

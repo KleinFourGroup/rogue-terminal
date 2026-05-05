@@ -1,5 +1,6 @@
 import { Container } from "pixi.js"
 import { SignalEmitter } from "./signal"
+import { UIType } from "./ui_type"
 
 export interface ButtonSignals {
     onHoverOver: SignalEmitter<Button>
@@ -9,9 +10,12 @@ export interface ButtonSignals {
 
 export abstract class Button extends Container {
     signals: ButtonSignals
+    purpose: UIType
 
-    constructor() {
+    constructor(purpose: UIType) {
         super()
+
+        this.purpose = purpose
 
         this.signals = {
             onHoverOver: new SignalEmitter<Button>(),
@@ -31,7 +35,7 @@ export abstract class Button extends Container {
         })
         this.on("pointertap", (_event) => {
             this.onTap()
-            this.signals.onHoverOut.emit(this)
+            this.signals.onTap.emit(this)
         })
     }
 

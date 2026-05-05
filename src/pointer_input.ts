@@ -1,4 +1,4 @@
-import { Container, FederatedPointerEvent, Graphics, Point } from "pixi.js"
+import { Container, FederatedPointerEvent, Point } from "pixi.js"
 import { GameApp } from "./app"
 import { SignalEmitter } from "./signal"
 import { Camera, CameraSignals, CameraState } from "./camera"
